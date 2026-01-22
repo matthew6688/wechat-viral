@@ -1669,6 +1669,202 @@
       opacity: 1;
     }
 
+    /* Tunnel Manager Styles */
+    .tunnel-manager {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tunnel-status-box, .oa-status-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .tunnel-main, .oa-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tunnel-indicator, .oa-indicator {
+      font-size: 24px;
+      color: #9ca3af;
+    }
+
+    .tunnel-indicator.connected, .oa-indicator.connected {
+      color: #10b981;
+    }
+
+    .tunnel-indicator.error, .oa-indicator.error {
+      color: #ef4444;
+    }
+
+    .tunnel-indicator.warning, .oa-indicator.warning {
+      color: #f59e0b;
+    }
+
+    .tunnel-label, .oa-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .tunnel-url {
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .tunnel-manual {
+      padding: 16px;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+    }
+
+    .manual-label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .manual-label small {
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .manual-label code {
+      background: #fef3c7;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .manual-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .manual-input-row input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 13px;
+    }
+
+    .webhook-display {
+      padding: 16px;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+    }
+
+    .webhook-label {
+      font-weight: 600;
+      color: #166534;
+      margin-bottom: 12px;
+    }
+
+    .webhook-url-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .webhook-url-row code {
+      flex: 1;
+      padding: 10px 14px;
+      background: white;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .webhook-instruction {
+      font-size: 12px;
+      color: #166534;
+      line-height: 1.5;
+    }
+
+    .oa-details {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .oa-row {
+      display: flex;
+      padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .oa-row:last-child {
+      border-bottom: none;
+    }
+
+    .oa-row-label {
+      width: 140px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .oa-row-value {
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .oa-detail {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .oa-warning {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+
+    .oa-warning .warning-icon {
+      font-size: 24px;
+    }
+
+    .oa-warning .warning-content {
+      flex: 1;
+    }
+
+    .oa-warning .warning-content strong {
+      color: #991b1b;
+    }
+
+    .oa-warning .warning-content p {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: #7f1d1d;
+    }
+
+    .oa-warning .warning-content code {
+      background: #fee2e2;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
     .reward-row:last-child {
       border-bottom: none;
     }
@@ -1743,12 +1939,10 @@
     <div id="criticalAlertBanner" class="critical-alert" style="display: none;">
       <div class="alert-icon">⚠️</div>
       <div class="alert-content">
-        <div class="alert-title">Webhook URL Mismatch Detected!</div>
-        <div class="alert-message" id="alertMessage">
-          Your Cloudflare Tunnel URL has changed. Please update the webhook URL in WeChat Official Account backend.
-        </div>
-        <div class="alert-action">
-          <strong>New Webhook URL:</strong> 
+        <div class="alert-title" id="alertTitle">Action Required!</div>
+        <div class="alert-message" id="alertMessage">-</div>
+        <div class="alert-action" id="alertActionBox">
+          <strong>Webhook URL:</strong> 
           <code id="alertWebhookUrl">-</code>
           <button class="btn-copy" onclick="copyToClipboard(document.getElementById('alertWebhookUrl').textContent)" style="margin-left: 8px;">Copy</button>
         </div>
@@ -1756,82 +1950,117 @@
       <button class="alert-dismiss" onclick="dismissAlert()">×</button>
     </div>
 
-    <!-- Environment Validation -->
+    <!-- Step 1: Tunnel Manager -->
     <section class="section">
       <div class="section-header">
         <div class="section-title">
-          🔧 Environment & Connection Status
+          🌐 Step 1: Tunnel Manager
         </div>
-        <button class="btn-primary" onclick="runAllValidations()" style="padding: 8px 16px; font-size: 13px;">
-          Run All Checks
+      </div>
+      <div class="section-content">
+        <div class="tunnel-manager">
+          <div class="tunnel-status-box" id="tunnelStatusBox">
+            <div class="tunnel-main">
+              <div class="tunnel-indicator" id="tunnelIndicator">●</div>
+              <div class="tunnel-info">
+                <div class="tunnel-label">Cloudflare Tunnel Status</div>
+                <div class="tunnel-url" id="tunnelUrlDisplay">Not configured</div>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="validateAndDetectTunnel()" id="tunnelValidateBtn">
+              Validate Connection
+            </button>
+          </div>
+          
+          <!-- Manual URL Input (shown when auto-detect fails) -->
+          <div class="tunnel-manual" id="tunnelManualInput" style="display: none;">
+            <div class="manual-label">
+              <span>⚠️ Auto-detect failed. Enter your tunnel URL manually:</span>
+              <small>Run <code>cloudflared tunnel --url http://localhost:3000</code> and copy the URL</small>
+            </div>
+            <div class="manual-input-row">
+              <input type="text" id="tunnelUrlInput" placeholder="https://xxx-xxx-xxx.trycloudflare.com">
+              <button class="btn-primary" onclick="saveTunnelUrl()">Save & Validate</button>
+            </div>
+          </div>
+
+          <!-- Webhook URL Display (shown after successful validation) -->
+          <div class="webhook-display" id="webhookDisplay" style="display: none;">
+            <div class="webhook-box">
+              <div class="webhook-label">✅ Tunnel Connected! Your Webhook URL:</div>
+              <div class="webhook-url-row">
+                <code id="webhookUrl">-</code>
+                <button class="btn-copy" onclick="copyWebhookUrl()">📋 Copy</button>
+              </div>
+              <div class="webhook-instruction">
+                👆 Copy this URL and update it in WeChat Official Account backend → 设置与开发 → 基本配置 → 服务器配置
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2: WeChat OA Verification -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">
+          📱 Step 2: WeChat OA Connection
+        </div>
+      </div>
+      <div class="section-content">
+        <div class="oa-status-box">
+          <div class="oa-main">
+            <div class="oa-indicator" id="oaIndicator">●</div>
+            <div class="oa-info">
+              <div class="oa-label">WeChat Official Account</div>
+              <div class="oa-detail" id="oaDetail">Checking...</div>
+            </div>
+          </div>
+          <button class="btn-secondary" onclick="validateOA()" id="oaValidateBtn">
+            Check OA Events
+          </button>
+        </div>
+        
+        <div class="oa-details" id="oaDetailsBox">
+          <div class="oa-row">
+            <span class="oa-row-label">OA AppID:</span>
+            <span class="oa-row-value" id="oaAppId">-</span>
+          </div>
+          <div class="oa-row">
+            <span class="oa-row-label">Access Token:</span>
+            <span class="oa-row-value" id="oaTokenStatus">-</span>
+          </div>
+          <div class="oa-row">
+            <span class="oa-row-label">Last Webhook Event:</span>
+            <span class="oa-row-value" id="lastWebhook">-</span>
+          </div>
+        </div>
+
+        <!-- Warning when no events received -->
+        <div class="oa-warning" id="oaWarning" style="display: none;">
+          <div class="warning-icon">⚠️</div>
+          <div class="warning-content">
+            <strong>No webhook events received!</strong>
+            <p>This means WeChat OA backend webhook URL may not be configured correctly.</p>
+            <p>Please ensure you've updated the URL in WeChat backend to: <code id="oaWarningUrl">-</code></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3: Other Services -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">
+          🔧 Step 3: Other Services
+        </div>
+        <button class="btn-secondary" onclick="validateOtherServices()" style="padding: 6px 12px; font-size: 12px;">
+          Check All
         </button>
       </div>
       <div class="section-content">
         <div class="env-grid">
-          <!-- Cloudflare Tunnel -->
-          <div class="env-card" id="tunnelCard">
-            <div class="env-header">
-              <span class="env-icon">🌐</span>
-              <span class="env-name">Cloudflare Tunnel</span>
-              <span class="env-status" id="tunnelStatus">⏳ Checking...</span>
-            </div>
-            <div class="env-details" id="tunnelDetails">
-              <div class="env-row">
-                <span class="env-label">Tunnel URL:</span>
-                <input type="text" id="tunnelUrlInput" placeholder="https://xxx.trycloudflare.com" 
-                  style="flex: 1; padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 11px; font-family: monospace;">
-                <button class="btn-copy" onclick="saveTunnelUrl()" style="background: #10b981; color: white;">Save</button>
-              </div>
-              <div class="env-row">
-                <span class="env-label">Webhook URL:</span>
-                <span class="env-value" id="webhookUrl">-</span>
-                <button class="btn-copy" onclick="copyToClipboard(document.getElementById('webhookUrl').textContent)">Copy</button>
-              </div>
-              <div class="env-row">
-                <span class="env-label">Status:</span>
-                <span class="env-value" id="tunnelStatusText">-</span>
-              </div>
-              <div class="env-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb;">
-                <span class="env-label" style="color: var(--text-muted);">💡 Tip:</span>
-                <span class="env-value" style="font-size: 11px; color: var(--text-secondary);">
-                  Run <code style="background: #f3f4f6; padding: 2px 4px; border-radius: 2px;">cloudflared tunnel --url http://localhost:3000</code> to get your tunnel URL
-                </span>
-              </div>
-            </div>
-            <div class="env-action">
-              <button class="btn-secondary" onclick="validateTunnel()">Check Tunnel</button>
-            </div>
-          </div>
-
-          <!-- WeChat OA Config -->
-          <div class="env-card" id="oaCard">
-            <div class="env-header">
-              <span class="env-icon">📱</span>
-              <span class="env-name">WeChat Official Account</span>
-              <span class="env-status" id="oaStatus">⏳ Checking...</span>
-            </div>
-            <div class="env-details" id="oaDetails">
-              <div class="env-row">
-                <span class="env-label">OA AppID:</span>
-                <span class="env-value" id="oaAppId">-</span>
-              </div>
-              <div class="env-row">
-                <span class="env-label">Access Token:</span>
-                <span class="env-value" id="oaTokenStatus">-</span>
-              </div>
-              <div class="env-row">
-                <span class="env-label">Last Webhook:</span>
-                <span class="env-value" id="lastWebhook">-</span>
-              </div>
-              <div class="env-row" id="webhookMismatchRow" style="display: none;">
-                <span class="env-label" style="color: var(--error);">⚠️ Warning:</span>
-                <span class="env-value" id="webhookMismatchMsg" style="color: var(--error);">-</span>
-              </div>
-            </div>
-            <div class="env-action">
-              <button class="btn-secondary" onclick="validateOA()">Check OA</button>
-            </div>
-          </div>
 
           <!-- Database -->
           <div class="env-card" id="dbCard">
@@ -2266,115 +2495,121 @@
     let currentTunnelUrl = null;
 
     async function runAllValidations() {
-      // First validate tunnel to get the current URL
-      await validateTunnel();
-      
-      // Then validate other services
+      await validateAndDetectTunnel();
+      await validateOA();
+      await validateOtherServices();
+    }
+
+    async function validateOtherServices() {
       await Promise.all([
-        validateOA(),
         validateDB(),
         validateBackend()
       ]);
-      
-      // Check for webhook mismatch after all validations
-      checkWebhookMismatch();
     }
 
-    async function checkWebhookMismatch() {
-      const tunnelUrl = document.getElementById('tunnelUrlInput').value.trim();
-      const lastWebhook = document.getElementById('lastWebhook').textContent;
-      
-      // If tunnel is configured but no OA events received
-      if (tunnelUrl && !tunnelUrl.includes('localhost')) {
-        if (lastWebhook.includes('No OA events') || lastWebhook === '-') {
-          const webhookUrl = `${tunnelUrl}/api/oa/webhook`;
-          showCriticalAlert(
-            webhookUrl,
-            'No webhook events received from WeChat Official Account. This usually means the webhook URL in WeChat backend is not configured or is outdated. Please update it with the URL below:'
-          );
-        }
-      } else if (!tunnelUrl || tunnelUrl.includes('localhost')) {
-        // No tunnel URL configured
-        showCriticalAlert(
-          'Not configured',
-          'Cloudflare Tunnel URL is not configured. Please enter your tunnel URL in the "Environment & Connection Status" section, then update WeChat OA backend with the webhook URL.'
-        );
-      }
-    }
-
-    async function validateTunnel() {
-      const card = document.getElementById('tunnelCard');
-      const status = document.getElementById('tunnelStatus');
+    // Step 1: Validate and Detect Tunnel
+    async function validateAndDetectTunnel() {
+      const indicator = document.getElementById('tunnelIndicator');
+      const urlDisplay = document.getElementById('tunnelUrlDisplay');
+      const validateBtn = document.getElementById('tunnelValidateBtn');
+      const manualInput = document.getElementById('tunnelManualInput');
+      const webhookDisplay = document.getElementById('webhookDisplay');
+      const webhookUrl = document.getElementById('webhookUrl');
       const urlInput = document.getElementById('tunnelUrlInput');
-      const webhookEl = document.getElementById('webhookUrl');
-      const statusText = document.getElementById('tunnelStatusText');
       
-      status.textContent = '⏳ Checking...';
-      status.className = 'env-status';
-      card.className = 'env-card';
+      // Reset state
+      indicator.className = 'tunnel-indicator';
+      validateBtn.textContent = 'Validating...';
+      validateBtn.disabled = true;
+      manualInput.style.display = 'none';
+      webhookDisplay.style.display = 'none';
       
       try {
-        // First check if we have a saved URL
+        // First try to get stored URL
         const res = await fetch(`${API_BASE_URL}/admin/tunnel/status`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         
+        let tunnelUrl = null;
+        
         if (res.ok) {
           const data = await res.json();
+          tunnelUrl = data.tunnelUrl;
           
-          // Get URL from input or from server
-          let tunnelUrl = urlInput.value.trim() || data.tunnelUrl;
-          
-          // Filter out localhost URLs - these are not valid tunnel URLs
+          // Filter out localhost
           if (tunnelUrl && (tunnelUrl.includes('localhost') || tunnelUrl.includes('127.0.0.1'))) {
             tunnelUrl = null;
           }
-          
-          if (tunnelUrl) {
-            currentTunnelUrl = tunnelUrl;
-            urlInput.value = tunnelUrl;
-            webhookEl.textContent = `${tunnelUrl}/api/oa/webhook`;
-            document.getElementById('instructionUrl').textContent = `${tunnelUrl}/api/oa/webhook`;
-            
-            // Test if tunnel is accessible
-            const testRes = await fetch(`${API_BASE_URL}/admin/tunnel/test`, {
-              method: 'POST',
-              headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ url: tunnelUrl })
-            });
-            
-            if (testRes.ok) {
-              const testData = await testRes.json();
-              if (testData.data?.accessible) {
-                status.textContent = '✅ Connected';
-                status.className = 'env-status success';
-                card.className = 'env-card success';
-                statusText.textContent = `Tunnel is running (${testData.data.latency || '?'}ms)`;
-              } else {
-                status.textContent = '⚠️ Not Accessible';
-                status.className = 'env-status warning';
-                card.className = 'env-card warning';
-                statusText.textContent = testData.data?.error || 'Tunnel may not be running';
-              }
-            }
-          } else {
-            status.textContent = '❌ Not Configured';
-            status.className = 'env-status error';
-            card.className = 'env-card error';
-            webhookEl.textContent = '-';
-            statusText.textContent = 'Enter your Cloudflare Tunnel URL above';
-          }
-        } else {
-          throw new Error('Failed to check tunnel status');
         }
+        
+        // If we have a URL, test it
+        if (tunnelUrl) {
+          const testRes = await fetch(`${API_BASE_URL}/admin/tunnel/test`, {
+            method: 'POST',
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url: tunnelUrl })
+          });
+          
+          if (testRes.ok) {
+            const testData = await testRes.json();
+            
+            if (testData.data?.accessible) {
+              // Success! Tunnel is connected
+              indicator.className = 'tunnel-indicator connected';
+              urlDisplay.textContent = tunnelUrl;
+              currentTunnelUrl = tunnelUrl;
+              
+              // Show webhook URL
+              const fullWebhookUrl = `${tunnelUrl}/api/oa/webhook`;
+              webhookUrl.textContent = fullWebhookUrl;
+              webhookDisplay.style.display = 'block';
+              
+              // Update all related displays
+              updateAllWebhookDisplays(fullWebhookUrl);
+              
+              validateBtn.textContent = '✅ Connected';
+              validateBtn.disabled = false;
+              
+              // Dismiss any alert
+              dismissAlert();
+              
+              return { success: true, url: tunnelUrl };
+            }
+          }
+        }
+        
+        // Tunnel not accessible or not configured
+        indicator.className = 'tunnel-indicator error';
+        urlDisplay.textContent = tunnelUrl || 'Not detected';
+        manualInput.style.display = 'block';
+        
+        if (tunnelUrl) {
+          urlInput.value = tunnelUrl;
+        }
+        
+        validateBtn.textContent = 'Validate Connection';
+        validateBtn.disabled = false;
+        
+        // Show alert
+        showCriticalAlert(
+          'Step 1: Configure Tunnel',
+          'Cloudflare Tunnel is not connected. Please run the tunnel command and enter the URL below.',
+          null
+        );
+        
+        return { success: false };
+        
       } catch (error) {
-        status.textContent = '❌ Error';
-        status.className = 'env-status error';
-        card.className = 'env-card error';
-        statusText.textContent = error.message;
+        indicator.className = 'tunnel-indicator error';
+        urlDisplay.textContent = 'Error: ' + error.message;
+        manualInput.style.display = 'block';
+        validateBtn.textContent = 'Validate Connection';
+        validateBtn.disabled = false;
+        
+        return { success: false, error: error.message };
       }
     }
 
@@ -2411,9 +2646,8 @@
         });
         
         if (res.ok) {
-          const data = await res.json();
-          alert(data.data?.message || 'Tunnel URL saved!');
-          validateTunnel();
+          // Re-validate after saving
+          await validateAndDetectTunnel();
         } else {
           throw new Error('Failed to save tunnel URL');
         }
@@ -2422,19 +2656,37 @@
       }
     }
 
+    function updateAllWebhookDisplays(webhookUrl) {
+      // Update OA warning URL
+      const oaWarningUrl = document.getElementById('oaWarningUrl');
+      if (oaWarningUrl) oaWarningUrl.textContent = webhookUrl;
+      
+      // Update instruction URL
+      const instructionUrl = document.getElementById('instructionUrl');
+      if (instructionUrl) instructionUrl.textContent = webhookUrl;
+    }
+
+    function copyWebhookUrl() {
+      const webhookUrl = document.getElementById('webhookUrl').textContent;
+      copyToClipboard(webhookUrl);
+    }
+
+    // Step 2: Validate OA Connection
     async function validateOA() {
-      const card = document.getElementById('oaCard');
-      const status = document.getElementById('oaStatus');
+      const indicator = document.getElementById('oaIndicator');
+      const detail = document.getElementById('oaDetail');
+      const validateBtn = document.getElementById('oaValidateBtn');
       const appIdEl = document.getElementById('oaAppId');
       const tokenStatusEl = document.getElementById('oaTokenStatus');
       const lastWebhookEl = document.getElementById('lastWebhook');
-      const mismatchRow = document.getElementById('webhookMismatchRow');
-      const mismatchMsg = document.getElementById('webhookMismatchMsg');
+      const oaWarning = document.getElementById('oaWarning');
+      const oaWarningUrl = document.getElementById('oaWarningUrl');
       
-      status.textContent = '⏳ Checking...';
-      status.className = 'env-status';
-      card.className = 'env-card';
-      mismatchRow.style.display = 'none';
+      // Reset state
+      indicator.className = 'oa-indicator';
+      validateBtn.textContent = 'Checking...';
+      validateBtn.disabled = true;
+      oaWarning.style.display = 'none';
       
       try {
         const res = await fetch(`${API_BASE_URL}/admin/env/oa-status`, {
@@ -2448,23 +2700,16 @@
           
           if (data.hasAccessToken) {
             tokenStatusEl.textContent = '✅ Valid';
-            status.textContent = '✅ Connected';
-            status.className = 'env-status success';
-            card.className = 'env-card success';
           } else {
             tokenStatusEl.textContent = '❌ Invalid or expired';
-            status.textContent = '⚠️ Check Config';
-            status.className = 'env-status warning';
-            card.className = 'env-card warning';
           }
           
           // Check last webhook event
-          const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=10&event_type=oa_subscribe,oa_scan,oa_unsubscribe`, {
+          const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=20`, {
             headers: { 'Authorization': `Bearer ${token}` },
           });
           
           let hasRecentWebhook = false;
-          let lastEventTime = null;
           
           if (eventsRes.ok) {
             const eventsData = await eventsRes.json();
@@ -2474,56 +2719,60 @@
             const oaEvents = events.filter(e => 
               e.event_type === 'oa_subscribe' || 
               e.event_type === 'oa_scan' || 
-              e.event_type === 'oa_unsubscribe'
+              e.event_type === 'oa_unsubscribe' ||
+              e.event_type === 'campaign_helper_recorded'
             );
             
             if (oaEvents.length > 0) {
               const lastEvent = oaEvents[0];
-              lastEventTime = new Date(lastEvent.created_at);
-              const timeAgo = getTimeAgo(lastEventTime);
-              lastWebhookEl.textContent = `${timeAgo} (${lastEvent.event_type})`;
+              const timeAgo = getTimeAgo(new Date(lastEvent.created_at));
+              lastWebhookEl.textContent = `✅ ${timeAgo} (${lastEvent.event_type})`;
               hasRecentWebhook = true;
+              
+              indicator.className = 'oa-indicator connected';
+              detail.textContent = 'Receiving webhook events';
+              
+              // All good - dismiss any alerts
+              dismissAlert();
             } else {
               lastWebhookEl.textContent = '❌ No OA events received';
               hasRecentWebhook = false;
             }
           }
           
-          // Check if webhook URL might be outdated
-          const currentTunnel = document.getElementById('tunnelUrlInput').value.trim();
-          
-          // Show warning if:
-          // 1. No OA events ever received, OR
-          // 2. Current tunnel URL exists but no recent events
-          if (!hasRecentWebhook && currentTunnel && !currentTunnel.includes('localhost')) {
-            mismatchRow.style.display = 'flex';
-            mismatchMsg.innerHTML = `
-              <strong>Webhook URL may not be configured!</strong><br>
-              <small>Current tunnel: ${currentTunnel}</small><br>
-              <small>Update WeChat OA backend with: <code>${currentTunnel}/api/oa/webhook</code></small>
-            `;
-            status.textContent = '⚠️ Check Webhook';
-            status.className = 'env-status warning';
-            card.className = 'env-card warning';
-          } else if (data.hasAccessToken && !hasRecentWebhook) {
-            mismatchRow.style.display = 'flex';
-            mismatchMsg.innerHTML = `
-              <strong>No webhook events received!</strong><br>
-              <small>Please configure Cloudflare Tunnel URL first, then update WeChat OA webhook.</small>
-            `;
-            status.textContent = '⚠️ No Events';
-            status.className = 'env-status warning';
-            card.className = 'env-card warning';
+          // If no webhook events, show warning
+          if (!hasRecentWebhook) {
+            indicator.className = 'oa-indicator warning';
+            detail.textContent = 'No webhook events received';
+            
+            // Get current webhook URL
+            const webhookUrl = document.getElementById('webhookUrl').textContent;
+            
+            if (webhookUrl && webhookUrl !== '-') {
+              oaWarningUrl.textContent = webhookUrl;
+              oaWarning.style.display = 'flex';
+              
+              // Show critical alert
+              showCriticalAlert(
+                'Step 2: Update WeChat OA Webhook',
+                'No webhook events received. Please update the webhook URL in WeChat Official Account backend (设置与开发 → 基本配置 → 服务器配置):',
+                webhookUrl
+              );
+            } else {
+              detail.textContent = 'Complete Step 1 first';
+            }
           }
+          
         } else {
           throw new Error('Failed to check OA status');
         }
       } catch (error) {
-        status.textContent = '❌ Error';
-        status.className = 'env-status error';
-        card.className = 'env-card error';
-        appIdEl.textContent = 'Error: ' + error.message;
+        indicator.className = 'oa-indicator error';
+        detail.textContent = 'Error: ' + error.message;
       }
+      
+      validateBtn.textContent = 'Check OA Events';
+      validateBtn.disabled = false;
     }
 
     async function validateDB() {
@@ -2665,15 +2914,23 @@
       document.getElementById('envInstructions').style.display = 'none';
     }
 
-    function showCriticalAlert(webhookUrl, message) {
+    function showCriticalAlert(title, message, webhookUrl) {
       const banner = document.getElementById('criticalAlertBanner');
-      const alertWebhookUrl = document.getElementById('alertWebhookUrl');
+      const alertTitle = document.getElementById('alertTitle');
       const alertMessage = document.getElementById('alertMessage');
+      const alertWebhookUrl = document.getElementById('alertWebhookUrl');
+      const alertActionBox = document.getElementById('alertActionBox');
       
-      alertWebhookUrl.textContent = webhookUrl;
-      if (message) {
-        alertMessage.textContent = message;
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+      
+      if (webhookUrl) {
+        alertWebhookUrl.textContent = webhookUrl;
+        alertActionBox.style.display = 'flex';
+      } else {
+        alertActionBox.style.display = 'none';
       }
+      
       banner.style.display = 'flex';
     }
 
@@ -3894,17 +4151,14 @@
     // Initialize
     loadDashboard();
     loadDebugSettings();
-    loadEnvironmentValidation();
-    loadTunnelStatus();
     loadCampaigns();
     loadCampaignList();
     connectEventStream();
     
     // Run environment validations on page load
     setTimeout(() => {
-      validateLocalTunnel();
       runAllValidations();
-    }, 1500);
+    }, 1000);
   </script>
 
   <!-- Create/Edit Campaign Modal -->
