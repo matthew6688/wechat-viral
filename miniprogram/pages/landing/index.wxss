@@ -62,7 +62,7 @@
 }
 
 .description-section {
-  margin-bottom: 48rpx;
+  margin-bottom: 60rpx;
 }
 
 .description-text {
@@ -73,7 +73,7 @@
 }
 
 .cta-section {
-  margin-top: auto;
+  margin-top: 0;
 }
 
 .btn-cta {
@@ -81,20 +81,13 @@
   background-color: #1a1a2e;
   color: #ffffff;
   border-radius: 16rpx;
-  padding: 32rpx 40rpx;
+  padding: 28rpx 40rpx;
   font-size: 30rpx;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16rpx;
   border: none;
+  white-space: nowrap;
 }
 
 .btn-cta::after {
   border: none;
-}
-
-.btn-arrow {
-  font-size: 32rpx;
 }

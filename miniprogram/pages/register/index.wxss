@@ -42,6 +42,11 @@
   letter-spacing: 0.05em;
 }
 
+.required {
+  color: #ef4444;
+  font-weight: 600;
+}
+
 .input {
   width: 100%;
   border: 2rpx solid #e5e7eb;

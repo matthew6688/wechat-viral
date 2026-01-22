@@ -3,10 +3,11 @@
   <view class="user-header">
     <view class="user-info">
       <view class="avatar-container">
-        <view class="avatar-badge">{{user && user.name ? user.name.charAt(0) : 'U'}}</view>
+        <image wx:if="{{user && user.avatar_url}}" class="avatar-image" src="{{user.avatar_url}}" mode="aspectFill" />
+        <view wx:else class="avatar-badge">{{user && user.name ? user.name.charAt(0) : 'U'}}</view>
       </view>
       <view class="user-details">
-        <text class="user-name">{{user && user.name ? user.name : '用户'}}</text>
+        <text class="user-name">{{user && (user.nickname || user.name) ? (user.nickname || user.name) : '用户'}}</text>
         <text class="user-phone">{{user && user.phone ? user.phone : ''}}</text>
       </view>
     </view>

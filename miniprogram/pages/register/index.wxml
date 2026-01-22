@@ -7,13 +7,13 @@
   <view class="form">
     <!-- Full Name -->
     <view class="form-group">
-      <text class="label">FULL NAME</text>
+      <text class="label">FULL NAME <text class="required">*</text></text>
       <input 
         class="input" 
         data-field="name" 
         value="{{formData.name}}" 
         bindinput="handleInput" 
-        placeholder="e.g. Li Ming" 
+        placeholder="" 
       />
     </view>
 
@@ -25,13 +25,13 @@
         data-field="company" 
         value="{{formData.company}}" 
         bindinput="handleInput" 
-        placeholder="e.g. Shenzhen Tech Co." 
+        placeholder="" 
       />
     </view>
 
     <!-- Role Selector -->
     <view class="form-group">
-      <text class="label">ROLE</text>
+      <text class="label">ROLE <text class="required">*</text></text>
       <view class="role-selector">
         <view 
           class="role-btn {{formData.role === 'Owner' ? 'active' : ''}}" 
@@ -66,14 +66,14 @@
 
     <!-- Mobile Number -->
     <view class="form-group">
-      <text class="label">MOBILE NUMBER</text>
+      <text class="label">MOBILE NUMBER <text class="required">*</text></text>
       <input 
         class="input" 
         data-field="phone" 
         type="number" 
         value="{{formData.phone}}" 
         bindinput="handleInput" 
-        placeholder="+86 13800138000" 
+        placeholder="" 
       />
     </view>
 
@@ -85,7 +85,7 @@
         data-field="wechatId" 
         value="{{formData.wechatId}}" 
         bindinput="handleInput" 
-        placeholder="wxid_12345" 
+        placeholder="" 
       />
     </view>
 
@@ -97,7 +97,7 @@
         data-field="mainProducts" 
         value="{{formData.mainProducts}}" 
         bindinput="handleInput" 
-        placeholder="e.g. Consumer Electronics" 
+        placeholder="" 
       />
     </view>
 

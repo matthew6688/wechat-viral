@@ -29,21 +29,13 @@
         <view class="reward-info">
           <text class="reward-name">{{item.name}}</text>
           <text class="reward-desc">{{item.description}}</text>
+          <text wx:if="{{points < item.points_required}}" class="reward-need">Need {{item.points_required - points}} more PTS</text>
           
           <!-- Action Buttons -->
           <view class="reward-actions">
             <view class="btn-details">Details</view>
-            <view class="btn-earn">Earn</view>
+            <view class="btn-earn" data-id="{{item.id}}" bindtap="redeemReward">{{points >= item.points_required ? 'Redeem' : 'Earn'}}</view>
           </view>
-          
-          <button 
-            class="btn-redeem {{points >= item.points_required ? '' : 'disabled'}}"
-            data-id="{{item.id}}"
-            bindtap="redeemReward"
-            disabled="{{points < item.points_required}}"
-          >
-            {{points >= item.points_required ? 'Redeem Now' : 'Need ' + (item.points_required - points) + ' more PTS'}}
-          </button>
         </view>
       </view>
       

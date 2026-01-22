@@ -24,9 +24,6 @@
 
   <!-- CTA Button -->
   <view class="cta-section">
-    <button class="btn-cta" bindtap="handleCTA">
-      <text>Get Free Resources</text>
-      <text class="btn-arrow">→</text>
-    </button>
+    <button class="btn-cta" bindtap="handleCTA">Get Free Resources  →</button>
   </view>
 </view>

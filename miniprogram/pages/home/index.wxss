@@ -39,6 +39,13 @@
   color: #1a1a2e;
 }
 
+.avatar-image {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  border: 2rpx solid #e5e7eb;
+}
+
 .user-details {
   display: flex;
   flex-direction: column;

@@ -2,10 +2,11 @@
   <!-- User Header -->
   <view class="user-header">
     <view class="avatar-container">
-      <view class="avatar-badge">{{user && user.name ? user.name.substring(0, 2) : 'U'}}</view>
+      <image wx:if="{{user && user.avatar_url}}" class="avatar-image" src="{{user.avatar_url}}" mode="aspectFill" />
+      <view wx:else class="avatar-badge">{{user && user.name ? user.name.substring(0, 2) : 'U'}}</view>
     </view>
     <view class="user-info">
-      <text class="user-name">{{user && user.name ? user.name : 'User'}}</text>
+      <text class="user-name">{{user && (user.nickname || user.name) ? (user.nickname || user.name) : 'User'}}</text>
       <text class="user-phone">{{user && user.phone ? user.phone : ''}}</text>
     </view>
   </view>
