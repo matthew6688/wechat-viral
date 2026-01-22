@@ -7,13 +7,33 @@ export interface EventLogData {
   event_data?: Record<string, any>;
   ip_address?: string;
   user_agent?: string;
+  source?: string;
+  is_test?: boolean;
 }
 
 /**
- * Log an event to the event_logs table
+ * Log an event to the event_logs table and broadcast to SSE clients
  */
 export async function logEvent(data: EventLogData): Promise<void> {
   try {
+    // Get user name if user_id is provided
+    let userName: string | undefined;
+    if (data.user_id) {
+      try {
+        const { data: user } = await supabase
+          .from('users')
+          .select('name, phone')
+          .eq('id', data.user_id)
+          .single();
+        if (user) {
+          userName = user.name || user.phone || 'Unknown';
+        }
+      } catch (error) {
+        // Ignore user lookup errors
+      }
+    }
+
+    // Insert into database
     const { error } = await supabase
       .from('event_logs')
       .insert({
@@ -28,6 +48,23 @@ export async function logEvent(data: EventLogData): Promise<void> {
     if (error) {
       console.error('Failed to log event:', error);
       // Don't throw - event logging should not break the main flow
+    }
+
+    // Broadcast to SSE clients
+    try {
+      const { broadcastEvent } = require('./event-stream');
+      broadcastEvent({
+        event_type: data.event_type,
+        timestamp: new Date().toISOString(),
+        user_id: data.user_id,
+        user_name: userName,
+        event_data: data.event_data,
+        source: data.source || 'system',
+        is_test: data.is_test || false,
+      });
+    } catch (broadcastError) {
+      // Don't throw - SSE broadcasting should not break the main flow
+      console.error('Failed to broadcast event:', broadcastError);
     }
   } catch (error) {
     console.error('Error logging event:', error);

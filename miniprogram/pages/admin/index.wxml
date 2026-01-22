@@ -1,183 +1,114 @@
-<view class="container">
+<view class="admin-container">
+  <!-- Header -->
   <view class="header">
-    <text class="title">管理员后台</text>
+    <view class="header-icon">⚙</view>
+    <text class="header-title">Admin Console</text>
   </view>
 
   <!-- Tabs -->
   <view class="tabs">
     <view 
-      class="tab-item {{currentTab === 'debug' ? 'active' : ''}}"
-      data-tab="debug"
+      class="tab {{currentTab === 'users' ? 'active' : ''}}"
+      data-tab="users"
       bindtap="switchTab"
     >
-      Debug数据
+      Users
     </view>
     <view 
-      class="tab-item {{currentTab === 'stats' ? 'active' : ''}}"
-      data-tab="stats"
+      class="tab {{currentTab === 'offers' ? 'active' : ''}}"
+      data-tab="offers"
       bindtap="switchTab"
     >
-      数据统计
+      Offers
     </view>
     <view 
-      class="tab-item {{currentTab === 'settings' ? 'active' : ''}}"
-      data-tab="settings"
+      class="tab {{currentTab === 'tasks' ? 'active' : ''}}"
+      data-tab="tasks"
       bindtap="switchTab"
     >
-      后台设置
+      Tasks
     </view>
   </view>
 
-  <!-- Debug Tab -->
-  <view wx:if="{{currentTab === 'debug'}}" class="tab-content">
-    <!-- Scan Events -->
-    <view class="section">
-      <text class="section-title">扫码事件 ({{scanEvents.length}})</text>
-      <view class="event-list">
-        <view class="event-item" wx:for="{{scanEvents}}" wx:key="id">
-          <view class="event-info">
-            <text class="event-type">{{item.event_type}}</text>
-            <text class="event-scene">场景: {{item.scene_str}}</text>
-            <text class="event-time">{{formatDate(item.scan_time)}}</text>
-          </view>
-          <view class="event-user" wx:if="{{item.inviter}}">
-            <text>推荐人: {{item.inviter.name}} ({{item.inviter.phone}})</text>
-          </view>
-          <view class="event-user">
-            <text>OpenID: {{item.openid}}</text>
-          </view>
-          <view class="event-user" wx:if="{{item.unionid}}">
-            <text>UnionID: {{item.unionid}}</text>
-          </view>
-        </view>
-        <view wx:if="{{scanEvents.length === 0}}" class="empty-state">
-          <text>暂无扫码事件</text>
-        </view>
+  <!-- Users Tab -->
+  <view wx:if="{{currentTab === 'users'}}" class="tab-content">
+    <view class="table">
+      <view class="table-header">
+        <text class="th name">Name</text>
+        <text class="th points">Points</text>
       </view>
-    </view>
-
-    <!-- Follow Events -->
-    <view class="section">
-      <text class="section-title">关注事件 ({{followEvents.length}})</text>
-      <view class="event-list">
-        <view class="event-item" wx:for="{{followEvents}}" wx:key="id">
-          <view class="event-info">
-            <text class="event-status">{{item.is_following ? '已关注' : '已取消'}}</text>
-            <text class="event-scene">场景: {{item.scene_str || '无'}}</text>
-            <text class="event-time">{{formatDate(item.follow_time)}}</text>
-            <text class="event-time" wx:if="{{item.unfollow_time}}">取消时间: {{formatDate(item.unfollow_time)}}</text>
+      <view class="table-body">
+        <view wx:for="{{users || []}}" wx:key="id" class="table-row">
+          <view class="td name">
+            <text class="user-name">{{item.name}}</text>
+            <text class="user-phone">{{item.phone}}</text>
           </view>
-          <view class="event-user" wx:if="{{item.inviter}}">
-            <text>推荐人: {{item.inviter.name}} ({{item.inviter.phone}})</text>
-          </view>
-          <view class="event-user">
-            <text>OpenID: {{item.openid}}</text>
-          </view>
-          <view class="event-user" wx:if="{{item.unionid}}">
-            <text>UnionID: {{item.unionid}}</text>
-          </view>
+          <text class="td points">{{item.points || 0}}</text>
         </view>
-        <view wx:if="{{followEvents.length === 0}}" class="empty-state">
-          <text>暂无关注事件</text>
+        <view wx:if="{{!users || users.length === 0}}" class="empty-row">
+          <text>No users found</text>
         </view>
-      </view>
-    </view>
-
-    <!-- Referral Chain -->
-    <view class="section">
-      <text class="section-title">推荐关系链</text>
-      <view class="input-group">
-        <picker 
-          mode="selector" 
-          range="{{users}}" 
-          range-key="name"
-          value="{{selectedUserIndex}}"
-          bindchange="handleUserChange"
-        >
-          <view class="picker-input">
-            {{users.length > 0 && selectedUserIndex >= 0 ? users[selectedUserIndex].name : '选择用户'}}
-          </view>
-        </picker>
-        <button class="btn-primary" bindtap="viewReferralChain">查看</button>
-      </view>
-      <view wx:if="{{referralChain}}" class="referral-chain">
-        <view wx:if="{{referralChain.inviter}}" class="chain-item">
-          <text class="chain-label">推荐人:</text>
-          <text>{{referralChain.inviter.inviter.name}} ({{referralChain.inviter.inviter.phone}})</text>
-          <text class="chain-time">邀请时间: {{formatDate(referralChain.inviter.created_at)}}</text>
-        </view>
-        <view wx:else class="chain-item">
-          <text class="chain-label">推荐人:</text>
-          <text>无（直接注册）</text>
-        </view>
-        <view class="chain-item">
-          <text class="chain-label">被推荐人 ({{referralChain.invitees && referralChain.invitees.length ? referralChain.invitees.length : 0}}):</text>
-          <view wx:if="{{referralChain.invitees && referralChain.invitees.length > 0}}">
-            <view wx:for="{{referralChain.invitees}}" wx:key="id" class="chain-invitee">
-              <text>{{item.invitee.name}} ({{item.invitee.phone}})</text>
-              <text class="chain-time">注册时间: {{formatDate(item.invitee.created_at)}}</text>
-            </view>
-          </view>
-          <view wx:else class="chain-invitee">
-            <text>暂无被推荐人</text>
-          </view>
-        </view>
-      </view>
-      <view wx:else class="referral-chain">
-        <text class="info-text">请选择用户查看推荐关系</text>
       </view>
     </view>
   </view>
 
-  <!-- Stats Tab -->
-  <view wx:if="{{currentTab === 'stats'}}" class="tab-content">
-    <view class="stats-grid">
-      <view class="stat-item">
-        <text class="stat-value">{{stats.totalUsers}}</text>
-        <text class="stat-label">总用户数</text>
+  <!-- Offers Tab -->
+  <view wx:if="{{currentTab === 'offers'}}" class="tab-content">
+    <view class="table">
+      <view class="table-header">
+        <text class="th name">Reward</text>
+        <text class="th points">Points</text>
       </view>
-      <view class="stat-item">
-        <text class="stat-value">{{stats.todayUsers}}</text>
-        <text class="stat-label">今日新增</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-value">{{stats.totalScans}}</text>
-        <text class="stat-label">总扫码数</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-value">{{stats.totalFollows}}</text>
-        <text class="stat-label">总关注数</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-value">{{stats.totalInvites}}</text>
-        <text class="stat-label">总邀请数</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-value">{{stats.conversionRate}}%</text>
-        <text class="stat-label">转化率</text>
+      <view class="table-body">
+        <view wx:for="{{rewards || []}}" wx:key="id" class="table-row">
+          <view class="td name">
+            <text class="user-name">{{item.name}}</text>
+            <text class="user-phone">{{item.description}}</text>
+          </view>
+          <text class="td points">{{item.points_required}}</text>
+        </view>
+        <view wx:if="{{!rewards || rewards.length === 0}}" class="empty-row">
+          <text>No rewards found</text>
+        </view>
       </view>
     </view>
   </view>
 
-  <!-- Settings Tab -->
-  <view wx:if="{{currentTab === 'settings'}}" class="tab-content">
-    <view class="section">
-      <text class="section-title">活动设置</text>
-      <view class="settings-form">
-        <view wx:if="{{settings.activity}}" class="form-item">
-          <text class="label">活动名称</text>
-          <input class="input" value="{{settings.activity.name}}" disabled />
-        </view>
-        <view wx:if="{{settings.activity}}" class="form-item">
-          <text class="label">注册积分</text>
-          <input class="input" type="number" value="{{settings.activity.base_register_points}}" disabled />
-        </view>
-        <view wx:if="{{settings.activity}}" class="form-item">
-          <text class="label">邀请积分</text>
-          <input class="input" type="number" value="{{settings.activity.invite_points}}" disabled />
-        </view>
-        <text class="info-text">设置功能开发中...</text>
+  <!-- Tasks Tab -->
+  <view wx:if="{{currentTab === 'tasks'}}" class="tab-content">
+    <view class="table">
+      <view class="table-header">
+        <text class="th name">Task</text>
+        <text class="th points">Points</text>
       </view>
+      <view class="table-body">
+        <view wx:for="{{tasks || []}}" wx:key="id" class="table-row">
+          <view class="td name">
+            <text class="user-name">{{item.name}}</text>
+            <text class="user-phone">{{item.description}}</text>
+          </view>
+          <text class="td points">{{item.points}}</text>
+        </view>
+        <view wx:if="{{!tasks || tasks.length === 0}}" class="empty-row">
+          <text>No tasks found</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Stats Summary -->
+  <view class="stats-section">
+    <view class="stat-card">
+      <text class="stat-value">{{stats.totalUsers || 0}}</text>
+      <text class="stat-label">Total Users</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{stats.totalInvites || 0}}</text>
+      <text class="stat-label">Invites</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{stats.conversionRate || 0}}%</text>
+      <text class="stat-label">Conversion</text>
     </view>
   </view>
 </view>

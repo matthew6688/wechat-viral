@@ -1,3 +1,5 @@
+// Note: dotenv is loaded in index.ts before any imports
+
 let _wechatConfig: { appId: string; secret: string } | null = null;
 let _oaConfig: { appId: string; secret: string; token: string; encodingAESKey: string } | null = null;
 

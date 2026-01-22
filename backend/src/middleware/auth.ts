@@ -5,7 +5,10 @@ export interface AuthRequest extends Request {
   userId?: string;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+// Get JWT_SECRET at runtime to ensure env vars are loaded
+function getJwtSecret(): string {
+  return process.env.JWT_SECRET || 'your-secret-key';
+}
 
 /**
  * Authenticate JWT token
@@ -19,6 +22,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
     }
 
     const token = authHeader.substring(7);
+    const JWT_SECRET = getJwtSecret();
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
 
     req.userId = decoded.userId;

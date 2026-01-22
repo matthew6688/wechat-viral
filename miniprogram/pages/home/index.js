@@ -23,6 +23,15 @@ Page({
     }
   },
 
+  formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  },
+
   async loadData() {
     try {
       const [pointsRes, tasksRes, logsRes] = await Promise.all([
@@ -36,9 +45,13 @@ Page({
       const logs = (logsRes.data && logsRes.data.data && logsRes.data.data.logs) ? logsRes.data.data.logs : 
                    (logsRes.data && logsRes.data.logs) ? logsRes.data.logs : null;
       
-      // Ensure arrays are never null
       const safeTasks = Array.isArray(tasks) ? tasks : [];
-      const safeLogs = Array.isArray(logs) ? logs : [];
+      let safeLogs = Array.isArray(logs) ? logs : [];
+      
+      safeLogs = safeLogs.map(log => ({
+        ...log,
+        formatted_date: this.formatDate(log.created_at)
+      }));
       
       this.setData({
         points: (pointsRes.data && pointsRes.data.data && pointsRes.data.data.balance) ? pointsRes.data.data.balance : 
@@ -60,5 +73,13 @@ Page({
     } catch (error) {
       wx.showToast({ title: '操作失败', icon: 'none' });
     }
+  },
+
+  goToRewards() {
+    wx.switchTab({ url: '/pages/rewards/index' });
+  },
+
+  goToInvite() {
+    wx.switchTab({ url: '/pages/invite/index' });
   },
 });

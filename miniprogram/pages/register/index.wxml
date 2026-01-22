@@ -1,47 +1,107 @@
 <view class="container">
-  <view class="card">
-    <text class="title">用户注册</text>
-    
-    <!-- WeChat Avatar and Nickname (Read-only) -->
-    <view class="form-item" wx:if="{{formData.avatarUrl || formData.nickname}}">
-      <text class="label">微信信息</text>
-      <view class="wechat-profile">
-        <image wx:if="{{formData.avatarUrl}}" class="wechat-avatar" src="{{formData.avatarUrl}}" mode="aspectFill" />
-        <view wx:else class="wechat-avatar-placeholder">
-          <text>无头像</text>
+  <view class="header">
+    <text class="title">Create Profile</text>
+    <text class="subtitle">Join to access resources and rewards.</text>
+  </view>
+
+  <view class="form">
+    <!-- Full Name -->
+    <view class="form-group">
+      <text class="label">FULL NAME</text>
+      <input 
+        class="input" 
+        data-field="name" 
+        value="{{formData.name}}" 
+        bindinput="handleInput" 
+        placeholder="e.g. Li Ming" 
+      />
+    </view>
+
+    <!-- Company Name -->
+    <view class="form-group">
+      <text class="label">COMPANY NAME</text>
+      <input 
+        class="input" 
+        data-field="company" 
+        value="{{formData.company}}" 
+        bindinput="handleInput" 
+        placeholder="e.g. Shenzhen Tech Co." 
+      />
+    </view>
+
+    <!-- Role Selector -->
+    <view class="form-group">
+      <text class="label">ROLE</text>
+      <view class="role-selector">
+        <view 
+          class="role-btn {{formData.role === 'Owner' ? 'active' : ''}}" 
+          data-role="Owner" 
+          bindtap="selectRole"
+        >
+          Owner
         </view>
-        <view class="wechat-info">
-          <text class="wechat-nickname">{{formData.nickname || '未获取到昵称'}}</text>
-          <text class="wechat-hint">微信信息（自动获取，不可修改）</text>
+        <view 
+          class="role-btn {{formData.role === 'Sales Manager' ? 'active' : ''}}" 
+          data-role="Sales Manager" 
+          bindtap="selectRole"
+        >
+          Sales Manager
+        </view>
+        <view 
+          class="role-btn {{formData.role === 'Sales Rep' ? 'active' : ''}}" 
+          data-role="Sales Rep" 
+          bindtap="selectRole"
+        >
+          Sales Rep
+        </view>
+        <view 
+          class="role-btn {{formData.role === 'Other' ? 'active' : ''}}" 
+          data-role="Other" 
+          bindtap="selectRole"
+        >
+          Other
         </view>
       </view>
     </view>
-    
-    <view class="form-item">
-      <text class="label">姓名 *</text>
-      <input class="input" data-field="name" value="{{formData.name}}" bindinput="handleInput" placeholder="请输入姓名" />
+
+    <!-- Mobile Number -->
+    <view class="form-group">
+      <text class="label">MOBILE NUMBER</text>
+      <input 
+        class="input" 
+        data-field="phone" 
+        type="number" 
+        value="{{formData.phone}}" 
+        bindinput="handleInput" 
+        placeholder="+86 13800138000" 
+      />
     </view>
-    
-    <view class="form-item">
-      <text class="label">手机号 *</text>
-      <input class="input" data-field="phone" type="number" value="{{formData.phone}}" bindinput="handleInput" placeholder="请输入手机号" />
+
+    <!-- WeChat ID -->
+    <view class="form-group">
+      <text class="label">WECHAT ID</text>
+      <input 
+        class="input" 
+        data-field="wechatId" 
+        value="{{formData.wechatId}}" 
+        bindinput="handleInput" 
+        placeholder="wxid_12345" 
+      />
     </view>
-    
-    <view class="form-item">
-      <text class="label">微信号</text>
-      <input class="input" data-field="wechatId" value="{{formData.wechatId}}" bindinput="handleInput" placeholder="请输入微信号" />
+
+    <!-- Main Products -->
+    <view class="form-group">
+      <text class="label">MAIN PRODUCTS</text>
+      <textarea 
+        class="textarea" 
+        data-field="mainProducts" 
+        value="{{formData.mainProducts}}" 
+        bindinput="handleInput" 
+        placeholder="e.g. Consumer Electronics" 
+      />
     </view>
-    
-    <view class="form-item">
-      <text class="label">公司名称</text>
-      <input class="input" data-field="company" value="{{formData.company}}" bindinput="handleInput" placeholder="请输入公司名称" />
-    </view>
-    
-    <view class="form-item">
-      <text class="label">主要产品</text>
-      <textarea class="textarea" data-field="mainProducts" value="{{formData.mainProducts}}" bindinput="handleInput" placeholder="请描述您的主要产品" />
-    </view>
-    
-    <button class="btn-primary" bindtap="onRegister">注册</button>
+
+    <!-- Submit Button -->
+    <button class="btn-submit" bindtap="onRegister">Complete Registration</button>
   </view>
 </view>

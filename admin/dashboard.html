@@ -11,281 +11,1406 @@
       box-sizing: border-box;
     }
 
+    :root {
+      --bg-primary: #fafafa;
+      --bg-secondary: #ffffff;
+      --border-color: #e5e7eb;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --accent: #000000;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
-      background: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+      background: var(--bg-primary);
       min-height: 100vh;
-      color: #000000;
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
     }
 
-    .header {
-      background: #ffffff;
-      border-bottom: 1px solid #e5e5e5;
-      padding: 24px 40px;
+    /* Navigation */
+    .nav {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 32px;
+      height: 56px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .header h1 {
-      font-size: 16px;
-      font-weight: 500;
-      color: #000000;
+    .nav-brand {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
       letter-spacing: -0.02em;
     }
 
-    .user-info {
+    .nav-actions {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 16px;
     }
 
-    .user-info span {
+    .nav-user {
       font-size: 13px;
-      color: #737373;
-      font-weight: 400;
+      color: var(--text-secondary);
     }
 
-    .logout-btn {
+    .btn-logout {
       padding: 6px 12px;
       background: transparent;
-      color: #737373;
-      border: 1px solid #e5e5e5;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
-      font-weight: 400;
-      font-family: inherit;
-      transition: all 0.2s;
-      letter-spacing: -0.01em;
+      font-weight: 500;
+      transition: all 0.15s ease;
     }
 
-    .logout-btn:hover {
-      color: #000000;
-      border-color: #000000;
+    .btn-logout:hover {
+      color: var(--text-primary);
+      border-color: var(--text-primary);
     }
 
-    .container {
-      max-width: 1200px;
+    /* Main Layout */
+    .main {
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 80px 40px;
+      padding: 32px;
     }
 
+    /* Page Header */
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.025em;
+      margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Stats Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1px;
-      margin-bottom: 80px;
-      border-top: 1px solid #e5e5e5;
-      border-left: 1px solid #e5e5e5;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
     }
 
     .stat-card {
-      background: #ffffff;
-      padding: 32px 24px;
-      border-right: 1px solid #e5e5e5;
-      border-bottom: 1px solid #e5e5e5;
-    }
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 500;
-      color: #000000;
-      margin-bottom: 4px;
-      letter-spacing: -0.03em;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px 24px;
     }
 
     .stat-label {
       font-size: 12px;
-      color: #737373;
-      font-weight: 400;
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      margin-bottom: 8px;
     }
 
+    .stat-value {
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    /* Section */
     .section {
-      margin-bottom: 80px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .section-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: #737373;
-      margin-bottom: 24px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
+    .section-content {
+      padding: 24px;
+    }
+
+    /* Live Badge */
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+
+    .live-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Debug Logs */
+    .debug-logs {
+      background: #0f172a;
+      border-radius: 8px;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    .debug-log-entry {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+    }
+
+    .debug-log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .log-time {
+      color: #64748b;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .log-type {
+      color: #60a5fa;
+      font-weight: 500;
+    }
+
+    .log-arrow {
+      color: #22c55e;
+      margin: 0 8px;
+    }
+
+    .log-endpoint {
+      color: #fbbf24;
+    }
+
+    .log-data {
+      color: #94a3b8;
+      margin-top: 4px;
+      font-size: 11px;
+      white-space: pre-wrap;
+    }
+
+    .log-user {
+      color: #a78bfa;
+      margin-top: 4px;
+    }
+
+    /* Events List */
     .events-list {
-      border-top: 1px solid #e5e5e5;
+      display: flex;
+      flex-direction: column;
     }
 
     .event-item {
-      padding: 20px 0;
-      border-bottom: 1px solid #e5e5e5;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .event-item:last-child {
       border-bottom: none;
     }
 
-    .event-info {
-      flex: 1;
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
     }
 
     .event-type {
       font-size: 14px;
       font-weight: 500;
-      color: #000000;
+      color: var(--text-primary);
       margin-bottom: 4px;
-      letter-spacing: -0.01em;
     }
 
     .event-details {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .event-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .event-meta-item {
       font-size: 12px;
-      color: #737373;
-      margin-top: 2px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .event-meta-item strong {
+      color: var(--text-secondary);
+      font-weight: 500;
     }
 
     .event-time {
       font-size: 12px;
-      color: #a3a3a3;
-      font-weight: 400;
+      color: var(--text-muted);
+      white-space: nowrap;
     }
 
+    .btn-view-payload {
+      padding: 4px 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-view-payload:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .event-payload {
+      margin-top: 12px;
+      padding: 12px;
+      background: #0f172a;
+      border-radius: 6px;
+      font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      display: none;
+    }
+
+    .event-payload.visible {
+      display: block;
+    }
+
+    /* Collapsible Section */
+    .section-collapsible .section-header {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .section-collapsible .section-header:hover {
+      background: var(--bg-primary);
+    }
+
+    .section-toggle {
+      font-size: 12px;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .section-collapsible.collapsed .section-toggle {
+      transform: rotate(-90deg);
+    }
+
+    .section-collapsible.collapsed .section-content {
+      display: none !important;
+    }
+
+    /* Settings Form */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .setting-item label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .setting-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .setting-item select,
+    .setting-item input[type="number"] {
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    .setting-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: 28px;
+    }
+
+    .setting-desc.warning {
+      color: var(--error);
+    }
+
+    .btn-save {
+      margin-top: 24px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .btn-save:hover {
+      opacity: 0.9;
+    }
+
+    .settings-message {
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .settings-message.success {
+      color: var(--success);
+    }
+
+    .settings-message.error {
+      color: var(--error);
+    }
+
+    /* Tunnel Manager */
+    .tunnel-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+    }
+
+    .tunnel-status-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .status-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-card-icon {
+      font-size: 20px;
+    }
+
+    .status-card-content {
+      flex: 1;
+    }
+
+    .status-card-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-card-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .status-card-check {
+      color: var(--success);
+      font-size: 16px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-badge.connected {
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
+    }
+
+    .status-badge.disconnected {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+    }
+
+    .tunnel-url-group {
+      margin-top: 20px;
+    }
+
+    .tunnel-url-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .tunnel-url-input-group {
+      display: flex;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .url-prefix {
+      padding: 10px 12px;
+      background: var(--bg-primary);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-family: monospace;
+      border-right: 1px solid var(--border-color);
+    }
+
+    .tunnel-url-input {
+      flex: 1;
+      padding: 10px 12px;
+      border: none;
+      font-size: 13px;
+      font-family: monospace;
+      background: var(--bg-secondary);
+    }
+
+    .tunnel-url-input:focus {
+      outline: none;
+    }
+
+    .btn-copy {
+      padding: 10px 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .btn-copy:hover {
+      opacity: 0.9;
+    }
+
+    .tunnel-update-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .tunnel-update-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .btn-validate {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-bottom: 20px;
+    }
+
+    .btn-validate:hover {
+      opacity: 0.9;
+    }
+
+    .btn-validate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Quick Reference */
+    .quick-ref {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .quick-ref-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .quick-ref-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .quick-ref-toggle {
+      font-size: 12px;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .quick-ref.collapsed .quick-ref-toggle {
+      transform: rotate(-90deg);
+    }
+
+    .quick-ref-content {
+      margin-top: 16px;
+    }
+
+    .quick-ref.collapsed .quick-ref-content {
+      display: none;
+    }
+
+    .quick-ref-item {
+      margin-bottom: 16px;
+    }
+
+    .quick-ref-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .quick-ref-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .quick-ref-code {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: 'SF Mono', 'Monaco', monospace;
+      font-size: 11px;
+      display: block;
+    }
+
+    /* Test Webhook */
+    .webhook-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn-webhook {
+      padding: 10px 16px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-webhook:hover {
+      border-color: var(--accent);
+    }
+
+    .btn-webhook:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .webhook-result {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+
+    .webhook-result.success {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--success);
+      color: #059669;
+    }
+
+    .webhook-result.error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--error);
+      color: #dc2626;
+    }
+
+    /* Validation Grid */
+    .validation-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .validation-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .validation-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .validation-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .validation-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .validation-status.healthy {
+      background: var(--success);
+    }
+
+    .validation-status.degraded {
+      background: var(--warning);
+    }
+
+    .validation-status.unhealthy {
+      background: var(--error);
+    }
+
+    .validation-status.not_configured {
+      background: var(--text-muted);
+    }
+
+    .validation-message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .validation-latency {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Connection Details */
+    .connection-details {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .details-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 8px 0;
+    }
+
+    .details-toggle:hover {
+      color: var(--text-primary);
+    }
+
+    .details-content {
+      display: none;
+      padding-top: 16px;
+    }
+
+    .details-content.expanded {
+      display: block;
+    }
+
+    .details-section {
+      margin-bottom: 16px;
+    }
+
+    .details-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .details-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .details-section-content {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .details-section-content code {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+    }
+
+    .details-section-content ul {
+      margin: 8px 0;
+      padding-left: 16px;
+    }
+
+    .details-section-content li {
+      margin-bottom: 4px;
+    }
+
+    .env-var-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .env-var-name {
+      font-family: monospace;
+      font-size: 11px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .btn-copy-small {
+      padding: 4px 8px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+    }
+
+    .btn-copy-small.copied {
+      background: var(--success);
+    }
+
+    .current-value {
+      font-family: monospace;
+      font-size: 12px;
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+    }
+
+    .btn-test {
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-test:hover {
+      border-color: var(--accent);
+    }
+
+    .btn-test:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .test-result {
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    .test-result.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
+    }
+
+    .test-result.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+    }
+
+    .test-result.loading {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+    }
+
+    /* Buttons Row */
+    .buttons-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-secondary {
+      padding: 10px 20px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+    }
+
+    /* Loading & Empty States */
     .loading {
-      text-align: left;
-      padding: 40px 0;
-      color: #737373;
+      padding: 40px;
+      text-align: center;
+      color: var(--text-muted);
       font-size: 13px;
     }
 
     .empty-state {
-      padding: 60px 0;
+      padding: 60px 40px;
       text-align: center;
-      color: #a3a3a3;
+      color: var(--text-muted);
       font-size: 13px;
+    }
+
+    /* Tunnel Error */
+    .tunnel-error {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--error);
+      border-radius: 6px;
+      color: #dc2626;
+      font-size: 12px;
+    }
+
+    /* Tunnel Instructions */
+    .tunnel-instructions {
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning);
+      border-radius: 8px;
+    }
+
+    .instructions-header {
+      font-size: 14px;
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .command-section {
+      margin-bottom: 16px;
+    }
+
+    .command-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .command-code-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .command-code {
+      flex: 1;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .btn-copy-command {
+      padding: 10px 16px;
+      background: var(--warning);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-copy-command:hover {
+      opacity: 0.9;
+    }
+
+    .expected-output {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      margin-top: 8px;
+    }
+
+    .steps-list {
+      margin: 8px 0 0 0;
+      padding-left: 20px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      list-style-type: disc;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .tunnel-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .validation-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tunnel-status-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .main {
+        padding: 16px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav {
+        padding: 0 16px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Admin Dashboard</h1>
-    <div class="user-info">
-      <span id="userName">Loading...</span>
-      <button class="logout-btn" onclick="logout()">Logout</button>
+  <nav class="nav">
+    <div class="nav-brand">WeChat Viral Admin</div>
+    <div class="nav-actions">
+      <span class="nav-user" id="userName">Loading...</span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
-  </div>
+  </nav>
 
-  <div class="container">
-    <div class="stats-grid" id="statsGrid">
+  <main class="main">
+    <header class="page-header">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Monitor your WeChat viral marketing campaign</p>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value" id="totalUsers">-</div>
         <div class="stat-label">Total Users</div>
+        <div class="stat-value" id="totalUsers">-</div>
       </div>
       <div class="stat-card">
+        <div class="stat-label">QR Scans</div>
         <div class="stat-value" id="totalScans">-</div>
-        <div class="stat-label">Total Scans</div>
       </div>
       <div class="stat-card">
+        <div class="stat-label">OA Follows</div>
         <div class="stat-value" id="totalFollows">-</div>
-        <div class="stat-label">Total Follows</div>
       </div>
       <div class="stat-card">
+        <div class="stat-label">Referrals</div>
         <div class="stat-value" id="totalInvites">-</div>
-        <div class="stat-label">Total Invites</div>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Recent Events</div>
-      <div class="loading" id="eventsLoading">Loading events...</div>
-      <div class="events-list" id="eventsList"></div>
-      <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Debug Settings</div>
-      <div class="loading" id="debugSettingsLoading">Loading settings...</div>
-      <div id="debugSettingsForm" style="display: none;">
-        <form id="debugSettingsFormElement">
-          <div class="setting-item">
-            <label>
-              <input type="checkbox" id="debugMode" name="debug_mode">
-              <span>Debug Mode</span>
-            </label>
-            <p class="setting-desc">Enable verbose logging and debug information</p>
-          </div>
-
-          <div class="setting-item">
-            <label>
-              <span>Log Level</span>
-              <select id="logLevel" name="log_level">
-                <option value="debug">Debug</option>
-                <option value="info" selected>Info</option>
-                <option value="warn">Warn</option>
-                <option value="error">Error</option>
-              </select>
-            </label>
-            <p class="setting-desc">Minimum log level to record</p>
-          </div>
-
-          <div class="setting-item">
-            <label>
-              <input type="checkbox" id="eventLogEnabled" name="event_log_enabled" checked>
-              <span>Event Logging</span>
-            </label>
-            <p class="setting-desc">Enable event logging to database</p>
-          </div>
-
-          <div class="setting-item">
-            <label>
-              <input type="checkbox" id="apiLogging" name="api_logging" checked>
-              <span>API Logging</span>
-            </label>
-            <p class="setting-desc">Log all API requests and responses</p>
-          </div>
-
-          <div class="setting-item">
-            <label>
-              <input type="checkbox" id="errorTracking" name="error_tracking" checked>
-              <span>Error Tracking</span>
-            </label>
-            <p class="setting-desc">Track and report errors</p>
-          </div>
-
-          <div class="setting-item">
-            <label>
-              <input type="checkbox" id="performanceMonitoring" name="performance_monitoring">
-              <span>Performance Monitoring</span>
-            </label>
-            <p class="setting-desc">Monitor API response times and performance</p>
-          </div>
-
-          <div class="setting-item">
-            <label>
-              <span>Max Log Retention (days)</span>
-              <input type="number" id="maxLogRetentionDays" name="max_log_retention_days" value="30" min="1" max="365">
-            </label>
-            <p class="setting-desc">How many days to keep logs before deletion</p>
-          </div>
-
-          <div class="setting-item">
-            <label>
-              <input type="checkbox" id="showSensitiveData" name="show_sensitive_data">
-              <span>Show Sensitive Data (⚠️ Security Risk)</span>
-            </label>
-            <p class="setting-desc warning">WARNING: This will log sensitive information like tokens and passwords</p>
-          </div>
-
-          <button type="submit" class="btn-save">Save Settings</button>
-          <div id="debugSettingsMessage" class="settings-message"></div>
-        </form>
+    <!-- Debug Logs -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">
+          Debug Logs
+          <span class="live-badge" id="liveBadge">LIVE</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary" onclick="refreshLogs()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
+          <button class="btn-secondary" onclick="clearLogs()" style="padding: 6px 12px; font-size: 12px;">Clear</button>
+        </div>
       </div>
-    </div>
-  </div>
+      <div class="section-content" style="padding: 0;">
+        <div class="debug-logs" id="debugLogsContainer">
+          <div class="debug-log-entry" id="debugLogsPlaceholder">
+            <div class="log-time">Connecting to event stream...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Events -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">Recent Events</div>
+      </div>
+      <div class="section-content">
+        <div class="loading" id="eventsLoading">Loading events...</div>
+        <div class="events-list" id="eventsList"></div>
+        <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
+      </div>
+    </section>
+
+    <!-- Debug Settings -->
+    <section class="section section-collapsible collapsed" id="debugSettingsSection">
+      <div class="section-header" onclick="toggleSection('debugSettingsSection')">
+        <div class="section-title">Debug Settings</div>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-content">
+        <div class="loading" id="debugSettingsLoading">Loading settings...</div>
+        <div id="debugSettingsForm" style="display: none;">
+          <form id="debugSettingsFormElement">
+            <div class="settings-grid">
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="debugMode" name="debug_mode">
+                  <span>Debug Mode</span>
+                </label>
+                <p class="setting-desc">Enable verbose logging</p>
+              </div>
+
+              <div class="setting-item">
+                <label>
+                  <span>Log Level</span>
+                </label>
+                <select id="logLevel" name="log_level">
+                  <option value="debug">Debug</option>
+                  <option value="info" selected>Info</option>
+                  <option value="warn">Warn</option>
+                  <option value="error">Error</option>
+                </select>
+              </div>
+
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="eventLogEnabled" name="event_log_enabled" checked>
+                  <span>Event Logging</span>
+                </label>
+                <p class="setting-desc">Log events to database</p>
+              </div>
+
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="apiLogging" name="api_logging" checked>
+                  <span>API Logging</span>
+                </label>
+                <p class="setting-desc">Log API requests</p>
+              </div>
+
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="errorTracking" name="error_tracking" checked>
+                  <span>Error Tracking</span>
+                </label>
+                <p class="setting-desc">Track and report errors</p>
+              </div>
+
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="performanceMonitoring" name="performance_monitoring">
+                  <span>Performance Monitoring</span>
+                </label>
+                <p class="setting-desc">Monitor response times</p>
+              </div>
+
+              <div class="setting-item">
+                <label>
+                  <span>Log Retention (days)</span>
+                </label>
+                <input type="number" id="maxLogRetentionDays" name="max_log_retention_days" value="30" min="1" max="365">
+              </div>
+
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="showSensitiveData" name="show_sensitive_data">
+                  <span>Show Sensitive Data</span>
+                </label>
+                <p class="setting-desc warning">⚠️ Security risk - logs tokens/passwords</p>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-save">Save Settings</button>
+            <div id="debugSettingsMessage" class="settings-message"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tunnel Manager -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">
+          🛡️ Tunnel Manager
+        </div>
+        <span class="status-badge connected" id="tunnelStatusBadge">Connected</span>
+      </div>
+      <div class="section-content">
+        <div class="tunnel-grid">
+          <div>
+            <button class="btn-validate" onclick="validateLocalTunnel()" id="validateBtn">
+              Validate Connection
+            </button>
+
+            <div class="tunnel-status-cards" id="tunnelStatusCards">
+              <div class="status-card">
+                <div class="status-card-icon">📦</div>
+                <div class="status-card-content">
+                  <div class="status-card-label">Local Server</div>
+                  <div class="status-card-value" id="localServerCard">Port 3000</div>
+                </div>
+                <div class="status-card-check" id="localServerCheck">✓</div>
+              </div>
+              <div class="status-card">
+                <div class="status-card-icon">⚡</div>
+                <div class="status-card-content">
+                  <div class="status-card-label">Process PID</div>
+                  <div class="status-card-value" id="processPidCard">-</div>
+                </div>
+                <div class="status-card-check" id="processPidCheck" style="display: none;">✓</div>
+              </div>
+              <div class="status-card">
+                <div class="status-card-icon">🌐</div>
+                <div class="status-card-content">
+                  <div class="status-card-label">Latency</div>
+                  <div class="status-card-value" id="latencyCard">-</div>
+                </div>
+                <div class="status-card-check" id="latencyCheck" style="display: none;">✓</div>
+              </div>
+            </div>
+
+            <div class="tunnel-url-group" id="tunnelUrlSection" style="display: none;">
+              <label class="tunnel-url-label">Current Callback URL</label>
+              <div class="tunnel-url-input-group">
+                <span class="url-prefix">GET</span>
+                <input type="text" class="tunnel-url-input" id="tunnelUrlValue" readonly>
+                <button class="btn-copy" onclick="copyTunnelUrl()">Copy</button>
+              </div>
+            </div>
+
+            <div class="tunnel-update-section">
+              <label class="tunnel-url-label">Update Tunnel URL</label>
+              <p class="tunnel-update-desc">Paste the URL from cloudflared output</p>
+              <div class="tunnel-url-input-group">
+                <span class="url-prefix">🌐</span>
+                <input type="text" class="tunnel-url-input" id="tunnelUrlInput" placeholder="https://xxx.trycloudflare.com">
+                <button class="btn-copy" onclick="updateTunnelUrl()">Save & Verify</button>
+              </div>
+            </div>
+
+            <div class="tunnel-error" id="tunnelError" style="display: none;"></div>
+
+            <div class="tunnel-instructions" id="tunnelCommandInstructions" style="display: none;">
+              <div class="instructions-header">⚠️ Tunnel Not Connected</div>
+              <div class="command-section">
+                <div class="command-label">Run this command in your terminal:</div>
+                <div class="command-code-container">
+                  <code class="command-code" id="commandToRun">cloudflared tunnel --url http://localhost:3000</code>
+                  <button class="btn-copy-command" onclick="copyCommand()">Copy</button>
+                </div>
+              </div>
+              <div>
+                <div class="command-label">Expected output:</div>
+                <pre class="expected-output" id="expectedOutput"></pre>
+              </div>
+              <div>
+                <div class="command-label">Next steps:</div>
+                <ul class="steps-list" id="stepsList"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-ref collapsed" id="quickRefSection">
+            <div class="quick-ref-header" onclick="toggleQuickRef()">
+              <div class="quick-ref-title">Quick Reference</div>
+              <span class="quick-ref-toggle">▼</span>
+            </div>
+            <div class="quick-ref-content">
+              <div class="quick-ref-item">
+                <div class="quick-ref-label">Install cloudflared</div>
+                <code class="quick-ref-code">brew install cloudflare/cloudflare/cloudflared</code>
+              </div>
+              <div class="quick-ref-item">
+                <div class="quick-ref-label">Start Tunnel</div>
+                <code class="quick-ref-code">cloudflared tunnel --url http://localhost:3000</code>
+              </div>
+              <div class="quick-ref-item">
+                <div class="quick-ref-label">Check Status</div>
+                <code class="quick-ref-code">pgrep -fl cloudflared</code>
+              </div>
+              <div class="quick-ref-item">
+                <div class="quick-ref-label">Stop Tunnel</div>
+                <code class="quick-ref-code">pkill -f cloudflared</code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Test Webhook -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">Test Webhook Trigger</div>
+      </div>
+      <div class="section-content">
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+          Simulate WeChat events with mock data for testing
+        </p>
+        <div class="webhook-buttons">
+          <button class="btn-webhook" onclick="triggerTestWebhook('scan')">
+            <span>📱</span> Scan QR
+          </button>
+          <button class="btn-webhook" onclick="triggerTestWebhook('follow')">
+            <span>➕</span> Follow OA
+          </button>
+          <button class="btn-webhook" onclick="triggerTestWebhook('unfollow')">
+            <span>➖</span> Unfollow OA
+          </button>
+          <button class="btn-webhook" onclick="triggerTestWebhook('login')">
+            <span>🔐</span> Login
+          </button>
+          <button class="btn-webhook" onclick="triggerTestWebhook('register')">
+            <span>📝</span> Register
+          </button>
+        </div>
+        <div class="webhook-result" id="testWebhookResult" style="display: none;"></div>
+      </div>
+    </section>
+
+    <!-- Environment Validation -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">Environment Validation</div>
+      </div>
+      <div class="section-content">
+        <div class="loading" id="validationLoading">Loading validation...</div>
+        <div id="validationContent" style="display: none;">
+          <div class="validation-grid" id="validationGrid"></div>
+          <div class="buttons-row">
+            <button class="btn-validate" onclick="runFullValidation()">Run Full Validation</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <script>
     const API_BASE_URL = 'http://localhost:3000/api';
@@ -305,9 +1430,7 @@
       try {
         // Load stats
         const statsRes = await fetch(`${API_BASE_URL}/admin/debug/stats`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+          headers: { 'Authorization': `Bearer ${token}` },
         });
 
         if (statsRes.ok) {
@@ -318,11 +1441,9 @@
           document.getElementById('totalInvites').textContent = stats.totalInvites || 0;
         }
 
-        // Load all events from unified event log
+        // Load events
         const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=50`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+          headers: { 'Authorization': `Bearer ${token}` },
         });
 
         if (eventsRes.ok) {
@@ -332,15 +1453,12 @@
           
           const events = eventsData.data?.events || [];
           
-          console.log('Loaded events:', events.length);
-          
           if (events.length === 0) {
             document.getElementById('emptyState').style.display = 'block';
             document.getElementById('eventsLoading').style.display = 'none';
           } else {
             document.getElementById('emptyState').style.display = 'none';
             
-            // Map event types to display names
             const eventTypeNames = {
               'login': '登录',
               'login_email': '邮箱登录',
@@ -352,53 +1470,58 @@
               'redeem': '兑换',
             };
             
-            events.forEach(event => {
+            events.forEach((event, index) => {
               const div = document.createElement('div');
               div.className = 'event-item';
               const eventTime = new Date(event.created_at);
               const timeStr = eventTime.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
               });
               
               const eventTypeName = eventTypeNames[event.event_type] || event.event_type;
               const userName = event.user ? (event.user.name || event.user.phone || 'Unknown') : 'N/A';
+              const userId = event.user_id ? event.user_id.substring(0, 8) + '...' : 'N/A';
+              const eventId = event.id ? event.id.substring(0, 8) + '...' : 'N/A';
               
-              let detailsHtml = '';
-              if (event.event_data) {
-                // Parse event_data if it's a string
-                let eventData = event.event_data;
-                if (typeof eventData === 'string') {
-                  try {
-                    eventData = JSON.parse(eventData);
-                  } catch (e) {
-                    // Keep as string if not valid JSON
-                  }
-                }
-                
-                if (eventData.scene_str) {
-                  detailsHtml += `<div class="event-details">场景: ${eventData.scene_str}</div>`;
-                }
-                if (eventData.referral_code) {
-                  detailsHtml += `<div class="event-details">邀请码: ${eventData.referral_code}</div>`;
-                }
-                if (eventData.reward_name) {
-                  detailsHtml += `<div class="event-details">奖励: ${eventData.reward_name} (${eventData.points_used}积分)</div>`;
-                }
-                if (event.related_user) {
-                  detailsHtml += `<div class="event-details">关联用户: ${event.related_user.name || event.related_user.phone || 'N/A'}</div>`;
-                }
+              // Extract metadata
+              const metadata = event.metadata || {};
+              const source = metadata.source || 'unknown';
+              const ip = metadata.ip || 'N/A';
+              const referralCode = metadata.referral_code || metadata.scene_str || null;
+              
+              let metaItems = `
+                <span class="event-meta-item">📍 <strong>Source:</strong> ${source}</span>
+                <span class="event-meta-item">🆔 <strong>Event ID:</strong> ${eventId}</span>
+              `;
+              
+              if (event.user_id) {
+                metaItems += `<span class="event-meta-item">👤 <strong>User ID:</strong> ${userId}</span>`;
               }
               
+              if (referralCode) {
+                metaItems += `<span class="event-meta-item">🔗 <strong>Ref:</strong> ${referralCode}</span>`;
+              }
+              
+              if (ip && ip !== 'N/A') {
+                metaItems += `<span class="event-meta-item">🌐 <strong>IP:</strong> ${ip}</span>`;
+              }
+              
+              const payloadId = `payload-${index}`;
+              const hasPayload = event.metadata && Object.keys(event.metadata).length > 0;
+              
               div.innerHTML = `
-                <div class="event-info">
-                  <div class="event-type">${eventTypeName}</div>
-                  <div class="event-details">用户: ${userName}</div>
-                  ${detailsHtml}
+                <div class="event-header">
+                  <div>
+                    <div class="event-type">${eventTypeName}</div>
+                    <div class="event-details">用户: ${userName}</div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    ${hasPayload ? `<button class="btn-view-payload" onclick="togglePayload('${payloadId}')">View Payload</button>` : ''}
+                    <div class="event-time">${timeStr}</div>
+                  </div>
                 </div>
-                <div class="event-time">${timeStr}</div>
+                <div class="event-meta">${metaItems}</div>
+                ${hasPayload ? `<pre class="event-payload" id="${payloadId}">${JSON.stringify(event.metadata, null, 2)}</pre>` : ''}
               `;
               eventsList.appendChild(div);
             });
@@ -406,21 +1529,10 @@
             document.getElementById('eventsLoading').style.display = 'none';
           }
         } else {
-          const errorData = await eventsRes.json().catch(() => ({}));
-          console.error('Failed to load events:', errorData);
-          document.getElementById('eventsLoading').textContent = `Failed to load events: ${errorData.error || 'Unknown error'}`;
-          
-          // Show empty state if table doesn't exist
-          if (errorData.error && errorData.error.includes('does not exist')) {
-            document.getElementById('emptyState').textContent = 'Event logs table not found. Please run migration 007_create_event_logs.sql';
-            document.getElementById('emptyState').style.display = 'block';
-          }
+          document.getElementById('eventsLoading').textContent = 'Failed to load events';
         }
       } catch (error) {
         console.error('Error loading dashboard:', error);
-        if (error.message.includes('401') || error.message.includes('403')) {
-          logout();
-        }
       }
     }
 
@@ -430,47 +1542,57 @@
       window.location.href = './login.html';
     }
 
+    // Toggle collapsible section
+    function toggleSection(sectionId) {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.classList.toggle('collapsed');
+      }
+    }
+
+    // Toggle Quick Reference
+    function toggleQuickRef() {
+      const section = document.getElementById('quickRefSection');
+      if (section) {
+        section.classList.toggle('collapsed');
+      }
+    }
+
+    // Toggle event payload
+    function togglePayload(payloadId) {
+      const payload = document.getElementById(payloadId);
+      if (payload) {
+        payload.classList.toggle('visible');
+      }
+    }
+
     // Load debug settings
     async function loadDebugSettings() {
       try {
         const settingsRes = await fetch(`${API_BASE_URL}/admin/settings/debug`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+          headers: { 'Authorization': `Bearer ${token}` },
         });
 
         if (settingsRes.ok) {
           const data = await settingsRes.json();
           const settings = data.data?.settings || {};
           
-          console.log('Debug settings loaded:', settings);
-          
-          // Populate form
-          document.getElementById('debugMode').checked = settings.debug_mode === true || settings.debug_mode === 'true';
+          document.getElementById('debugMode').checked = settings.debug_mode === true;
           document.getElementById('logLevel').value = settings.log_level || 'info';
-          document.getElementById('eventLogEnabled').checked = settings.event_log_enabled !== false && settings.event_log_enabled !== 'false';
-          document.getElementById('apiLogging').checked = settings.api_logging !== false && settings.api_logging !== 'false';
-          document.getElementById('errorTracking').checked = settings.error_tracking !== false && settings.error_tracking !== 'false';
-          document.getElementById('performanceMonitoring').checked = settings.performance_monitoring === true || settings.performance_monitoring === 'true';
+          document.getElementById('eventLogEnabled').checked = settings.event_log_enabled !== false;
+          document.getElementById('apiLogging').checked = settings.api_logging !== false;
+          document.getElementById('errorTracking').checked = settings.error_tracking !== false;
+          document.getElementById('performanceMonitoring').checked = settings.performance_monitoring === true;
           document.getElementById('maxLogRetentionDays').value = settings.max_log_retention_days || 30;
-          document.getElementById('showSensitiveData').checked = settings.show_sensitive_data === true || settings.show_sensitive_data === 'true';
+          document.getElementById('showSensitiveData').checked = settings.show_sensitive_data === true;
           
           document.getElementById('debugSettingsLoading').style.display = 'none';
           document.getElementById('debugSettingsForm').style.display = 'block';
         } else {
-          const errorData = await settingsRes.json().catch(() => ({}));
-          console.error('Failed to load debug settings:', errorData);
-          document.getElementById('debugSettingsLoading').textContent = `Failed to load settings: ${errorData.error || 'Unknown error'}`;
-          
-          // Show form with default values even on error
           document.getElementById('debugSettingsForm').style.display = 'block';
           document.getElementById('debugSettingsLoading').style.display = 'none';
         }
       } catch (error) {
-        console.error('Error loading debug settings:', error);
-        document.getElementById('debugSettingsLoading').textContent = `Error: ${error.message || 'Network error'}`;
-        
-        // Show form with default values even on error
         document.getElementById('debugSettingsForm').style.display = 'block';
         document.getElementById('debugSettingsLoading').style.display = 'none';
       }
@@ -480,18 +1602,16 @@
     document.getElementById('debugSettingsFormElement').addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const formData = new FormData(e.target);
-      const settings = {};
-      
-      // Collect checkbox values
-      settings.debug_mode = document.getElementById('debugMode').checked;
-      settings.log_level = document.getElementById('logLevel').value;
-      settings.event_log_enabled = document.getElementById('eventLogEnabled').checked;
-      settings.api_logging = document.getElementById('apiLogging').checked;
-      settings.error_tracking = document.getElementById('errorTracking').checked;
-      settings.performance_monitoring = document.getElementById('performanceMonitoring').checked;
-      settings.max_log_retention_days = parseInt(document.getElementById('maxLogRetentionDays').value);
-      settings.show_sensitive_data = document.getElementById('showSensitiveData').checked;
+      const settings = {
+        debug_mode: document.getElementById('debugMode').checked,
+        log_level: document.getElementById('logLevel').value,
+        event_log_enabled: document.getElementById('eventLogEnabled').checked,
+        api_logging: document.getElementById('apiLogging').checked,
+        error_tracking: document.getElementById('errorTracking').checked,
+        performance_monitoring: document.getElementById('performanceMonitoring').checked,
+        max_log_retention_days: parseInt(document.getElementById('maxLogRetentionDays').value),
+        show_sensitive_data: document.getElementById('showSensitiveData').checked,
+      };
 
       const messageEl = document.getElementById('debugSettingsMessage');
       messageEl.textContent = '';
@@ -521,9 +1641,579 @@
       }
     });
 
-    // Load dashboard on page load
+    // Real-time Debug Logs with SSE
+    let eventSource = null;
+    let logs = [];
+
+    function connectEventStream() {
+      if (eventSource) eventSource.close();
+
+      const streamUrl = `${API_BASE_URL}/admin/debug/logs/stream?token=${encodeURIComponent(token)}`;
+      eventSource = new EventSource(streamUrl);
+
+      eventSource.onopen = () => {
+        document.getElementById('liveBadge').style.display = 'inline-flex';
+        const placeholder = document.getElementById('debugLogsPlaceholder');
+        if (placeholder) {
+          placeholder.innerHTML = '<div class="log-time">Connected. Waiting for events...</div>';
+        }
+      };
+
+      eventSource.addEventListener('event', (e) => {
+        addLogEntry(JSON.parse(e.data));
+      });
+
+      eventSource.addEventListener('buffer', (e) => {
+        const data = JSON.parse(e.data);
+        if (data.events) data.events.forEach(event => addLogEntry(event));
+      });
+
+      eventSource.onerror = () => {
+        document.getElementById('liveBadge').style.display = 'none';
+        setTimeout(() => {
+          if (eventSource && eventSource.readyState === EventSource.CLOSED) {
+            connectEventStream();
+          }
+        }, 3000);
+      };
+    }
+
+    function addLogEntry(event) {
+      const container = document.getElementById('debugLogsContainer');
+      if (!container) return;
+
+      const placeholder = document.getElementById('debugLogsPlaceholder');
+      if (placeholder) placeholder.remove();
+
+      const entry = document.createElement('div');
+      entry.className = `debug-log-entry ${event.type}`;
+      
+      const typeNames = {
+        'login': 'LOGIN', 'register': 'REGISTER', 'scan_qr': 'SCAN_QR',
+        'follow_oa': 'FOLLOW_OA', 'unfollow_oa': 'UNFOLLOW_OA',
+      };
+
+      const typeName = typeNames[event.type] || event.type.toUpperCase();
+      const endpoint = event.type.includes('scan') || event.type.includes('follow') 
+        ? '/api/oa/webhook' : '/api/' + event.type;
+
+      entry.innerHTML = `
+        <div class="log-time">${event.time}</div>
+        <div>
+          <span class="log-type">[${typeName}]</span>
+          <span class="log-arrow">→</span>
+          <span class="log-endpoint">${endpoint}</span>
+        </div>
+        ${event.user ? `<div class="log-user">User: ${event.user.name || event.user.id || 'Unknown'}</div>` : ''}
+        ${event.data && Object.keys(event.data).length > 0 
+          ? `<div class="log-data">${JSON.stringify(event.data, null, 2)}</div>` : ''}
+      `;
+
+      container.appendChild(entry);
+      logs.push(event);
+      container.scrollTop = container.scrollHeight;
+
+      if (logs.length > 100) {
+        logs.shift();
+        const firstEntry = container.querySelector('.debug-log-entry');
+        if (firstEntry) firstEntry.remove();
+      }
+    }
+
+    function refreshLogs() {
+      const container = document.getElementById('debugLogsContainer');
+      if (container) {
+        container.innerHTML = '<div class="debug-log-entry" id="debugLogsPlaceholder">Refreshing...</div>';
+      }
+      logs = [];
+      connectEventStream();
+    }
+
+    function clearLogs() {
+      const container = document.getElementById('debugLogsContainer');
+      if (container) {
+        container.innerHTML = '<div class="debug-log-entry" id="debugLogsPlaceholder">Logs cleared. Waiting for new events...</div>';
+      }
+      logs = [];
+    }
+
+    // Tunnel Management
+    async function loadTunnelStatus() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/tunnel/status`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          updateTunnelStatusUI(data.data);
+        }
+      } catch (error) {
+        console.error('Error loading tunnel status:', error);
+      }
+    }
+
+    function updateTunnelStatusUI(status) {
+      const badge = document.getElementById('tunnelStatusBadge');
+      const urlSection = document.getElementById('tunnelUrlSection');
+      const urlValue = document.getElementById('tunnelUrlValue');
+      const errorDiv = document.getElementById('tunnelError');
+
+      const statusValue = status.status || status.overall_status || 'disconnected';
+      if (badge) {
+        badge.className = `status-badge ${statusValue === 'connected' || statusValue === 'ready' ? 'connected' : 'disconnected'}`;
+        badge.textContent = statusValue === 'connected' || statusValue === 'ready' ? 'Connected' : 'Disconnected';
+      }
+
+      const tunnelUrl = status.url || (status.tunnel_url && status.tunnel_url.url);
+      if (tunnelUrl) {
+        const fullUrl = `${tunnelUrl}/api/oa/webhook`;
+        if (urlValue) urlValue.value = fullUrl;
+        if (urlSection) urlSection.style.display = 'block';
+      } else {
+        if (urlSection) urlSection.style.display = 'none';
+      }
+
+      if (errorDiv) errorDiv.style.display = 'none';
+    }
+
+    async function updateTunnelUrl() {
+      const input = document.getElementById('tunnelUrlInput');
+      const url = input?.value.trim();
+
+      if (!url) {
+        alert('Please enter a tunnel URL');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/tunnel/update-url`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          updateTunnelStatusUI({
+            url: data.data.url,
+            status: data.data.verified ? 'connected' : 'disconnected',
+          });
+          input.value = '';
+          alert(data.data.message);
+        } else {
+          const error = await res.json().catch(() => ({}));
+          showTunnelError(error.error || 'Failed to update tunnel URL');
+        }
+      } catch (error) {
+        showTunnelError('Error: ' + error.message);
+      }
+    }
+
+    function showTunnelError(message) {
+      const errorDiv = document.getElementById('tunnelError');
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    function copyTunnelUrl() {
+      const urlValue = document.getElementById('tunnelUrlValue');
+      const url = urlValue?.value;
+      if (url) {
+        navigator.clipboard.writeText(url).then(() => {
+          const btn = event.target;
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = 'Copy', 2000);
+        });
+      }
+    }
+
+    function copyCommand() {
+      const command = document.getElementById('commandToRun')?.textContent;
+      if (command) {
+        navigator.clipboard.writeText(command).then(() => {
+          const btn = event.target;
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = 'Copy', 2000);
+        });
+      }
+    }
+
+    async function validateLocalTunnel() {
+      const btn = document.getElementById('validateBtn');
+      if (!btn) return;
+      
+      btn.disabled = true;
+      btn.textContent = 'Validating...';
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/tunnel/validate-local`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const result = data.data;
+          
+          updateValidationStatus(result);
+          
+          const badge = document.getElementById('tunnelStatusBadge');
+          const instructions = document.getElementById('tunnelCommandInstructions');
+          
+          if (result.overall_status === 'ready') {
+            badge.className = 'status-badge connected';
+            badge.textContent = 'Connected';
+            instructions.style.display = 'none';
+            updateTunnelStatusUI({
+              url: result.tunnel_url.url,
+              status: 'connected',
+            });
+          } else {
+            badge.className = 'status-badge disconnected';
+            badge.textContent = 'Disconnected';
+            instructions.style.display = 'block';
+            document.getElementById('commandToRun').textContent = result.command.to_run;
+            document.getElementById('expectedOutput').textContent = result.command.expected_output.join('\n');
+            
+            const stepsList = document.getElementById('stepsList');
+            if (stepsList) {
+              stepsList.innerHTML = '';
+              result.command.instructions.forEach(step => {
+                const li = document.createElement('li');
+                li.textContent = step.replace(/^\d+\.\s*/, '');
+                stepsList.appendChild(li);
+              });
+            }
+          }
+        }
+      } catch (error) {
+        showTunnelError('Error: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Validate Connection';
+      }
+    }
+
+    function updateValidationStatus(result) {
+      const localServerCard = document.getElementById('localServerCard');
+      const localServerCheck = document.getElementById('localServerCheck');
+      if (localServerCard && localServerCheck) {
+        if (result.local_server.running && result.local_server.accessible) {
+          localServerCard.textContent = 'Port ' + result.local_server.port;
+          localServerCheck.style.display = 'block';
+        } else {
+          localServerCard.textContent = 'Not accessible';
+          localServerCheck.style.display = 'none';
+        }
+      }
+
+      const processPidCard = document.getElementById('processPidCard');
+      const processPidCheck = document.getElementById('processPidCheck');
+      if (processPidCard && processPidCheck) {
+        if (result.cloudflared.running) {
+          processPidCard.textContent = result.cloudflared.process_id;
+          processPidCheck.style.display = 'block';
+        } else {
+          processPidCard.textContent = '-';
+          processPidCheck.style.display = 'none';
+        }
+      }
+
+      const latencyCard = document.getElementById('latencyCard');
+      const latencyCheck = document.getElementById('latencyCheck');
+      if (latencyCard && latencyCheck) {
+        if (result.tunnel_url.configured && result.tunnel_url.accessible) {
+          latencyCard.textContent = result.tunnel_url.latency + 'ms';
+          latencyCheck.style.display = 'block';
+        } else {
+          latencyCard.textContent = '-';
+          latencyCheck.style.display = 'none';
+        }
+      }
+    }
+
+    // Test Webhook
+    async function triggerTestWebhook(type) {
+      const endpoints = {
+        'scan': '/admin/test/trigger-scan',
+        'follow': '/admin/test/trigger-follow',
+        'unfollow': '/admin/test/trigger-unfollow',
+        'login': '/admin/test/trigger-login',
+        'register': '/admin/test/trigger-register',
+      };
+
+      const endpoint = endpoints[type];
+      if (!endpoint) return;
+
+      const resultDiv = document.getElementById('testWebhookResult');
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'webhook-result';
+      resultDiv.textContent = 'Triggering...';
+
+      const buttons = document.querySelectorAll('.btn-webhook');
+      buttons.forEach(btn => btn.disabled = true);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          resultDiv.className = 'webhook-result success';
+          resultDiv.textContent = `✓ ${data.data.message}\n\n${JSON.stringify(data.data.event_data, null, 2)}`;
+        } else {
+          const error = await res.json();
+          resultDiv.className = 'webhook-result error';
+          resultDiv.textContent = `✗ ${error.error || 'Failed'}`;
+        }
+      } catch (error) {
+        resultDiv.className = 'webhook-result error';
+        resultDiv.textContent = `✗ ${error.message}`;
+      } finally {
+        buttons.forEach(btn => btn.disabled = false);
+      }
+    }
+
+    // Environment Validation
+    async function loadEnvironmentValidation() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/validate/environment`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          displayValidationResults(data.data);
+        } else {
+          document.getElementById('validationLoading').textContent = 'Failed to load';
+        }
+      } catch (error) {
+        document.getElementById('validationLoading').textContent = 'Error loading';
+      }
+    }
+
+    function displayValidationResults(validation) {
+      const grid = document.getElementById('validationGrid');
+      document.getElementById('validationLoading').style.display = 'none';
+      document.getElementById('validationContent').style.display = 'block';
+
+      grid.innerHTML = '';
+
+      const services = validation.services || {};
+      const names = {
+        database: 'Database',
+        wechat_mp: 'WeChat Mini Program',
+        wechat_oa: 'WeChat Official Account',
+        cloudflare: 'Cloudflare Tunnel',
+      };
+
+      const docs = {
+        database: {
+          vars: [{ name: 'SUPABASE_URL' }, { name: 'SUPABASE_SERVICE_KEY' }],
+          storage: 'backend/.env',
+          howToGet: ['Go to Supabase Dashboard → Project Settings → API', 'Copy Project URL and service_role key'],
+        },
+        wechat_mp: {
+          vars: [{ name: 'WECHAT_APPID' }, { name: 'WECHAT_SECRET' }],
+          storage: 'backend/.env',
+          howToGet: ['Go to WeChat Mini Program Platform', 'Development → Development Settings → Developer ID'],
+        },
+        wechat_oa: {
+          vars: [{ name: 'OA_APPID' }, { name: 'OA_SECRET' }, { name: 'OA_TOKEN' }, { name: 'OA_ENCODING_AES_KEY' }],
+          storage: 'backend/.env',
+          howToGet: ['Go to WeChat Official Account Platform', 'Development → Basic Configuration'],
+        },
+        cloudflare: {
+          vars: [{ name: 'CLOUDFLARE_TUNNEL_URL' }],
+          storage: 'backend/.env or database',
+          howToGet: ['Run: cloudflared tunnel --url http://localhost:3000', 'Copy the HTTPS URL from output'],
+        },
+      };
+
+      Object.keys(services).forEach(key => {
+        if (key === 'env_vars') return;
+        
+        const service = services[key];
+        const card = document.createElement('div');
+        card.className = 'validation-card';
+        
+        const statusClass = service.status || 'not_configured';
+        const doc = docs[key];
+        const docsId = `docs-${key}`;
+        const contentId = `content-${key}`;
+
+        let currentValue = 'N/A';
+        if (key === 'database' && service.details?.url) {
+          currentValue = service.details.url;
+        } else if ((key === 'wechat_mp' || key === 'wechat_oa') && service.details?.appId) {
+          currentValue = service.details.appId;
+        } else if (key === 'cloudflare' && (service.details?.url || service.details?.runtimeUrl)) {
+          currentValue = service.details?.url || service.details?.runtimeUrl;
+        }
+
+        let docsHtml = '';
+        if (doc) {
+          const varsHtml = doc.vars.map(v => `
+            <div class="env-var-item">
+              <code class="env-var-name">${v.name}</code>
+              <button class="btn-copy-small" onclick="copyVar('${v.name}', this)">Copy</button>
+            </div>
+          `).join('');
+
+          docsHtml = `
+            <div class="connection-details">
+              <div class="details-toggle" onclick="toggleDetails('${docsId}', '${contentId}')">
+                <span>Connection Details</span>
+                <span id="${docsId}">▼</span>
+              </div>
+              <div class="details-content" id="${contentId}">
+                <div class="details-section">
+                  <div class="details-section-title">Environment Variables</div>
+                  <div class="details-section-content">${varsHtml}</div>
+                </div>
+                <div class="details-section">
+                  <div class="details-section-title">Storage</div>
+                  <div class="details-section-content"><code>${doc.storage}</code></div>
+                </div>
+                <div class="details-section">
+                  <div class="details-section-title">How to Get</div>
+                  <div class="details-section-content">
+                    <ul>${doc.howToGet.map(s => `<li>${s}</li>`).join('')}</ul>
+                  </div>
+                </div>
+                <div class="details-section">
+                  <div class="details-section-title">Current Value</div>
+                  <div class="current-value" id="currentValue-${key}">${currentValue}</div>
+                </div>
+                <button class="btn-test" onclick="testConnection('${key}')" id="testBtn-${key}">Test Connection</button>
+                <div class="test-result" id="testResult-${key}" style="display: none;"></div>
+              </div>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="validation-card-header">
+            <div class="validation-card-title">${names[key] || key}</div>
+            <span class="validation-status ${statusClass}"></span>
+          </div>
+          <div class="validation-message">${service.message || 'No message'}</div>
+          ${service.latency ? `<div class="validation-latency">Latency: ${service.latency}ms</div>` : ''}
+          ${docsHtml}
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleDetails(toggleId, contentId) {
+      const toggle = document.getElementById(toggleId);
+      const content = document.getElementById(contentId);
+      if (toggle && content) {
+        const isExpanded = content.classList.contains('expanded');
+        content.classList.toggle('expanded');
+        toggle.textContent = isExpanded ? '▼' : '▲';
+      }
+    }
+
+    function copyVar(name, btn) {
+      navigator.clipboard.writeText(name).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    async function testConnection(serviceKey) {
+      const btn = document.getElementById(`testBtn-${serviceKey}`);
+      const resultEl = document.getElementById(`testResult-${serviceKey}`);
+      
+      if (!btn || !resultEl) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      resultEl.style.display = 'block';
+      resultEl.className = 'test-result loading';
+      resultEl.textContent = 'Testing...';
+
+      try {
+        let endpoint = '';
+        switch(serviceKey) {
+          case 'database': endpoint = '/admin/validate/database'; break;
+          case 'wechat_mp':
+          case 'wechat_oa': endpoint = '/admin/validate/wechat'; break;
+          case 'cloudflare': endpoint = '/admin/validate/cloudflare'; break;
+          default: throw new Error('Unknown service');
+        }
+
+        const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          let result = serviceKey === 'wechat_mp' ? data.data?.wechat_mp :
+                       serviceKey === 'wechat_oa' ? data.data?.wechat_oa : data.data;
+
+          if (result && (result.status === 'healthy' || result.status === 'ready')) {
+            resultEl.className = 'test-result success';
+            resultEl.textContent = `✓ ${result.message || 'Connected'}\nLatency: ${result.latency || 'N/A'}ms`;
+          } else {
+            resultEl.className = 'test-result error';
+            resultEl.textContent = `✗ ${result?.details?.error || result?.message || 'Failed'}`;
+          }
+        } else {
+          const error = await res.json();
+          resultEl.className = 'test-result error';
+          resultEl.textContent = `✗ ${error.error || 'Failed'}`;
+        }
+      } catch (error) {
+        resultEl.className = 'test-result error';
+        resultEl.textContent = `✗ ${error.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Test Connection';
+      }
+    }
+
+    async function runFullValidation() {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = 'Validating...';
+
+      try {
+        await loadEnvironmentValidation();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Full Validation';
+      }
+    }
+
+    // Initialize
     loadDashboard();
     loadDebugSettings();
+    loadEnvironmentValidation();
+    loadTunnelStatus();
+    connectEventStream();
+    
+    setTimeout(() => validateLocalTunnel(), 1500);
   </script>
 </body>
 </html>

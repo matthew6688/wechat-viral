@@ -1,7 +1,7 @@
 <view class="container">
   <view class="card">
     <view class="success-icon">✓</view>
-    <text class="success-title">兑换成功！</text>
+    <text class="success-title">兑换成功</text>
     <text class="success-desc">您已成功兑换奖励</text>
     
     <view wx:if="{{redemption}}">

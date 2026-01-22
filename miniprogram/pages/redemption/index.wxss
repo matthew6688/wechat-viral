@@ -1,95 +1,119 @@
 .container {
-  padding: 40rpx;
+  padding: 80rpx 40rpx;
   background-color: #ffffff;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
 }
 
 .card {
-  background-color: white;
-  border-radius: 16rpx;
-  padding: 40rpx;
-  margin-bottom: 48rpx;
-  border: 1rpx solid #e5e7eb;
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+  border: none;
   width: 100%;
 }
 
 .success-icon {
-  width: 160rpx;
-  height: 160rpx;
-  background-color: #f3f4f6;
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #f5f5f5;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 96rpx;
-  color: #111827;
-  margin: 80rpx auto 32rpx;
+  font-size: 48rpx;
+  color: #000000;
+  margin: 0 auto 48rpx;
+  border: 1rpx solid #e5e5e5;
 }
 
 .success-title {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #111827;
-  margin-bottom: 16rpx;
+  font-size: 24px;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 12rpx;
   display: block;
+  text-align: center;
+  letter-spacing: -0.02em;
 }
 
 .success-desc {
-  font-size: 28rpx;
-  color: #6b7280;
-  margin-bottom: 64rpx;
+  font-size: 14px;
+  color: #737373;
+  margin-bottom: 80rpx;
   display: block;
+  text-align: center;
+  font-weight: 400;
 }
 
 .reward-name {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #111827;
-  margin-bottom: 32rpx;
+  font-size: 15px;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 48rpx;
   display: block;
+  text-align: center;
+  letter-spacing: -0.01em;
 }
 
 .delivery-section {
-  margin-top: 32rpx;
+  margin-top: 0;
+  padding-top: 48rpx;
+  border-top: 1rpx solid #e5e5e5;
 }
 
 .delivery-label {
-  font-size: 28rpx;
-  color: #6b7280;
-  font-weight: 500;
-  margin-bottom: 24rpx;
+  font-size: 12px;
+  color: #737373;
+  font-weight: 400;
+  margin-bottom: 16rpx;
   display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
 }
 
-.url-display, .code-display, .text-display {
-  background-color: #f9fafb;
-  padding: 16rpx;
-  border-radius: 8rpx;
-  margin-top: 16rpx;
-  border: 1rpx solid #e5e7eb;
-  font-size: 24rpx;
-  color: #374151;
+.delivery-content {
+  text-align: center;
+}
+
+.url-display, .text-display {
+  background-color: transparent;
+  padding: 24rpx 0;
+  border-radius: 0;
+  margin-top: 0;
+  border: none;
+  border-bottom: 1rpx solid #e5e5e5;
+  font-size: 14px;
+  color: #000000;
   word-break: break-all;
+  display: block;
+  font-weight: 400;
 }
 
 .code-display {
-  font-size: 48rpx;
-  font-weight: bold;
+  background-color: transparent;
+  padding: 32rpx 0;
+  border-radius: 0;
+  margin-top: 0;
+  border: none;
+  border-bottom: 1rpx solid #e5e5e5;
+  font-size: 24px;
+  font-weight: 500;
   font-family: monospace;
   letter-spacing: 4rpx;
+  color: #000000;
+  display: block;
 }
 
 .btn-primary {
   width: 100%;
-  background-color: #111827;
-  color: white;
-  border-radius: 12rpx;
-  padding: 28rpx;
-  font-size: 32rpx;
-  font-weight: bold;
-  margin-top: 40rpx;
+  background-color: #000000;
+  color: #ffffff;
+  border-radius: 0;
+  padding: 20rpx 0;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 80rpx;
+  letter-spacing: -0.01em;
 }

@@ -1,43 +1,68 @@
 <view class="rewards-container">
-  <view class="points-header">
-    <view class="points-info">
-      <text class="points-label">当前积分</text>
-      <text class="points-value">{{points}}</text>
+  <!-- Header -->
+  <view class="header">
+    <text class="title">Rewards</text>
+    <view class="points-badge">
+      <text class="points-icon">●</text>
+      <text class="points-value">{{points}} PTS</text>
     </view>
   </view>
 
+  <!-- Available Rewards -->
   <view class="section">
-    <text class="section-title">可兑换奖励</text>
+    <text class="section-title">AVAILABLE</text>
     <view class="rewards-list">
-      <view wx:for="{{rewards || []}}" wx:key="id" class="reward-item">
-        <view class="reward-content">
-          <view class="reward-header">
-            <text class="reward-name">{{item.name}}</text>
-            <text class="reward-points">{{item.points_required}} 积分</text>
+      <view wx:for="{{rewards || []}}" wx:key="id" class="reward-card">
+        <!-- Reward Image -->
+        <view class="reward-image-container">
+          <image 
+            class="reward-image" 
+            src="{{item.image_url || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=80'}}" 
+            mode="aspectFill" 
+          />
+          <view class="reward-points-badge">
+            <text>{{item.points_required}} PTS</text>
           </view>
+        </view>
+        
+        <!-- Reward Info -->
+        <view class="reward-info">
+          <text class="reward-name">{{item.name}}</text>
           <text class="reward-desc">{{item.description}}</text>
+          
+          <!-- Action Buttons -->
+          <view class="reward-actions">
+            <view class="btn-details">Details</view>
+            <view class="btn-earn">Earn</view>
+          </view>
+          
           <button 
-            class="btn-redeem {{points >= item.points_required ? 'btn-redeem-active' : 'btn-redeem-disabled'}}"
+            class="btn-redeem {{points >= item.points_required ? '' : 'disabled'}}"
             data-id="{{item.id}}"
             bindtap="redeemReward"
             disabled="{{points < item.points_required}}"
           >
-            {{points >= item.points_required ? '立即兑换' : '积分不足'}}
+            {{points >= item.points_required ? 'Redeem Now' : 'Need ' + (item.points_required - points) + ' more PTS'}}
           </button>
         </view>
+      </view>
+      
+      <view wx:if="{{!rewards || rewards.length === 0}}" class="empty-state">
+        <text>No rewards available</text>
       </view>
     </view>
   </view>
 
-  <view class="section">
-    <text class="section-title">兑换记录</text>
+  <!-- Redemption History -->
+  <view class="section" wx:if="{{redemptions && redemptions.length > 0}}">
+    <text class="section-title">REDEEMED</text>
     <view class="redemptions-list">
       <view wx:for="{{redemptions || []}}" wx:key="id" class="redemption-item">
         <view class="redemption-content">
           <text class="redemption-name">{{item.reward_name}}</text>
           <text class="redemption-date">{{item.created_at}}</text>
         </view>
-        <text class="redemption-arrow">→</text>
+        <text class="redemption-check">✓</text>
       </view>
     </view>
   </view>

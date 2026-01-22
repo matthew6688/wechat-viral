@@ -1,14 +1,32 @@
 <view class="landing-container">
-  <view class="landing-hero">
-    <view class="hero-content">
-      <text class="headline">{{headline}}</text>
-      <text class="subheadline">{{subheadline}}</text>
-      <view class="body-card">
-        <text class="body-content">{{body}}</text>
-      </view>
+  <!-- Logo/Icon -->
+  <view class="logo-section">
+    <view class="logo-icon">
+      <text class="logo-text">⚡</text>
     </view>
   </view>
+
+  <!-- Hero Content -->
+  <view class="hero-section">
+    <text class="hero-title">AI Export Growth Lab</text>
+    <text class="hero-subtitle">Free SOPs, Automation Workflows, and Growth Strategies for Chinese Manufacturers.</text>
+  </view>
+
+  <!-- Hero Image -->
+  <view class="hero-image-container">
+    <image class="hero-image" src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80" mode="aspectFill" />
+  </view>
+
+  <!-- Description -->
+  <view class="description-section">
+    <text class="description-text">Join 500+ Exporters. Get exclusive access to B2B templates, Google Ads strategies for factories, and our referral rewards program.</text>
+  </view>
+
+  <!-- CTA Button -->
   <view class="cta-section">
-    <button class="btn-primary" bindtap="handleCTA">立即开始</button>
+    <button class="btn-cta" bindtap="handleCTA">
+      <text>Get Free Resources</text>
+      <text class="btn-arrow">→</text>
+    </button>
   </view>
 </view>

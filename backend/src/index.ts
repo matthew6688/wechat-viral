@@ -1,7 +1,16 @@
-import express from 'express';
-import cors from 'cors';
+// IMPORTANT: Load environment variables BEFORE any other imports
 import dotenv from 'dotenv';
 import path from 'path';
+
+// Load .env from backend directory
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+
+// Debug: Log env vars to verify they're loaded
+console.log('ENV Check - SUPABASE_URL:', process.env.SUPABASE_URL ? 'SET' : 'NOT SET');
+console.log('ENV Check - SUPABASE_SERVICE_KEY:', process.env.SUPABASE_SERVICE_KEY ? 'SET' : 'NOT SET');
+
+import express from 'express';
+import cors from 'cors';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import sceneRoutes from './routes/scene';
@@ -12,9 +21,6 @@ import rewardsRoutes from './routes/rewards';
 import oaRoutes from './routes/oa';
 import adminRoutes from './routes/admin';
 
-// Load environment variables first
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -22,6 +28,13 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Add Cloudflare tunnel URL detection middleware
+app.use((req, res, next) => {
+  // Store request for later use in validation endpoints
+  (req as any).cloudflareInfo = req.headers['x-forwarded-host'] || req.headers['host'];
+  next();
+});
 
 // Serve admin pages
 app.use('/admin', express.static(path.join(__dirname, '../../admin')));

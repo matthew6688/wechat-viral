@@ -1,121 +1,114 @@
 .container {
-  padding: 80rpx 40rpx;
+  padding: 48rpx 40rpx;
   background-color: #ffffff;
   min-height: 100vh;
 }
 
-.card {
-  background-color: transparent;
-  border-radius: 0;
-  padding: 0;
-  border: none;
+.header {
+  margin-bottom: 48rpx;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 500;
-  color: #000000;
-  margin-bottom: 80rpx;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1a1a2e;
   display: block;
+  margin-bottom: 12rpx;
   letter-spacing: -0.02em;
 }
 
-.form-item {
-  margin-bottom: 60rpx;
+.subtitle {
+  font-size: 28rpx;
+  color: #6b7280;
+  display: block;
+  font-weight: 400;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 36rpx;
 }
 
 .label {
-  font-size: 13px;
-  color: #000000;
-  margin-bottom: 12rpx;
-  font-weight: 500;
+  font-size: 22rpx;
+  color: #6b7280;
+  margin-bottom: 16rpx;
   display: block;
-  letter-spacing: -0.01em;
+  font-weight: 500;
+  letter-spacing: 0.05em;
 }
 
-.input, .textarea {
+.input {
   width: 100%;
-  border: none;
-  border-bottom: 1rpx solid #e5e5e5;
-  border-radius: 0;
-  padding: 16rpx 0;
-  font-size: 15px;
-  background-color: transparent;
-  color: #000000;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 12rpx;
+  padding: 24rpx 28rpx;
+  font-size: 28rpx;
+  background-color: #ffffff;
+  color: #1a1a2e;
   box-sizing: border-box;
-  font-family: inherit;
 }
 
-.input:focus, .textarea:focus {
-  outline: none;
-  border-bottom-color: #000000;
+.input:focus {
+  border-color: #1a1a2e;
+}
+
+.input::placeholder {
+  color: #9ca3af;
 }
 
 .textarea {
-  min-height: 120rpx;
-  resize: none;
-}
-
-.btn-primary {
   width: 100%;
-  background-color: #000000;
-  color: #ffffff;
-  border-radius: 0;
-  padding: 20rpx 0;
-  font-size: 14px;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 12rpx;
+  padding: 24rpx 28rpx;
+  font-size: 28rpx;
+  background-color: #ffffff;
+  color: #1a1a2e;
+  box-sizing: border-box;
+  min-height: 120rpx;
+}
+
+.role-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.role-btn {
+  padding: 24rpx 20rpx;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 12rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #1a1a2e;
+  background-color: #ffffff;
   font-weight: 500;
-  margin-top: 80rpx;
-  letter-spacing: -0.01em;
+  transition: all 0.2s;
 }
 
-.wechat-profile {
-  display: flex;
-  align-items: center;
-  gap: 24rpx;
-  padding: 0;
-  background-color: transparent;
-  border: none;
-  border-bottom: 1rpx solid #e5e5e5;
-  border-radius: 0;
-  opacity: 0.6;
-  padding-bottom: 32rpx;
-  margin-bottom: 60rpx;
+.role-btn.active {
+  background-color: #1a1a2e;
+  color: #ffffff;
+  border-color: #1a1a2e;
 }
 
-.wechat-avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  border: 2rpx solid #d1d5db;
-}
-
-.wechat-avatar-placeholder {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background-color: #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24rpx;
-  color: #9ca3af;
-  border: 2rpx solid #d1d5db;
-}
-
-.wechat-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-}
-
-.wechat-nickname {
-  font-size: 32rpx;
+.btn-submit {
+  width: 100%;
+  background-color: #1a1a2e;
+  color: #ffffff;
+  border-radius: 16rpx;
+  padding: 28rpx 0;
+  font-size: 30rpx;
   font-weight: 600;
-  color: #6b7280;
+  margin-top: 32rpx;
+  border: none;
 }
 
-.wechat-hint {
-  font-size: 22rpx;
-  color: #9ca3af;
+.btn-submit::after {
+  border: none;
 }

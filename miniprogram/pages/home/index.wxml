@@ -1,40 +1,70 @@
 <view class="home-container">
-  <view class="header">
-    <text class="welcome-text">欢迎回来</text>
-    <text class="user-name">{{user && user.name ? user.name : '用户'}}</text>
-  </view>
-  
-  <view class="points-section">
-    <text class="points-value">{{points}}</text>
-    <text class="points-label">积分</text>
+  <!-- User Header Card -->
+  <view class="user-header">
+    <view class="user-info">
+      <view class="avatar-container">
+        <view class="avatar-badge">{{user && user.name ? user.name.charAt(0) : 'U'}}</view>
+      </view>
+      <view class="user-details">
+        <text class="user-name">{{user && user.name ? user.name : '用户'}}</text>
+        <text class="user-phone">{{user && user.phone ? user.phone : ''}}</text>
+      </view>
+    </view>
+    <view class="points-badge">
+      <text class="points-icon">●</text>
+      <text class="points-value">{{points}} PTS</text>
+    </view>
   </view>
 
+  <!-- Action Buttons -->
+  <view class="action-buttons">
+    <view class="action-btn" bindtap="goToRewards">
+      <text class="action-icon">🎁</text>
+      <text class="action-text">Redeem</text>
+    </view>
+    <view class="action-btn" bindtap="goToInvite">
+      <text class="action-icon">👥</text>
+      <text class="action-text">Invite</text>
+    </view>
+  </view>
+
+  <!-- Tasks Section -->
   <view class="section">
-    <text class="section-title">任务</text>
+    <text class="section-title">TASKS</text>
     <view class="tasks-list">
-      <view wx:for="{{tasks || []}}" wx:key="id" class="task-item">
-        <view class="task-header">
-          <text class="task-title">{{item.name}}</text>
-          <text class="task-points">+{{item.points}} 积分</text>
+      <view wx:for="{{tasks || []}}" wx:key="id" class="task-card">
+        <view class="task-left">
+          <view class="task-checkbox {{item.completed ? 'checked' : ''}}">
+            <text wx:if="{{item.completed}}" class="check-icon">✓</text>
+          </view>
+          <view class="task-content">
+            <text class="task-title">{{item.name}}</text>
+            <text class="task-desc">{{item.description}}</text>
+            <text wx:if="{{!item.completed}}" class="task-action" data-id="{{item.id}}" bindtap="completeTask">Start Task</text>
+          </view>
         </view>
-        <text class="task-desc">{{item.description}}</text>
-        <button wx:if="{{!item.completed}}" class="btn-task btn-claim" data-id="{{item.id}}" bindtap="completeTask">完成任务</button>
-        <view wx:else class="task-completed">
-          <text class="completed-text">✓ 已完成</text>
-        </view>
+        <text class="task-points">+{{item.points}}</text>
+      </view>
+      <view wx:if="{{!tasks || tasks.length === 0}}" class="empty-state">
+        <text>No tasks available</text>
       </view>
     </view>
   </view>
 
+  <!-- Activity Section -->
   <view class="section">
-    <text class="section-title">最近活动</text>
-    <view class="logs-list">
-      <view wx:for="{{logs || []}}" wx:key="id" class="log-item">
-        <view class="log-content">
-          <text class="log-remark">{{item.remark}}</text>
-          <text class="log-date">{{item.created_at}}</text>
+    <text class="section-title">ACTIVITY</text>
+    <view class="activity-list">
+      <view wx:for="{{logs || []}}" wx:key="id" class="activity-item">
+        <view class="activity-dot"></view>
+        <view class="activity-content">
+          <text class="activity-title">{{item.remark}}</text>
+          <text class="activity-date">{{item.formatted_date}}</text>
         </view>
-        <text class="log-points {{item.points > 0 ? 'positive' : 'negative'}}">{{item.points > 0 ? '+' : ''}}{{item.points}}</text>
+        <text class="activity-points {{item.points > 0 ? 'positive' : 'negative'}}">{{item.points > 0 ? '+' : ''}}{{item.points}}</text>
+      </view>
+      <view wx:if="{{!logs || logs.length === 0}}" class="empty-state">
+        <text>No activity yet</text>
       </view>
     </view>
   </view>

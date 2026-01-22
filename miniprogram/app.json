@@ -12,31 +12,36 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#ffffff",
-    "navigationBarTitleText": "AI出口增长实验室",
+    "navigationBarTitleText": "AI Export Growth Lab",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f9fafb"
+    "backgroundColor": "#f8f9fa"
   },
   "tabBar": {
-    "color": "#6b7280",
-    "selectedColor": "#111827",
+    "custom": true,
+    "color": "#9ca3af",
+    "selectedColor": "#1a1a2e",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/home/index",
-        "text": "首页"
+        "text": "Home"
       },
       {
         "pagePath": "pages/rewards/index",
-        "text": "兑换"
+        "text": "Rewards"
       },
       {
         "pagePath": "pages/invite/index",
-        "text": "邀请"
+        "text": "Invite"
       },
       {
         "pagePath": "pages/profile/index",
-        "text": "我的"
+        "text": "Profile"
+      },
+      {
+        "pagePath": "pages/admin/index",
+        "text": "Admin"
       }
     ]
   },

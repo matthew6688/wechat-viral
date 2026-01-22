@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
 
-dotenv.config();
+// Note: dotenv is loaded in index.ts before any imports
 
 let _supabase: ReturnType<typeof createClient> | null = null;
 
