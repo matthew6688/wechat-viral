@@ -205,6 +205,86 @@
       <div class="events-list" id="eventsList"></div>
       <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
     </div>
+
+    <div class="section">
+      <div class="section-title">Debug Settings</div>
+      <div class="loading" id="debugSettingsLoading">Loading settings...</div>
+      <div id="debugSettingsForm" style="display: none;">
+        <form id="debugSettingsFormElement">
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="debugMode" name="debug_mode">
+              <span>Debug Mode</span>
+            </label>
+            <p class="setting-desc">Enable verbose logging and debug information</p>
+          </div>
+
+          <div class="setting-item">
+            <label>
+              <span>Log Level</span>
+              <select id="logLevel" name="log_level">
+                <option value="debug">Debug</option>
+                <option value="info" selected>Info</option>
+                <option value="warn">Warn</option>
+                <option value="error">Error</option>
+              </select>
+            </label>
+            <p class="setting-desc">Minimum log level to record</p>
+          </div>
+
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="eventLogEnabled" name="event_log_enabled" checked>
+              <span>Event Logging</span>
+            </label>
+            <p class="setting-desc">Enable event logging to database</p>
+          </div>
+
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="apiLogging" name="api_logging" checked>
+              <span>API Logging</span>
+            </label>
+            <p class="setting-desc">Log all API requests and responses</p>
+          </div>
+
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="errorTracking" name="error_tracking" checked>
+              <span>Error Tracking</span>
+            </label>
+            <p class="setting-desc">Track and report errors</p>
+          </div>
+
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="performanceMonitoring" name="performance_monitoring">
+              <span>Performance Monitoring</span>
+            </label>
+            <p class="setting-desc">Monitor API response times and performance</p>
+          </div>
+
+          <div class="setting-item">
+            <label>
+              <span>Max Log Retention (days)</span>
+              <input type="number" id="maxLogRetentionDays" name="max_log_retention_days" value="30" min="1" max="365">
+            </label>
+            <p class="setting-desc">How many days to keep logs before deletion</p>
+          </div>
+
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="showSensitiveData" name="show_sensitive_data">
+              <span>Show Sensitive Data (⚠️ Security Risk)</span>
+            </label>
+            <p class="setting-desc warning">WARNING: This will log sensitive information like tokens and passwords</p>
+          </div>
+
+          <button type="submit" class="btn-save">Save Settings</button>
+          <div id="debugSettingsMessage" class="settings-message"></div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -325,8 +405,89 @@
       window.location.href = './login.html';
     }
 
+    // Load debug settings
+    async function loadDebugSettings() {
+      try {
+        const settingsRes = await fetch(`${API_BASE_URL}/admin/settings/debug`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (settingsRes.ok) {
+          const data = await settingsRes.json();
+          const settings = data.data?.settings || {};
+          
+          // Populate form
+          document.getElementById('debugMode').checked = settings.debug_mode === true || settings.debug_mode === 'true';
+          document.getElementById('logLevel').value = settings.log_level || 'info';
+          document.getElementById('eventLogEnabled').checked = settings.event_log_enabled !== false && settings.event_log_enabled !== 'false';
+          document.getElementById('apiLogging').checked = settings.api_logging !== false && settings.api_logging !== 'false';
+          document.getElementById('errorTracking').checked = settings.error_tracking !== false && settings.error_tracking !== 'false';
+          document.getElementById('performanceMonitoring').checked = settings.performance_monitoring === true || settings.performance_monitoring === 'true';
+          document.getElementById('maxLogRetentionDays').value = settings.max_log_retention_days || 30;
+          document.getElementById('showSensitiveData').checked = settings.show_sensitive_data === true || settings.show_sensitive_data === 'true';
+          
+          document.getElementById('debugSettingsLoading').style.display = 'none';
+          document.getElementById('debugSettingsForm').style.display = 'block';
+        } else {
+          console.error('Failed to load debug settings');
+          document.getElementById('debugSettingsLoading').textContent = 'Failed to load settings';
+        }
+      } catch (error) {
+        console.error('Error loading debug settings:', error);
+        document.getElementById('debugSettingsLoading').textContent = 'Error loading settings';
+      }
+    }
+
+    // Save debug settings
+    document.getElementById('debugSettingsFormElement').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const settings = {};
+      
+      // Collect checkbox values
+      settings.debug_mode = document.getElementById('debugMode').checked;
+      settings.log_level = document.getElementById('logLevel').value;
+      settings.event_log_enabled = document.getElementById('eventLogEnabled').checked;
+      settings.api_logging = document.getElementById('apiLogging').checked;
+      settings.error_tracking = document.getElementById('errorTracking').checked;
+      settings.performance_monitoring = document.getElementById('performanceMonitoring').checked;
+      settings.max_log_retention_days = parseInt(document.getElementById('maxLogRetentionDays').value);
+      settings.show_sensitive_data = document.getElementById('showSensitiveData').checked;
+
+      const messageEl = document.getElementById('debugSettingsMessage');
+      messageEl.textContent = '';
+      messageEl.className = 'settings-message';
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/settings/debug`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ settings }),
+        });
+
+        if (response.ok) {
+          messageEl.textContent = 'Settings saved successfully';
+          messageEl.className = 'settings-message success';
+        } else {
+          const error = await response.json();
+          messageEl.textContent = error.error || 'Failed to save settings';
+          messageEl.className = 'settings-message error';
+        }
+      } catch (error) {
+        messageEl.textContent = 'Network error: ' + error.message;
+        messageEl.className = 'settings-message error';
+      }
+    });
+
     // Load dashboard on page load
     loadDashboard();
+    loadDebugSettings();
   </script>
 </body>
 </html>
