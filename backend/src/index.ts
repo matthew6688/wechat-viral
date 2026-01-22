@@ -20,6 +20,7 @@ import tasksRoutes from './routes/tasks';
 import rewardsRoutes from './routes/rewards';
 import oaRoutes from './routes/oa';
 import adminRoutes from './routes/admin';
+import campaignRoutes from './routes/campaigns';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -54,6 +55,7 @@ app.use('/api/tasks', tasksRoutes);
 app.use('/api/rewards', rewardsRoutes);
 app.use('/api/oa', oaRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/campaigns', campaignRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
