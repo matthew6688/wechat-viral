@@ -2574,8 +2574,8 @@
             card.className = 'env-card warning';
           }
           
-          // Check last webhook event
-          const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=10&event_type=oa_subscribe,oa_scan,oa_unsubscribe`, {
+          // Check last webhook event - include campaign_help which is triggered by OA webhook
+          const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=20`, {
             headers: { 'Authorization': `Bearer ${token}` },
           });
           
@@ -2586,18 +2586,20 @@
             const eventsData = await eventsRes.json();
             const events = eventsData.data?.events || [];
             
-            // Filter OA events
+            // Filter OA-related events (including campaign_help which is triggered by OA subscribe)
             const oaEvents = events.filter(e => 
               e.event_type === 'oa_subscribe' || 
               e.event_type === 'oa_scan' || 
-              e.event_type === 'oa_unsubscribe'
+              e.event_type === 'oa_unsubscribe' ||
+              e.event_type === 'campaign_help' ||
+              e.event_type === 'campaign_helper_recorded'
             );
             
             if (oaEvents.length > 0) {
               const lastEvent = oaEvents[0];
               lastEventTime = new Date(lastEvent.created_at);
               const timeAgo = getTimeAgo(lastEventTime);
-              lastWebhookEl.textContent = `${timeAgo} (${lastEvent.event_type})`;
+              lastWebhookEl.textContent = `✅ ${timeAgo} (${lastEvent.event_type})`;
               hasRecentWebhook = true;
             } else {
               lastWebhookEl.textContent = '❌ No OA events received';
