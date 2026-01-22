@@ -1591,6 +1591,84 @@
       padding: 6px 12px;
     }
 
+    /* Critical Alert Banner */
+    .critical-alert {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+      animation: pulse-border 2s infinite;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { border-color: #f59e0b; }
+      50% { border-color: #d97706; }
+    }
+
+    .alert-icon {
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .alert-content {
+      flex: 1;
+    }
+
+    .alert-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 8px;
+    }
+
+    .alert-message {
+      font-size: 14px;
+      color: #78350f;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .alert-action {
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .alert-action code {
+      background: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      word-break: break-all;
+      color: #1f2937;
+    }
+
+    .alert-dismiss {
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      color: #92400e;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      opacity: 0.6;
+    }
+
+    .alert-dismiss:hover {
+      opacity: 1;
+    }
+
     .reward-row:last-child {
       border-bottom: none;
     }
@@ -1661,6 +1739,23 @@
       </div>
     </div>
 
+    <!-- Critical Alert Banner (hidden by default) -->
+    <div id="criticalAlertBanner" class="critical-alert" style="display: none;">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-content">
+        <div class="alert-title">Webhook URL Mismatch Detected!</div>
+        <div class="alert-message" id="alertMessage">
+          Your Cloudflare Tunnel URL has changed. Please update the webhook URL in WeChat Official Account backend.
+        </div>
+        <div class="alert-action">
+          <strong>New Webhook URL:</strong> 
+          <code id="alertWebhookUrl">-</code>
+          <button class="btn-copy" onclick="copyToClipboard(document.getElementById('alertWebhookUrl').textContent)" style="margin-left: 8px;">Copy</button>
+        </div>
+      </div>
+      <button class="alert-dismiss" onclick="dismissAlert()">×</button>
+    </div>
+
     <!-- Environment Validation -->
     <section class="section">
       <div class="section-header">
@@ -1720,6 +1815,10 @@
               <div class="env-row">
                 <span class="env-label">Last Webhook:</span>
                 <span class="env-value" id="lastWebhook">-</span>
+              </div>
+              <div class="env-row" id="webhookMismatchRow" style="display: none;">
+                <span class="env-label" style="color: var(--error);">⚠️ Warning:</span>
+                <span class="env-value" id="webhookMismatchMsg" style="color: var(--error);">-</span>
               </div>
             </div>
             <div class="env-action">
@@ -2160,12 +2259,34 @@
     let currentTunnelUrl = null;
 
     async function runAllValidations() {
+      // First validate tunnel to get the current URL
+      await validateTunnel();
+      
+      // Then validate other services
       await Promise.all([
-        validateTunnel(),
         validateOA(),
         validateDB(),
         validateBackend()
       ]);
+      
+      // Check for webhook mismatch after all validations
+      checkWebhookMismatch();
+    }
+
+    async function checkWebhookMismatch() {
+      const tunnelUrl = document.getElementById('tunnelUrl').textContent;
+      const lastWebhook = document.getElementById('lastWebhook').textContent;
+      
+      // If tunnel is running but no OA events received
+      if (tunnelUrl && tunnelUrl !== '-' && tunnelUrl !== 'Not detected') {
+        if (lastWebhook.includes('No OA events') || lastWebhook === '-') {
+          const webhookUrl = `${tunnelUrl}/api/oa/webhook`;
+          showCriticalAlert(
+            webhookUrl,
+            'No webhook events received from WeChat Official Account. This usually means the webhook URL in WeChat backend is not configured or is outdated. Please update it with the URL below:'
+          );
+        }
+      }
     }
 
     async function validateTunnel() {
@@ -2230,10 +2351,13 @@
       const appIdEl = document.getElementById('oaAppId');
       const tokenStatusEl = document.getElementById('oaTokenStatus');
       const lastWebhookEl = document.getElementById('lastWebhook');
+      const mismatchRow = document.getElementById('webhookMismatchRow');
+      const mismatchMsg = document.getElementById('webhookMismatchMsg');
       
       status.textContent = '⏳ Checking...';
       status.className = 'env-status';
       card.className = 'env-card';
+      mismatchRow.style.display = 'none';
       
       try {
         const res = await fetch(`${API_BASE_URL}/admin/env/oa-status`, {
@@ -2258,25 +2382,63 @@
           }
           
           // Check last webhook event
-          const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=1&type=oa_event_received`, {
+          const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=10&event_type=oa_subscribe,oa_scan,oa_unsubscribe`, {
             headers: { 'Authorization': `Bearer ${token}` },
           });
+          
+          let hasRecentWebhook = false;
+          let lastEventTime = null;
           
           if (eventsRes.ok) {
             const eventsData = await eventsRes.json();
             const events = eventsData.data?.events || [];
-            if (events.length > 0) {
-              const lastEvent = events[0];
-              const timeAgo = getTimeAgo(new Date(lastEvent.created_at));
-              lastWebhookEl.textContent = timeAgo;
+            
+            // Filter OA events
+            const oaEvents = events.filter(e => 
+              e.event_type === 'oa_subscribe' || 
+              e.event_type === 'oa_scan' || 
+              e.event_type === 'oa_unsubscribe'
+            );
+            
+            if (oaEvents.length > 0) {
+              const lastEvent = oaEvents[0];
+              lastEventTime = new Date(lastEvent.created_at);
+              const timeAgo = getTimeAgo(lastEventTime);
+              lastWebhookEl.textContent = `${timeAgo} (${lastEvent.event_type})`;
+              hasRecentWebhook = true;
             } else {
-              lastWebhookEl.textContent = 'No events received yet';
-              if (data.hasAccessToken) {
-                status.textContent = '⚠️ No Events';
-                status.className = 'env-status warning';
-                card.className = 'env-card warning';
-              }
+              lastWebhookEl.textContent = '❌ No OA events received';
+              hasRecentWebhook = false;
             }
+          }
+          
+          // Check if webhook URL might be outdated
+          const currentTunnel = document.getElementById('tunnelUrl').textContent;
+          const timeSinceLastEvent = lastEventTime ? (Date.now() - lastEventTime.getTime()) : Infinity;
+          const fiveMinutes = 5 * 60 * 1000;
+          
+          // Show warning if:
+          // 1. No OA events ever received, OR
+          // 2. Current tunnel URL exists but no recent events
+          if (!hasRecentWebhook && currentTunnel && currentTunnel !== '-' && currentTunnel !== 'Not detected') {
+            mismatchRow.style.display = 'flex';
+            mismatchMsg.innerHTML = `
+              <strong>Webhook URL may not be configured!</strong><br>
+              <small>Current tunnel: ${currentTunnel}</small><br>
+              <small>Update WeChat OA backend with: <code>${currentTunnel}/api/oa/webhook</code></small>
+            `;
+            status.textContent = '⚠️ Check Webhook';
+            status.className = 'env-status warning';
+            card.className = 'env-card warning';
+          } else if (data.hasAccessToken && !hasRecentWebhook) {
+            mismatchRow.style.display = 'flex';
+            mismatchMsg.innerHTML = `
+              <strong>No webhook events received!</strong><br>
+              <small>Please check if WeChat OA webhook URL is correctly configured.</small>
+            `;
+            status.textContent = '⚠️ No Events';
+            status.className = 'env-status warning';
+            card.className = 'env-card warning';
           }
         } else {
           throw new Error('Failed to check OA status');
@@ -2426,6 +2588,22 @@
 
     function hideEnvInstructions() {
       document.getElementById('envInstructions').style.display = 'none';
+    }
+
+    function showCriticalAlert(webhookUrl, message) {
+      const banner = document.getElementById('criticalAlertBanner');
+      const alertWebhookUrl = document.getElementById('alertWebhookUrl');
+      const alertMessage = document.getElementById('alertMessage');
+      
+      alertWebhookUrl.textContent = webhookUrl;
+      if (message) {
+        alertMessage.textContent = message;
+      }
+      banner.style.display = 'flex';
+    }
+
+    function dismissAlert() {
+      document.getElementById('criticalAlertBanner').style.display = 'none';
     }
 
     function getTimeAgo(date) {
@@ -3647,7 +3825,11 @@
     loadCampaignList();
     connectEventStream();
     
-    setTimeout(() => validateLocalTunnel(), 1500);
+    // Run environment validations on page load
+    setTimeout(() => {
+      validateLocalTunnel();
+      runAllValidations();
+    }, 1500);
   </script>
 
   <!-- Create/Edit Campaign Modal -->
