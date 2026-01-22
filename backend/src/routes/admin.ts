@@ -682,6 +682,49 @@ router.get('/validate/env-vars', async (req: AuthRequest, res) => {
   }
 });
 
+/**
+ * GET /api/admin/validate/backend
+ * Backend server health check
+ */
+router.get('/validate/backend', async (req: AuthRequest, res) => {
+  try {
+    const startTime = Date.now();
+    
+    // Check database connection
+    const { data: dbTest, error: dbError } = await supabase
+      .from('users')
+      .select('id')
+      .limit(1);
+    
+    const responseTime = Date.now() - startTime;
+    
+    // Get server info
+    const serverInfo = {
+      status: 'healthy',
+      port: process.env.PORT || 3000,
+      nodeVersion: process.version,
+      platform: process.platform,
+      uptime: process.uptime(),
+      memoryUsage: process.memoryUsage(),
+      environment: process.env.NODE_ENV || 'development',
+      responseTime: `${responseTime}ms`,
+      databaseConnected: !dbError,
+      timestamp: new Date().toISOString(),
+    };
+    
+    res.json({ data: serverInfo });
+  } catch (error: any) {
+    console.error('Backend validation error:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to validate backend',
+      data: {
+        status: 'unhealthy',
+        error: error.message,
+      }
+    });
+  }
+});
+
 
 /**
  * POST /api/admin/test/trigger-scan
