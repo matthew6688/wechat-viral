@@ -82,4 +82,12 @@ Page({
   goToInvite() {
     wx.switchTab({ url: '/pages/invite/index' });
   },
+
+  goToCampaign() {
+    // Navigate to the test campaign
+    // TODO: Later can show a campaign list
+    wx.navigateTo({ 
+      url: '/pages/campaign/index?id=1e5cba0b-36fd-4969-9369-68fb485ce529' 
+    });
+  },
 });

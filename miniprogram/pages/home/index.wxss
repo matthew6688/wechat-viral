@@ -102,6 +102,15 @@
   border: 2rpx solid #e5e7eb;
 }
 
+.action-btn.highlight {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.action-btn.highlight .action-text {
+  color: #ffffff;
+}
+
 .action-icon {
   font-size: 28rpx;
 }

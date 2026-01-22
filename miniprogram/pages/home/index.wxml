@@ -27,6 +27,10 @@
       <text class="action-icon">👥</text>
       <text class="action-text">Invite</text>
     </view>
+    <view class="action-btn highlight" bindtap="goToCampaign">
+      <text class="action-icon">🎯</text>
+      <text class="action-text">活动</text>
+    </view>
   </view>
 
   <!-- Tasks Section -->

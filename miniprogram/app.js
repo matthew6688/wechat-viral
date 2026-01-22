@@ -12,6 +12,15 @@ const storage = {
   removeToken() {
     wx.removeStorageSync('token');
   },
+  getUser() {
+    return wx.getStorageSync('user') || null;
+  },
+  setUser(user) {
+    wx.setStorageSync('user', user);
+  },
+  removeUser() {
+    wx.removeStorageSync('user');
+  },
 };
 
 App({
@@ -24,10 +33,20 @@ App({
   onLaunch(options) {
     console.log('App launched', options);
     
-    // Restore session
+    // Restore session from storage
     const token = storage.getToken();
+    const savedUser = storage.getUser();
+    
     if (token) {
       this.globalData.token = token;
+      
+      // Restore user from storage first (faster)
+      if (savedUser) {
+        this.globalData.user = savedUser;
+        console.log('User restored from storage:', savedUser.name || savedUser.wechat_nickname || 'Unknown');
+      }
+      
+      // Then refresh from server in background
       this.loadUserData();
     }
 
@@ -84,7 +103,18 @@ App({
       });
 
       if (response.statusCode === 200 && response.data && response.data.data) {
-        this.globalData.user = response.data.data;
+        const user = response.data.data;
+        this.globalData.user = user;
+        // Save to storage for persistence
+        storage.setUser(user);
+        console.log('User data loaded and saved:', user.name || user.wechat_nickname || 'Unknown');
+      } else if (response.statusCode === 401) {
+        // Token expired, clear session
+        console.log('Token expired, clearing session');
+        storage.removeToken();
+        storage.removeUser();
+        this.globalData.token = null;
+        this.globalData.user = null;
       }
     } catch (error) {
       console.error('Load user data error:', error);
@@ -117,6 +147,9 @@ App({
                     storage.setToken(token);
                     this.globalData.token = token;
                     this.globalData.user = user;
+                    // Save user to storage for persistence
+                    storage.setUser(user);
+                    console.log('User logged in and saved:', user.name || user.wechat_nickname || 'Unknown');
                     resolve({ token, user });
                   } else {
                     console.error('Invalid response structure:', data);
@@ -147,5 +180,14 @@ App({
         },
       });
     });
+  },
+
+  // Logout method
+  logout() {
+    storage.removeToken();
+    storage.removeUser();
+    this.globalData.token = null;
+    this.globalData.user = null;
+    console.log('User logged out');
   },
 });
