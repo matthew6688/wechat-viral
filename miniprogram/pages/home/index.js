@@ -84,10 +84,9 @@ Page({
   },
 
   goToCampaign() {
-    // Navigate to the test campaign
-    // TODO: Later can show a campaign list
+    // Navigate to campaigns list
     wx.navigateTo({ 
-      url: '/pages/campaign/index?id=1e5cba0b-36fd-4969-9369-68fb485ce529' 
+      url: '/pages/campaigns/index' 
     });
   },
 });

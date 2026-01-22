@@ -8,7 +8,8 @@
     "pages/redemption/index",
     "pages/profile/index",
     "pages/admin/index",
-    "pages/campaign/index"
+    "pages/campaign/index",
+    "pages/campaigns/index"
   ],
   "window": {
     "backgroundTextStyle": "light",

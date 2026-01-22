@@ -1,0 +1,82 @@
+<!--pages/campaigns/index.wxml-->
+<view class="campaigns-container">
+  <!-- Header -->
+  <view class="page-header">
+    <text class="page-title">活动中心</text>
+    <text class="page-subtitle">参与活动，邀请好友，赢取奖励</text>
+  </view>
+
+  <!-- Loading State -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- Campaign List -->
+  <view wx:else class="campaigns-list">
+    <!-- Active Campaigns -->
+    <view wx:if="{{campaigns.length > 0}}">
+      <view 
+        wx:for="{{campaigns}}" 
+        wx:key="id" 
+        class="campaign-card"
+        bindtap="goToCampaign"
+        data-id="{{item.id}}"
+      >
+        <!-- Cover Image -->
+        <view class="card-cover">
+          <image 
+            wx:if="{{item.cover_image_url}}" 
+            class="cover-image" 
+            src="{{item.cover_image_url}}" 
+            mode="aspectFill"
+          />
+          <view wx:else class="cover-placeholder">
+            <text class="placeholder-icon">🎁</text>
+          </view>
+          <view class="status-badge {{item.status}}">
+            <text>{{item.status === 'active' ? '进行中' : item.status === 'ended' ? '已结束' : '即将开始'}}</text>
+          </view>
+        </view>
+
+        <!-- Card Content -->
+        <view class="card-content">
+          <text class="campaign-name">{{item.name}}</text>
+          <text class="campaign-desc">{{item.description}}</text>
+          
+          <!-- Campaign Info -->
+          <view class="campaign-meta">
+            <view class="meta-item">
+              <text class="meta-icon">📅</text>
+              <text class="meta-text">{{item.formatted_end_time}}</text>
+            </view>
+            <view class="meta-item" wx:if="{{item.rewards_count}}">
+              <text class="meta-icon">🎁</text>
+              <text class="meta-text">{{item.rewards_count}}个奖品</text>
+            </view>
+          </view>
+
+          <!-- User Progress (if joined) -->
+          <view wx:if="{{item.my_progress}}" class="my-progress">
+            <view class="progress-bar-mini">
+              <view class="progress-fill-mini" style="width: {{item.my_progress.percent}}%"></view>
+            </view>
+            <text class="progress-text">已邀请 {{item.my_progress.helper_count}} 人</text>
+          </view>
+        </view>
+
+        <!-- Arrow -->
+        <view class="card-arrow">
+          <text>›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Empty State -->
+    <view wx:else class="empty-state">
+      <text class="empty-icon">📭</text>
+      <text class="empty-title">暂无活动</text>
+      <text class="empty-desc">敬请期待更多精彩活动</text>
+    </view>
+  </view>
+</view>
