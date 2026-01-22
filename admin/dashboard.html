@@ -1591,6 +1591,100 @@
       padding: 6px 12px;
     }
 
+    /* Collapsible Sections */
+    .section.collapsible .section-header {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .section.collapsible .section-header:hover {
+      background: #f9fafb;
+    }
+
+    .collapse-icon {
+      display: inline-block;
+      margin-right: 8px;
+      font-size: 10px;
+      transition: transform 0.2s ease;
+    }
+
+    .section.collapsible.expanded .collapse-icon {
+      transform: rotate(90deg);
+    }
+
+    .event-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: normal;
+      margin-left: 8px;
+    }
+
+    .event-filter-select {
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 12px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .event-search-input {
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 12px;
+      width: 150px;
+    }
+
+    .event-search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .event-item {
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .event-item:hover {
+      background: #f9fafb;
+    }
+
+    .event-tag {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+
+    .event-detail {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 12px 16px;
+      border-radius: 0 0 8px 8px;
+      margin-top: -1px;
+      margin-bottom: 8px;
+    }
+
+    .event-detail-header {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .event-detail pre {
+      margin: 0;
+      font-size: 11px;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
     /* Critical Alert Banner */
     .critical-alert {
       background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
@@ -1938,11 +2032,33 @@
     </section>
 
     <!-- Recent Events -->
-    <section class="section">
-      <div class="section-header">
-        <div class="section-title">Recent Events</div>
+    <section class="section collapsible" id="recentEventsSection">
+      <div class="section-header" onclick="toggleSection('recentEventsSection')">
+        <div class="section-title">
+          <span class="collapse-icon">▶</span>
+          Recent Events
+          <span class="event-count" id="eventCount">(0)</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;" onclick="event.stopPropagation()">
+          <select id="eventTypeFilter" onchange="filterEvents()" class="event-filter-select">
+            <option value="">All Events</option>
+            <option value="oa_subscribe">🔔 OA Subscribe</option>
+            <option value="oa_scan">📷 OA Scan</option>
+            <option value="oa_unsubscribe">🔕 OA Unsubscribe</option>
+            <option value="campaign_helper_recorded">👥 Helper Recorded</option>
+            <option value="campaign_qr_created">🎫 QR Created</option>
+            <option value="campaign_reward_claimed">🎁 Reward Claimed</option>
+            <option value="campaign_created">📝 Campaign Created</option>
+            <option value="campaign_updated">✏️ Campaign Updated</option>
+            <option value="login">🔑 Login</option>
+            <option value="register">📋 Register</option>
+          </select>
+          <input type="text" id="eventSearchInput" placeholder="Search user, ID..." 
+            onkeyup="filterEvents()" class="event-search-input" onclick="event.stopPropagation()">
+          <button class="btn-secondary" onclick="event.stopPropagation(); refreshEvents()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
+        </div>
       </div>
-      <div class="section-content">
+      <div class="section-content collapsible-content" style="display: none;">
         <div class="loading" id="eventsLoading">Loading events...</div>
         <div class="events-list" id="eventsList"></div>
         <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
@@ -2681,6 +2797,133 @@
       document.getElementById('criticalAlertBanner').style.display = 'none';
     }
 
+    // Collapsible sections
+    function toggleSection(sectionId) {
+      const section = document.getElementById(sectionId);
+      const content = section.querySelector('.collapsible-content');
+      
+      if (section.classList.contains('expanded')) {
+        section.classList.remove('expanded');
+        content.style.display = 'none';
+      } else {
+        section.classList.add('expanded');
+        content.style.display = 'block';
+      }
+    }
+
+    // Store all events for filtering
+    let allEvents = [];
+
+    function filterEvents() {
+      const typeFilter = document.getElementById('eventTypeFilter').value;
+      const searchText = document.getElementById('eventSearchInput').value.toLowerCase();
+      
+      let filtered = allEvents;
+      
+      // Filter by type
+      if (typeFilter) {
+        filtered = filtered.filter(e => e.event_type === typeFilter);
+      }
+      
+      // Filter by search text
+      if (searchText) {
+        filtered = filtered.filter(e => {
+          const userName = e.user?.name || '';
+          const userId = e.user_id || '';
+          const eventData = JSON.stringify(e.event_data || {});
+          const eventId = e.id || '';
+          
+          return userName.toLowerCase().includes(searchText) ||
+                 userId.toLowerCase().includes(searchText) ||
+                 eventData.toLowerCase().includes(searchText) ||
+                 eventId.toLowerCase().includes(searchText);
+        });
+      }
+      
+      renderEvents(filtered);
+    }
+
+    function refreshEvents() {
+      loadDashboard();
+    }
+
+    function renderEvents(events) {
+      const eventsList = document.getElementById('eventsList');
+      const emptyState = document.getElementById('emptyState');
+      
+      if (events.length === 0) {
+        eventsList.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      
+      const eventTypeNames = {
+        'login': '🔑 登录',
+        'login_email': '🔑 邮箱登录',
+        'register': '📋 注册',
+        'scan_qr': '📷 扫描二维码',
+        'oa_subscribe': '🔔 关注公众号',
+        'oa_scan': '📷 扫码事件',
+        'oa_unsubscribe': '🔕 取消关注',
+        'campaign_helper_recorded': '👥 助力记录',
+        'campaign_qr_created': '🎫 生成二维码',
+        'campaign_reward_claimed': '🎁 领取奖励',
+        'campaign_created': '📝 创建活动',
+        'campaign_updated': '✏️ 更新活动',
+        'campaign_status_changed': '🔄 活动状态变更',
+        'invite': '👋 邀请',
+        'redeem': '🎁 兑换',
+      };
+      
+      eventsList.innerHTML = events.map((event, index) => {
+        const typeName = eventTypeNames[event.event_type] || event.event_type;
+        const userName = event.user?.name || event.event_data?.user_name || 'Unknown';
+        const time = new Date(event.created_at).toLocaleString('en-US', {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        const userId = event.user_id ? event.user_id.substring(0, 8) + '...' : 'N/A';
+        const eventId = event.id ? event.id.substring(0, 8) + '...' : 'N/A';
+        
+        // Extract useful info from event_data
+        const eventData = event.event_data || {};
+        let extraInfo = '';
+        if (eventData.campaign_name) extraInfo += `<span class="event-tag">📌 ${eventData.campaign_name}</span>`;
+        if (eventData.helper_openid) extraInfo += `<span class="event-tag">👤 Helper: ${eventData.helper_openid.substring(0, 10)}...</span>`;
+        if (eventData.reward_name) extraInfo += `<span class="event-tag">🎁 ${eventData.reward_name}</span>`;
+        
+        return `
+          <div class="event-item" onclick="toggleEventDetail('eventDetail${index}')">
+            <div class="event-header">
+              <div>
+                <div class="event-type">${typeName}</div>
+                <div class="event-details">用户: ${userName}</div>
+              </div>
+              <div class="event-time">${time}</div>
+            </div>
+            <div class="event-meta">
+              <span class="event-meta-item">📍 Source: ${event.source || 'unknown'}</span>
+              <span class="event-meta-item">🆔 ${eventId}</span>
+              <span class="event-meta-item">👤 ${userId}</span>
+              ${extraInfo}
+            </div>
+          </div>
+          <div class="event-detail" id="eventDetail${index}" style="display: none;">
+            <div class="event-detail-header">Full Event Data (click to collapse)</div>
+            <pre>${JSON.stringify(event, null, 2)}</pre>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleEventDetail(detailId) {
+      const detail = document.getElementById(detailId);
+      if (detail) {
+        detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
     function getTimeAgo(date) {
       const seconds = Math.floor((new Date() - date) / 1000);
       if (seconds < 60) return `${seconds}s ago`;
@@ -2713,92 +2956,20 @@
         }
 
         // Load events
-        const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=50`, {
+        const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=100`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
 
         if (eventsRes.ok) {
           const eventsData = await eventsRes.json();
-          const eventsList = document.getElementById('eventsList');
-          eventsList.innerHTML = '';
+          allEvents = eventsData.data?.events || [];
           
-          const events = eventsData.data?.events || [];
+          // Update count
+          document.getElementById('eventCount').textContent = `(${allEvents.length})`;
+          document.getElementById('eventsLoading').style.display = 'none';
           
-          if (events.length === 0) {
-            document.getElementById('emptyState').style.display = 'block';
-            document.getElementById('eventsLoading').style.display = 'none';
-          } else {
-            document.getElementById('emptyState').style.display = 'none';
-            
-            const eventTypeNames = {
-              'login': '登录',
-              'login_email': '邮箱登录',
-              'register': '注册',
-              'scan_qr': '扫描二维码',
-              'follow_oa': '关注公众号',
-              'unfollow_oa': '取消关注',
-              'invite': '邀请',
-              'redeem': '兑换',
-            };
-            
-            events.forEach((event, index) => {
-              const div = document.createElement('div');
-              div.className = 'event-item';
-              const eventTime = new Date(event.created_at);
-              const timeStr = eventTime.toLocaleDateString('en-US', { 
-                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-              });
-              
-              const eventTypeName = eventTypeNames[event.event_type] || event.event_type;
-              const userName = event.user ? (event.user.name || event.user.phone || 'Unknown') : 'N/A';
-              const userId = event.user_id ? event.user_id.substring(0, 8) + '...' : 'N/A';
-              const eventId = event.id ? event.id.substring(0, 8) + '...' : 'N/A';
-              
-              // Extract metadata
-              const metadata = event.metadata || {};
-              const source = metadata.source || 'unknown';
-              const ip = metadata.ip || 'N/A';
-              const referralCode = metadata.referral_code || metadata.scene_str || null;
-              
-              let metaItems = `
-                <span class="event-meta-item">📍 <strong>Source:</strong> ${source}</span>
-                <span class="event-meta-item">🆔 <strong>Event ID:</strong> ${eventId}</span>
-              `;
-              
-              if (event.user_id) {
-                metaItems += `<span class="event-meta-item">👤 <strong>User ID:</strong> ${userId}</span>`;
-              }
-              
-              if (referralCode) {
-                metaItems += `<span class="event-meta-item">🔗 <strong>Ref:</strong> ${referralCode}</span>`;
-              }
-              
-              if (ip && ip !== 'N/A') {
-                metaItems += `<span class="event-meta-item">🌐 <strong>IP:</strong> ${ip}</span>`;
-              }
-              
-              const payloadId = `payload-${index}`;
-              const hasPayload = event.metadata && Object.keys(event.metadata).length > 0;
-              
-              div.innerHTML = `
-                <div class="event-header">
-                  <div>
-                    <div class="event-type">${eventTypeName}</div>
-                    <div class="event-details">用户: ${userName}</div>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 12px;">
-                    ${hasPayload ? `<button class="btn-view-payload" onclick="togglePayload('${payloadId}')">View Payload</button>` : ''}
-                    <div class="event-time">${timeStr}</div>
-                  </div>
-                </div>
-                <div class="event-meta">${metaItems}</div>
-                ${hasPayload ? `<pre class="event-payload" id="${payloadId}">${JSON.stringify(event.metadata, null, 2)}</pre>` : ''}
-              `;
-              eventsList.appendChild(div);
-            });
-            
-            document.getElementById('eventsLoading').style.display = 'none';
-          }
+          // Render events (using filter function which handles rendering)
+          filterEvents();
         } else {
           document.getElementById('eventsLoading').textContent = 'Failed to load events';
         }
