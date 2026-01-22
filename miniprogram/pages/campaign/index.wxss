@@ -1,0 +1,526 @@
+/* pages/campaign/index.wxss */
+
+.campaign-container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding-bottom: 60rpx;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 32rpx;
+}
+
+.loading-spinner {
+  width: 64rpx;
+  height: 64rpx;
+  border: 4rpx solid #e5e7eb;
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #6b7280;
+}
+
+/* Campaign Header */
+.campaign-header {
+  position: relative;
+  width: 100%;
+  height: 400rpx;
+  background-color: #1a1a2e;
+  overflow: hidden;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+}
+
+.cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+}
+
+.placeholder-icon {
+  font-size: 120rpx;
+}
+
+.header-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 48rpx;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+}
+
+.campaign-name {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.campaign-desc {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.5;
+}
+
+/* Section Card */
+.section-card {
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  margin: 32rpx 32rpx 0;
+  padding: 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #1a1a2e;
+  display: block;
+  margin-bottom: 32rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+/* Progress Section */
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.helper-count {
+  font-size: 28rpx;
+  color: #10b981;
+  font-weight: 500;
+}
+
+.progress-bar-container {
+  position: relative;
+  margin-bottom: 48rpx;
+}
+
+.progress-bar {
+  height: 16rpx;
+  background-color: #e5e7eb;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 8rpx;
+  transition: width 0.5s ease;
+}
+
+.progress-milestones {
+  position: relative;
+  height: 60rpx;
+  margin-top: 16rpx;
+}
+
+.milestone {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.milestone-dot {
+  width: 20rpx;
+  height: 20rpx;
+  background-color: #e5e7eb;
+  border-radius: 50%;
+  margin-bottom: 8rpx;
+}
+
+.milestone.achieved .milestone-dot {
+  background-color: #10b981;
+}
+
+.milestone-label {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.milestone.achieved .milestone-label {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.next-reward-hint, .all-unlocked-hint {
+  text-align: center;
+  padding: 24rpx;
+  background-color: #f8f9fa;
+  border-radius: 16rpx;
+}
+
+.hint-text {
+  font-size: 28rpx;
+  color: #6b7280;
+}
+
+.hint-text .highlight {
+  color: #10b981;
+  font-weight: bold;
+  font-size: 36rpx;
+}
+
+.hint-text .reward-name {
+  color: #1a1a2e;
+  font-weight: 500;
+}
+
+/* Rewards Section */
+.rewards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.reward-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  background-color: #f8f9fa;
+  border-radius: 16rpx;
+  border: 2rpx solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.reward-item.unlocked {
+  background-color: #ecfdf5;
+  border-color: #10b981;
+}
+
+.reward-tier {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100rpx;
+  margin-right: 32rpx;
+}
+
+.tier-number {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #1a1a2e;
+}
+
+.reward-item.unlocked .tier-number {
+  color: #10b981;
+}
+
+.tier-label {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.reward-info {
+  flex: 1;
+}
+
+.reward-name {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #1a1a2e;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.reward-desc {
+  font-size: 26rpx;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.reward-status {
+  margin-left: 24rpx;
+}
+
+.status-unlocked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #10b981;
+}
+
+.status-unlocked .status-icon {
+  font-size: 40rpx;
+  margin-bottom: 4rpx;
+}
+
+.status-unlocked .status-text {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.status-locked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-locked .status-icon {
+  font-size: 40rpx;
+  color: #9ca3af;
+}
+
+/* Share Section */
+.referral-code-box {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 16rpx;
+  padding: 24rpx 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.code-label {
+  font-size: 28rpx;
+  color: #6b7280;
+  margin-right: 24rpx;
+}
+
+.code-value {
+  flex: 1;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #1a1a2e;
+  font-family: monospace;
+  letter-spacing: 4rpx;
+}
+
+.copy-btn {
+  background-color: #1a1a2e;
+  color: #ffffff;
+  font-size: 26rpx;
+  padding: 16rpx 32rpx;
+  border-radius: 12rpx;
+  border: none;
+}
+
+/* QR Code Section */
+.qrcode-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32rpx;
+}
+
+.qrcode-loading {
+  width: 300rpx;
+  height: 300rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-radius: 16rpx;
+  color: #6b7280;
+  font-size: 28rpx;
+}
+
+.qrcode-image {
+  width: 300rpx;
+  height: 300rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid #e5e7eb;
+}
+
+.qrcode-placeholder {
+  width: 300rpx;
+  height: 300rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-radius: 16rpx;
+  border: 2rpx dashed #e5e7eb;
+}
+
+.placeholder-text {
+  font-size: 28rpx;
+  color: #6b7280;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 24rpx;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 28rpx 0;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  border: none;
+}
+
+.action-btn.primary {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.action-btn.secondary {
+  background-color: #f8f9fa;
+  color: #1a1a2e;
+  border: 2rpx solid #e5e7eb;
+}
+
+.btn-icon {
+  font-size: 36rpx;
+}
+
+/* Helpers Section */
+.helper-total {
+  font-size: 28rpx;
+  color: #6b7280;
+}
+
+.helpers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.helper-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+}
+
+.helper-avatar-placeholder {
+  width: 64rpx;
+  height: 64rpx;
+  background-color: #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #6b7280;
+  margin-right: 24rpx;
+}
+
+.helper-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.helper-id {
+  font-size: 28rpx;
+  color: #1a1a2e;
+  font-family: monospace;
+}
+
+.helper-time {
+  font-size: 24rpx;
+  color: #9ca3af;
+}
+
+.helper-status {
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+}
+
+.helper-status.valid {
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+.helper-status.invalid {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
+
+.empty-helpers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #1a1a2e;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Debug Section */
+.debug-section {
+  margin: 32rpx;
+  padding: 24rpx;
+  background-color: #fef3c7;
+  border-radius: 16rpx;
+  border: 2rpx solid #f59e0b;
+}
+
+.debug-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #92400e;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.debug-text {
+  font-size: 24rpx;
+  color: #78350f;
+  display: block;
+  margin-bottom: 8rpx;
+  font-family: monospace;
+  word-break: break-all;
+}

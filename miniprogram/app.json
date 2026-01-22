@@ -7,7 +7,8 @@
     "pages/rewards/index",
     "pages/redemption/index",
     "pages/profile/index",
-    "pages/admin/index"
+    "pages/admin/index",
+    "pages/campaign/index"
   ],
   "window": {
     "backgroundTextStyle": "light",

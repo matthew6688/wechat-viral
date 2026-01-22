@@ -1,0 +1,190 @@
+<!--pages/campaign/index.wxml-->
+<wxs module="utils">
+  module.exports = {
+    formatTime: function(dateString) {
+      if (!dateString) return '';
+      var date = getDate(dateString);
+      var month = (date.getMonth() + 1).toString();
+      if (month.length < 2) month = '0' + month;
+      var day = date.getDate().toString();
+      if (day.length < 2) day = '0' + day;
+      var hours = date.getHours().toString();
+      if (hours.length < 2) hours = '0' + hours;
+      var minutes = date.getMinutes().toString();
+      if (minutes.length < 2) minutes = '0' + minutes;
+      return month + '-' + day + ' ' + hours + ':' + minutes;
+    }
+  };
+</wxs>
+<view class="campaign-container">
+  <!-- Loading State -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- Campaign Content -->
+  <view wx:else>
+    <!-- Campaign Header -->
+    <view class="campaign-header">
+      <image 
+        wx:if="{{campaign.cover_image_url}}" 
+        class="cover-image" 
+        src="{{campaign.cover_image_url}}" 
+        mode="aspectFill"
+      />
+      <view wx:else class="cover-placeholder">
+        <text class="placeholder-icon">🎁</text>
+      </view>
+      <view class="header-overlay">
+        <text class="campaign-name">{{campaign.name}}</text>
+        <text class="campaign-desc">{{campaign.description}}</text>
+      </view>
+    </view>
+
+    <!-- Progress Section -->
+    <view class="section-card progress-section">
+      <view class="progress-header">
+        <text class="section-title">助力进度</text>
+        <text class="helper-count">{{participant.helper_count || 0}} 人已助力</text>
+      </view>
+      
+      <!-- Progress Bar -->
+      <view class="progress-bar-container">
+        <view class="progress-bar">
+          <view 
+            class="progress-fill" 
+            style="width: {{progressPercent}}%"
+          ></view>
+        </view>
+        <view class="progress-milestones">
+          <view 
+            wx:for="{{rewards}}" 
+            wx:key="id" 
+            class="milestone {{(participant.helper_count || 0) >= item.helpers_required ? 'achieved' : ''}}"
+            style="left: {{item.helpers_required === 0 ? 0 : (item.helpers_required / maxHelpers * 100)}}%"
+          >
+            <view class="milestone-dot"></view>
+            <text class="milestone-label">{{item.helpers_required}}人</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- Next Reward Hint -->
+      <view wx:if="{{nextReward}}" class="next-reward-hint">
+        <text class="hint-text">
+          还差 <text class="highlight">{{nextReward.helpers_required - (participant.helper_count || 0)}}</text> 人解锁
+          <text class="reward-name">「{{nextReward.reward_name}}」</text>
+        </text>
+      </view>
+      <view wx:else class="all-unlocked-hint">
+        <text class="hint-text">🎉 恭喜！已解锁全部奖励</text>
+      </view>
+    </view>
+
+    <!-- Rewards Section -->
+    <view class="section-card rewards-section">
+      <text class="section-title">奖励阶梯</text>
+      <view class="rewards-list">
+        <view 
+          wx:for="{{rewards}}" 
+          wx:key="id" 
+          class="reward-item {{(participant.helper_count || 0) >= item.helpers_required ? 'unlocked' : 'locked'}}"
+        >
+          <view class="reward-tier">
+            <text class="tier-number">{{item.helpers_required}}</text>
+            <text class="tier-label">人助力</text>
+          </view>
+          <view class="reward-info">
+            <text class="reward-name">{{item.reward_name}}</text>
+            <text class="reward-desc">{{item.reward_description}}</text>
+          </view>
+          <view class="reward-status">
+            <view wx:if="{{(participant.helper_count || 0) >= item.helpers_required}}" class="status-unlocked">
+              <text class="status-icon">✓</text>
+              <text class="status-text">已解锁</text>
+            </view>
+            <view wx:else class="status-locked">
+              <text class="status-icon">🔒</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Share Section -->
+    <view class="section-card share-section">
+      <text class="section-title">邀请好友助力</text>
+      <view class="referral-code-box">
+        <text class="code-label">我的邀请码</text>
+        <text class="code-value">{{participant.referral_code || '--'}}</text>
+        <button class="copy-btn" bindtap="copyCode">复制</button>
+      </view>
+      
+      <!-- QR Code Preview -->
+      <view class="qrcode-section">
+        <view wx:if="{{qrCodeLoading}}" class="qrcode-loading">
+          <text>生成二维码中...</text>
+        </view>
+        <image 
+          wx:elif="{{qrCodeUrl}}" 
+          class="qrcode-image" 
+          src="{{qrCodeUrl}}" 
+          mode="aspectFit"
+          bindtap="previewQRCode"
+        />
+        <view wx:else class="qrcode-placeholder" bindtap="generateQRCode">
+          <text class="placeholder-text">点击生成二维码</text>
+        </view>
+      </view>
+
+      <!-- Action Buttons -->
+      <view class="action-buttons">
+        <button class="action-btn primary" bindtap="generatePoster">
+          <text class="btn-icon">📷</text>
+          <text class="btn-text">生成海报</text>
+        </button>
+        <button class="action-btn secondary" open-type="share">
+          <text class="btn-icon">📤</text>
+          <text class="btn-text">分享给好友</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- Helpers Section -->
+    <view class="section-card helpers-section">
+      <view class="section-header">
+        <text class="section-title">助力好友</text>
+        <text class="helper-total">共 {{helpers.length || 0}} 人</text>
+      </view>
+      <view wx:if="{{helpers && helpers.length > 0}}" class="helpers-list">
+        <view wx:for="{{helpers}}" wx:key="id" class="helper-item">
+          <view class="helper-avatar-placeholder">
+            <text>{{index + 1}}</text>
+          </view>
+          <view class="helper-info">
+            <text class="helper-id">用户 {{item.helper_openid ? item.helper_openid.substring(0, 8) + '...' : '--'}}</text>
+            <text class="helper-time">{{utils.formatTime(item.created_at)}}</text>
+          </view>
+          <view class="helper-status {{item.is_valid ? 'valid' : 'invalid'}}">
+            <text>{{item.is_valid ? '有效' : '已取关'}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="empty-helpers">
+        <text class="empty-icon">👥</text>
+        <text class="empty-text">还没有好友助力</text>
+        <text class="empty-hint">分享给好友，邀请他们扫码关注为您助力！</text>
+      </view>
+    </view>
+
+    <!-- Debug Info (for development) -->
+    <view wx:if="{{showDebug}}" class="debug-section">
+      <text class="debug-title">Debug Info</text>
+      <text class="debug-text">Campaign ID: {{campaign.id}}</text>
+      <text class="debug-text">Scene: {{sceneStr}}</text>
+      <text class="debug-text">Participant ID: {{participant.id}}</text>
+      <text class="debug-text">Referral Code: {{participant.referral_code}}</text>
+    </view>
+  </view>
+</view>

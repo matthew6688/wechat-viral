@@ -1098,6 +1098,118 @@
         padding: 0 16px;
       }
     }
+
+    /* Campaign Debug Styles */
+    .campaign-debug-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .campaign-debug-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .mini-stat {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .mini-stat-value {
+      display: block;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .mini-stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .campaign-debug-section {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .campaign-debug-section h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .debug-table {
+      overflow-x: auto;
+    }
+
+    .debug-table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .debug-table th,
+    .debug-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .debug-table th {
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    .debug-table td code {
+      background: var(--bg-secondary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+
+    .debug-table tr.invalid-row {
+      opacity: 0.6;
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .status-pill.valid {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .status-pill.invalid {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    @media (max-width: 768px) {
+      .campaign-debug-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   </style>
 </head>
 <body>
@@ -1165,6 +1277,27 @@
         <div class="loading" id="eventsLoading">Loading events...</div>
         <div class="events-list" id="eventsList"></div>
         <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
+      </div>
+    </section>
+
+    <!-- Campaign Fission Debug -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">
+          🎯 Campaign Fission Debug
+          <span class="live-badge">MVP</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <select id="campaignSelect" onchange="loadCampaignDebug()" style="padding: 6px 12px; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+            <option value="">Select Campaign...</option>
+          </select>
+          <button class="btn-secondary" onclick="refreshCampaignDebug()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
+        </div>
+      </div>
+      <div class="section-content">
+        <div id="campaignDebugContent">
+          <div class="empty-state">Select a campaign to view debug data</div>
+        </div>
       </div>
     </section>
 
@@ -2206,11 +2339,172 @@
       }
     }
 
+    // ============================================
+    // Campaign Fission Debug Functions
+    // ============================================
+    
+    async function loadCampaigns() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/campaigns`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          const campaigns = data.data?.campaigns || [];
+          const select = document.getElementById('campaignSelect');
+          
+          campaigns.forEach(campaign => {
+            const option = document.createElement('option');
+            option.value = campaign.id;
+            option.textContent = `${campaign.name} (${campaign.status})`;
+            select.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Load campaigns error:', error);
+      }
+    }
+
+    async function loadCampaignDebug() {
+      const campaignId = document.getElementById('campaignSelect').value;
+      const contentEl = document.getElementById('campaignDebugContent');
+      
+      if (!campaignId) {
+        contentEl.innerHTML = '<div class="empty-state">Select a campaign to view debug data</div>';
+        return;
+      }
+      
+      contentEl.innerHTML = '<div class="loading">Loading campaign debug data...</div>';
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/campaigns/${campaignId}/debug`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          const debugData = data.data || {};
+          
+          contentEl.innerHTML = renderCampaignDebug(debugData);
+        } else {
+          const error = await res.json();
+          contentEl.innerHTML = `<div class="empty-state" style="color: var(--error);">Error: ${error.error || 'Failed to load'}</div>`;
+        }
+      } catch (error) {
+        contentEl.innerHTML = `<div class="empty-state" style="color: var(--error);">Error: ${error.message}</div>`;
+      }
+    }
+
+    function renderCampaignDebug(data) {
+      const { stats, participants, helpers, events } = data;
+      
+      return `
+        <div class="campaign-debug-grid">
+          <!-- Stats -->
+          <div class="campaign-debug-stats">
+            <div class="mini-stat">
+              <span class="mini-stat-value">${stats?.totalParticipants || 0}</span>
+              <span class="mini-stat-label">Participants</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-value">${stats?.totalHelpers || 0}</span>
+              <span class="mini-stat-label">Total Helpers</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-value">${stats?.validHelpers || 0}</span>
+              <span class="mini-stat-label">Valid Helpers</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-value">${stats?.avgHelpersPerParticipant?.toFixed(1) || 0}</span>
+              <span class="mini-stat-label">Avg per User</span>
+            </div>
+          </div>
+          
+          <!-- Participants -->
+          <div class="campaign-debug-section">
+            <h4>Participants (${participants?.length || 0})</h4>
+            <div class="debug-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Referral Code</th>
+                    <th>Helpers</th>
+                    <th>Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${(participants || []).slice(0, 20).map(p => `
+                    <tr>
+                      <td>${p.user?.wechat_nickname || p.user?.name || 'N/A'}</td>
+                      <td><code>${p.referral_code}</code></td>
+                      <td>${p.helper_count} / ${p.total_helper_count}</td>
+                      <td>${new Date(p.joined_at).toLocaleDateString()}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Recent Helpers -->
+          <div class="campaign-debug-section">
+            <h4>Recent Helpers (${helpers?.length || 0})</h4>
+            <div class="debug-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Helper OpenID</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${(helpers || []).slice(0, 20).map(h => `
+                    <tr class="${h.is_valid ? '' : 'invalid-row'}">
+                      <td><code>${h.helper_openid?.substring(0, 16)}...</code></td>
+                      <td>
+                        <span class="status-pill ${h.is_valid ? 'valid' : 'invalid'}">
+                          ${h.is_valid ? '✓ Valid' : '✗ Invalid'}
+                        </span>
+                        ${h.invalidate_reason ? `<small>(${h.invalidate_reason})</small>` : ''}
+                      </td>
+                      <td>${new Date(h.created_at).toLocaleString()}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Recent Events -->
+          <div class="campaign-debug-section">
+            <h4>Recent Campaign Events (${events?.length || 0})</h4>
+            <div class="debug-logs" style="max-height: 300px;">
+              ${(events || []).map(e => `
+                <div class="debug-log-entry">
+                  <span class="log-time">${new Date(e.created_at).toLocaleString()}</span>
+                  <span class="log-type log-type-${e.event_type?.includes('help') ? 'success' : 'info'}">${e.event_type}</span>
+                  <span class="log-message">${JSON.stringify(e.event_data || {})}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function refreshCampaignDebug() {
+      loadCampaignDebug();
+    }
+
     // Initialize
     loadDashboard();
     loadDebugSettings();
     loadEnvironmentValidation();
     loadTunnelStatus();
+    loadCampaigns();
     connectEventStream();
     
     setTimeout(() => validateLocalTunnel(), 1500);
