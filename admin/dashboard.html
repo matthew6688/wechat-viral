@@ -1699,6 +1699,153 @@
       margin: 0;
     }
 
+    /* Connection Header with Status Indicator */
+    .connection-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .connection-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .connection-title-row h4 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .connection-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .indicator-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .indicator-dot.connected {
+      background: var(--success);
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+    }
+
+    .indicator-dot.disconnected {
+      background: var(--error);
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+    }
+
+    .indicator-dot.checking {
+      background: var(--warning);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .indicator-text {
+      color: var(--text-secondary);
+    }
+
+    .btn-recheck {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .btn-recheck:hover {
+      background: var(--bg-primary);
+      border-color: var(--accent);
+    }
+
+    .btn-recheck:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Full width URL display */
+    .url-display-row-full {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .url-display-row-full:last-child {
+      border-bottom: none;
+    }
+
+    .url-display-row-full .url-display-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .url-display-full {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .url-display-full code {
+      flex: 1;
+      font-size: 12px;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      word-break: break-all;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+    }
+
+    /* Collapsible Section */
+    .collapsible-section {
+      background: var(--bg-secondary);
+    }
+
+    .collapsible-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .collapsible-header h4 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .collapsible-content {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
     .section-desc {
       font-size: 12px;
       color: var(--text-muted);
@@ -3385,13 +3532,13 @@
         <!-- Settings -->
         <div class="nav-section">
           <div class="nav-section-title">Settings</div>
+          <button class="nav-item" data-panel="settings-tunnel" onclick="switchPanel('settings-tunnel')">
+            <span class="nav-item-icon">🚇</span>
+            <span class="nav-item-text">Tunnel</span>
+          </button>
           <button class="nav-item" data-panel="settings-connection" onclick="switchPanel('settings-connection')">
             <span class="nav-item-icon">🔌</span>
             <span class="nav-item-text">Connection</span>
-          </button>
-          <button class="nav-item" data-panel="settings-tunnel" onclick="switchPanel('settings-tunnel')">
-            <span class="nav-item-icon">🛡️</span>
-            <span class="nav-item-text">Tunnel</span>
           </button>
           <button class="nav-item" data-panel="settings-debug" onclick="switchPanel('settings-debug')">
             <span class="nav-item-icon">🐛</span>
@@ -3770,73 +3917,18 @@
         <!-- SETTINGS TUNNEL PANEL -->
         <!-- ============================================ -->
         <div class="content-panel" id="panel-settings-tunnel">
-          <!-- Why Tunnel Section -->
-          <div class="tunnel-explainer">
-            <div class="explainer-header">
-              <span class="explainer-icon">🔗</span>
-              <h3>Why Do You Need a Tunnel?</h3>
-            </div>
-            <div class="explainer-content">
-              <p class="explainer-intro">
-                <strong>WeChat Official Account</strong> needs to send real-time notifications (like user follows, unfollows, and QR scans) to your backend server. However, your local development server (<code>localhost:3000</code>) is not accessible from the internet.
-              </p>
-              
-              <div class="explainer-diagram">
-                <div class="diagram-flow">
-                  <div class="diagram-node">
-                    <span class="node-icon">👤</span>
-                    <span class="node-label">User scans QR</span>
-                  </div>
-                  <div class="diagram-arrow">→</div>
-                  <div class="diagram-node">
-                    <span class="node-icon">💬</span>
-                    <span class="node-label">WeChat Server</span>
-                  </div>
-                  <div class="diagram-arrow">→</div>
-                  <div class="diagram-node highlight">
-                    <span class="node-icon">🚇</span>
-                    <span class="node-label">Cloudflare Tunnel</span>
-                  </div>
-                  <div class="diagram-arrow">→</div>
-                  <div class="diagram-node">
-                    <span class="node-icon">💻</span>
-                    <span class="node-label">Your localhost:3000</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="explainer-details">
-                <div class="detail-item">
-                  <span class="detail-icon">✅</span>
-                  <div>
-                    <strong>What Cloudflare Tunnel does:</strong>
-                    <p>Creates a secure, public URL (like <code>https://abc-xyz.trycloudflare.com</code>) that forwards all requests to your local server. No need to deploy to production for testing!</p>
-                  </div>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-icon">⚙️</span>
-                  <div>
-                    <strong>How it works:</strong>
-                    <p>When WeChat sends a webhook to your tunnel URL, Cloudflare securely routes it through their network to your local machine. Your backend receives the event and can process it immediately.</p>
-                  </div>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-icon">🔄</span>
-                  <div>
-                    <strong>Important:</strong>
-                    <p>The tunnel URL changes each time you restart <code>cloudflared</code>. You must update the webhook URL in WeChat OA backend whenever this happens.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Current Status Section -->
+          <!-- Connection Status Section -->
           <div class="tunnel-section">
-            <div class="section-header-row">
-              <h4>Connection Status</h4>
-              <button class="btn-validate" onclick="validateLocalTunnel()" id="validateBtn">
-                <span class="btn-icon">🔄</span> Validate Connection
+            <div class="connection-header">
+              <div class="connection-title-row">
+                <h4>Connection Status</h4>
+                <div class="connection-indicator" id="tunnelOverallStatus">
+                  <span class="indicator-dot checking"></span>
+                  <span class="indicator-text">Checking...</span>
+                </div>
+              </div>
+              <button class="btn-recheck" onclick="validateLocalTunnel()" id="validateBtn" title="Re-check connection">
+                🔄
               </button>
             </div>
 
@@ -3869,22 +3961,22 @@
 
             <!-- Current Tunnel URL Display -->
             <div class="current-tunnel-url" id="currentTunnelUrlSection">
-              <div class="url-display-row">
+              <div class="url-display-row-full">
                 <div class="url-display-label">
                   <span class="label-icon">🔗</span>
                   <span>Current Tunnel URL</span>
                 </div>
-                <div class="url-display-value">
+                <div class="url-display-full">
                   <code id="currentTunnelUrlDisplay">Not configured</code>
                   <button class="btn-copy-small" onclick="copyCurrentTunnelUrl()" title="Copy URL">📋</button>
                 </div>
               </div>
-              <div class="url-display-row">
+              <div class="url-display-row-full">
                 <div class="url-display-label">
                   <span class="label-icon">📡</span>
                   <span>WeChat Webhook URL</span>
                 </div>
-                <div class="url-display-value">
+                <div class="url-display-full">
                   <code id="currentWebhookUrlDisplay">Not configured</code>
                   <button class="btn-copy-small" onclick="copyCurrentWebhookUrl()" title="Copy Webhook URL">📋</button>
                 </div>
@@ -3951,6 +4043,67 @@
                   <div class="quick-ref-code-row">
                     <code>pkill -f cloudflared</code>
                     <button class="btn-copy-tiny" onclick="copyToClipboard('pkill -f cloudflared')">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Why Tunnel Section - Moved to bottom -->
+          <div class="tunnel-section collapsible-section">
+            <div class="collapsible-header" onclick="toggleTunnelExplainer()">
+              <h4>🔗 Why Do You Need a Tunnel?</h4>
+              <span class="toggle-icon" id="tunnelExplainerToggle">▼</span>
+            </div>
+            <div class="collapsible-content" id="tunnelExplainerContent" style="display: none;">
+              <p class="explainer-intro">
+                <strong>WeChat Official Account</strong> needs to send real-time notifications (like user follows, unfollows, and QR scans) to your backend server. However, your local development server (<code>localhost:3000</code>) is not accessible from the internet.
+              </p>
+              
+              <div class="explainer-diagram">
+                <div class="diagram-flow">
+                  <div class="diagram-node">
+                    <span class="node-icon">👤</span>
+                    <span class="node-label">User scans QR</span>
+                  </div>
+                  <div class="diagram-arrow">→</div>
+                  <div class="diagram-node">
+                    <span class="node-icon">💬</span>
+                    <span class="node-label">WeChat Server</span>
+                  </div>
+                  <div class="diagram-arrow">→</div>
+                  <div class="diagram-node highlight">
+                    <span class="node-icon">🚇</span>
+                    <span class="node-label">Cloudflare Tunnel</span>
+                  </div>
+                  <div class="diagram-arrow">→</div>
+                  <div class="diagram-node">
+                    <span class="node-icon">💻</span>
+                    <span class="node-label">Your localhost:3000</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="explainer-details">
+                <div class="detail-item">
+                  <span class="detail-icon">✅</span>
+                  <div>
+                    <strong>What Cloudflare Tunnel does:</strong>
+                    <p>Creates a secure, public URL (like <code>https://abc-xyz.trycloudflare.com</code>) that forwards all requests to your local server. No need to deploy to production for testing!</p>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon">⚙️</span>
+                  <div>
+                    <strong>How it works:</strong>
+                    <p>When WeChat sends a webhook to your tunnel URL, Cloudflare securely routes it through their network to your local machine. Your backend receives the event and can process it immediately.</p>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon">🔄</span>
+                  <div>
+                    <strong>Important:</strong>
+                    <p>The tunnel URL changes each time you restart <code>cloudflared</code>. You must update the webhook URL in WeChat OA backend whenever this happens.</p>
                   </div>
                 </div>
               </div>
@@ -6230,6 +6383,34 @@
       }
     }
 
+    function toggleTunnelExplainer() {
+      const content = document.getElementById('tunnelExplainerContent');
+      const toggle = document.getElementById('tunnelExplainerToggle');
+      if (content && toggle) {
+        const isHidden = content.style.display === 'none';
+        content.style.display = isHidden ? 'block' : 'none';
+        toggle.textContent = isHidden ? '▲' : '▼';
+      }
+    }
+
+    function updateOverallTunnelStatus(isConnected) {
+      const indicator = document.getElementById('tunnelOverallStatus');
+      if (!indicator) return;
+      
+      const dot = indicator.querySelector('.indicator-dot');
+      const text = indicator.querySelector('.indicator-text');
+      
+      if (isConnected) {
+        dot.className = 'indicator-dot connected';
+        text.textContent = 'Connected';
+        text.style.color = 'var(--success)';
+      } else {
+        dot.className = 'indicator-dot disconnected';
+        text.textContent = 'Disconnected';
+        text.style.color = 'var(--error)';
+      }
+    }
+
     function copyCommand() {
       const command = document.getElementById('commandToRun')?.textContent;
       if (command) {
@@ -6245,7 +6426,19 @@
       const btn = document.getElementById('validateBtn');
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="btn-icon">⏳</span> Validating...';
+        btn.textContent = '⏳';
+      }
+
+      // Update overall status indicator to "Checking"
+      const indicator = document.getElementById('tunnelOverallStatus');
+      if (indicator) {
+        const dot = indicator.querySelector('.indicator-dot');
+        const text = indicator.querySelector('.indicator-text');
+        if (dot) dot.className = 'indicator-dot checking';
+        if (text) {
+          text.textContent = 'Checking...';
+          text.style.color = 'var(--text-muted)';
+        }
       }
 
       // Update status cards to "Checking..."
@@ -6279,17 +6472,23 @@
           const webhookUrlDisplay = document.getElementById('currentWebhookUrlDisplay');
           
           if (result.tunnel_url?.url) {
-            const tunnelUrl = result.tunnel_url.url;
-            const webhookUrl = `${tunnelUrl}/api/oa/webhook`;
+            let tunnelUrl = result.tunnel_url.url;
+            // Remove trailing /api/oa/webhook if present (for clean display)
+            const baseUrl = tunnelUrl.replace(/\/api\/oa\/webhook\/?$/, '');
+            const webhookUrl = `${baseUrl}/api/oa/webhook`;
             
-            if (tunnelUrlDisplay) tunnelUrlDisplay.textContent = tunnelUrl;
+            if (tunnelUrlDisplay) tunnelUrlDisplay.textContent = baseUrl;
             if (webhookUrlDisplay) webhookUrlDisplay.textContent = webhookUrl;
           } else {
             if (tunnelUrlDisplay) tunnelUrlDisplay.textContent = 'Not configured';
             if (webhookUrlDisplay) webhookUrlDisplay.textContent = 'Not configured';
           }
           
-          if (result.overall_status === 'ready') {
+          // Update overall status indicator
+          const isConnected = result.overall_status === 'ready';
+          updateOverallTunnelStatus(isConnected);
+          
+          if (isConnected) {
             if (instructions) instructions.style.display = 'none';
             if (errorDiv) errorDiv.style.display = 'none';
             updateTunnelStatusUI({
@@ -6321,13 +6520,15 @@
           }
         } else {
           showTunnelError('Failed to validate tunnel');
+          updateOverallTunnelStatus(false);
         }
       } catch (error) {
         showTunnelError('Error: ' + error.message);
+        updateOverallTunnelStatus(false);
       } finally {
         if (btn) {
           btn.disabled = false;
-          btn.innerHTML = '<span class="btn-icon">🔄</span> Validate Connection';
+          btn.textContent = '🔄';
         }
       }
     }
