@@ -346,6 +346,46 @@
       color: #3b82f6;
     }
 
+    /* Main Tabs (for section grouping) */
+    .main-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0;
+    }
+
+    .main-tab {
+      padding: 12px 20px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      margin-bottom: -1px;
+    }
+
+    .main-tab:hover {
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+    }
+
+    .main-tab.active {
+      color: var(--accent-color);
+      border-bottom-color: var(--accent-color);
+    }
+
+    .main-tab-panel {
+      padding: 0;
+    }
+
+    .main-tab-panel.hidden {
+      display: none;
+    }
+
     .stat-label {
       font-size: 12px;
       color: var(--text-muted);
@@ -2084,618 +2124,548 @@
       <button class="alert-dismiss" onclick="dismissAlert()">×</button>
     </div>
 
-    <!-- Environment Validation -->
-    <section class="section">
+    <!-- ============================================ -->
+    <!-- 🎯 CAMPAIGNS SECTION (Main Work Area) -->
+    <!-- ============================================ -->
+    <section class="section" id="campaignsMainSection">
       <div class="section-header">
-        <div class="section-title">
-          🔧 Environment & Connection Status
-        </div>
-        <button class="btn-primary" onclick="runAllValidations()" style="padding: 8px 16px; font-size: 13px;">
-          Run All Checks
-        </button>
-      </div>
-      <div class="section-content">
-        <div class="env-grid">
-          <!-- Cloudflare Tunnel -->
-          <div class="env-card" id="tunnelCard">
-            <div class="env-header">
-              <span class="env-icon">🌐</span>
-              <span class="env-name">Cloudflare Tunnel</span>
-              <span class="env-status" id="tunnelStatus">⏳ Checking...</span>
-            </div>
-            <div class="env-details" id="tunnelDetails">
-              <div class="env-row">
-                <span class="env-label">Tunnel URL:</span>
-                <input type="text" id="tunnelUrlInput" placeholder="https://xxx.trycloudflare.com" 
-                  style="flex: 1; padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 11px; font-family: monospace;">
-                <button class="btn-copy" onclick="saveTunnelUrl()" style="background: #10b981; color: white;">Save</button>
-              </div>
-              <div class="env-row">
-                <span class="env-label">Webhook URL:</span>
-                <span class="env-value" id="webhookUrl">-</span>
-                <button class="btn-copy" onclick="copyToClipboard(document.getElementById('webhookUrl').textContent)">Copy</button>
-              </div>
-              <div class="env-row">
-                <span class="env-label">Status:</span>
-                <span class="env-value" id="tunnelStatusText">-</span>
-              </div>
-              <div class="env-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb;">
-                <span class="env-label" style="color: var(--text-muted);">💡 Tip:</span>
-                <span class="env-value" style="font-size: 11px; color: var(--text-secondary);">
-                  Run <code style="background: #f3f4f6; padding: 2px 4px; border-radius: 2px;">cloudflared tunnel --url http://localhost:3000</code> to get your tunnel URL
-                </span>
-              </div>
-            </div>
-            <div class="env-action">
-              <button class="btn-secondary" onclick="validateTunnel()">Check Tunnel</button>
-            </div>
-          </div>
-
-          <!-- WeChat OA Config -->
-          <div class="env-card" id="oaCard">
-            <div class="env-header">
-              <span class="env-icon">📱</span>
-              <span class="env-name">WeChat Official Account</span>
-              <span class="env-status" id="oaStatus">⏳ Checking...</span>
-            </div>
-            <div class="env-details" id="oaDetails">
-              <div class="env-row">
-                <span class="env-label">OA AppID:</span>
-                <span class="env-value" id="oaAppId">-</span>
-              </div>
-              <div class="env-row">
-                <span class="env-label">Access Token:</span>
-                <span class="env-value" id="oaTokenStatus">-</span>
-              </div>
-              <div class="env-row">
-                <span class="env-label">Last Webhook:</span>
-                <span class="env-value" id="lastWebhook">-</span>
-              </div>
-              <div class="env-row" id="webhookMismatchRow" style="display: none;">
-                <span class="env-label" style="color: var(--error);">⚠️ Warning:</span>
-                <span class="env-value" id="webhookMismatchMsg" style="color: var(--error);">-</span>
-              </div>
-            </div>
-            <div class="env-action">
-              <button class="btn-secondary" onclick="validateOA()">Check OA</button>
-            </div>
-          </div>
-
-          <!-- Database -->
-          <div class="env-card" id="dbCard">
-            <div class="env-header">
-              <span class="env-icon">🗄️</span>
-              <span class="env-name">Database (Supabase)</span>
-              <span class="env-status" id="dbStatus">⏳ Checking...</span>
-            </div>
-            <div class="env-details" id="dbDetails">
-              <div class="env-row">
-                <span class="env-label">Connection:</span>
-                <span class="env-value" id="dbConnection">-</span>
-              </div>
-              <div class="env-row">
-                <span class="env-label">Tables:</span>
-                <span class="env-value" id="dbTables">-</span>
-              </div>
-            </div>
-            <div class="env-action">
-              <button class="btn-secondary" onclick="validateDB()">Check DB</button>
-            </div>
-          </div>
-
-          <!-- Backend Server -->
-          <div class="env-card" id="backendCard">
-            <div class="env-header">
-              <span class="env-icon">⚙️</span>
-              <span class="env-name">Backend Server</span>
-              <span class="env-status" id="backendStatus">⏳ Checking...</span>
-            </div>
-            <div class="env-details" id="backendDetails">
-              <div class="env-row">
-                <span class="env-label">Local URL:</span>
-                <span class="env-value" id="backendUrl">http://localhost:3000</span>
-              </div>
-              <div class="env-row">
-                <span class="env-label">API Status:</span>
-                <span class="env-value" id="apiStatus">-</span>
-              </div>
-            </div>
-            <div class="env-action">
-              <button class="btn-secondary" onclick="validateBackend()">Check Backend</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions" style="margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px;">
-          <div style="font-weight: 600; margin-bottom: 12px;">⚡ Quick Actions</div>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <button class="btn-secondary" onclick="copyWebhookUrl()" style="font-size: 12px;">
-              📋 Copy Webhook URL
-            </button>
-            <button class="btn-secondary" onclick="testWebhook()" style="font-size: 12px;">
-              🧪 Test Webhook
-            </button>
-            <button class="btn-secondary" onclick="showEnvInstructions()" style="font-size: 12px;">
-              📖 Setup Guide
-            </button>
-          </div>
-        </div>
-
-        <!-- Instructions Panel (hidden by default) -->
-        <div id="envInstructions" style="display: none; margin-top: 16px; padding: 16px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px;">
-          <div style="font-weight: 600; margin-bottom: 12px;">📖 微信公众号 Webhook 配置步骤</div>
-          <ol style="margin-left: 20px; line-height: 2;">
-            <li>登录微信公众平台 → 设置与开发 → 基本配置</li>
-            <li>在"服务器配置"中点击"修改配置"</li>
-            <li>填写以下信息：
-              <ul style="margin-left: 20px; margin-top: 8px;">
-                <li><strong>URL:</strong> <code id="instructionUrl" style="background: #fef3c7; padding: 2px 6px; border-radius: 4px;">-</code></li>
-                <li><strong>Token:</strong> 使用你在 .env 文件中设置的 OA_TOKEN</li>
-                <li><strong>EncodingAESKey:</strong> 使用你在 .env 文件中设置的 OA_ENCODING_AES_KEY</li>
-                <li><strong>消息加解密方式:</strong> 安全模式</li>
-              </ul>
-            </li>
-            <li>点击"提交"验证配置</li>
-            <li>验证成功后，点击"启用"</li>
-          </ol>
-          <button class="btn-secondary" onclick="hideEnvInstructions()" style="margin-top: 12px; font-size: 12px;">关闭</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Debug Logs -->
-    <section class="section">
-      <div class="section-header">
-        <div class="section-title">
-          Debug Logs
-          <span class="live-badge" id="liveBadge">LIVE</span>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn-secondary" onclick="refreshLogs()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
-          <button class="btn-secondary" onclick="clearLogs()" style="padding: 6px 12px; font-size: 12px;">Clear</button>
-        </div>
-      </div>
-      <div class="section-content" style="padding: 0;">
-        <div class="debug-logs" id="debugLogsContainer">
-          <div class="debug-log-entry" id="debugLogsPlaceholder">
-            <div class="log-time">Connecting to event stream...</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Analytics Section -->
-    <section class="section" id="analyticsSection">
-      <div class="section-header">
-        <div class="section-title">📊 Analytics & Insights</div>
-      </div>
-      <div class="section-content">
-        <!-- Analytics Tabs -->
-        <div class="analytics-tabs">
-          <button class="analytics-tab active" onclick="switchAnalyticsTab('influencers')">🏆 Top Influencers</button>
-          <button class="analytics-tab" onclick="switchAnalyticsTab('campaigns')">📈 Campaign Comparison</button>
-          <button class="analytics-tab" onclick="switchAnalyticsTab('sources')">🎯 Source Analysis</button>
-          <button class="analytics-tab" onclick="switchAnalyticsTab('trends')">📅 Daily Trends</button>
-        </div>
-
-        <!-- Influencers Tab -->
-        <div class="analytics-panel" id="influencersPanel">
-          <div class="panel-header">
-            <h4>Top Influencers - Who brings the most followers?</h4>
-            <button class="btn btn-sm" onclick="loadInfluencers()">🔄 Refresh</button>
-          </div>
-          <div class="table-container">
-            <table class="data-table" id="influencersTable">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>User</th>
-                  <th>Campaign</th>
-                  <th>Helpers</th>
-                  <th>Valid</th>
-                  <th>Retention</th>
-                  <th>Joined</th>
-                </tr>
-              </thead>
-              <tbody id="influencersBody">
-                <tr><td colspan="7" class="loading">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Campaigns Tab -->
-        <div class="analytics-panel hidden" id="campaignsPanel">
-          <div class="panel-header">
-            <h4>Campaign Performance Comparison</h4>
-            <button class="btn btn-sm" onclick="loadCampaignAnalytics()">🔄 Refresh</button>
-          </div>
-          <div class="table-container">
-            <table class="data-table" id="campaignsAnalyticsTable">
-              <thead>
-                <tr>
-                  <th>Campaign</th>
-                  <th>Status</th>
-                  <th>Participants</th>
-                  <th>Helpers</th>
-                  <th>Unfollows</th>
-                  <th>Retention</th>
-                  <th>Avg/User</th>
-                  <th>Rewards</th>
-                </tr>
-              </thead>
-              <tbody id="campaignsAnalyticsBody">
-                <tr><td colspan="8" class="loading">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Sources Tab -->
-        <div class="analytics-panel hidden" id="sourcesPanel">
-          <div class="panel-header">
-            <h4>Traffic Source Breakdown</h4>
-            <button class="btn btn-sm" onclick="loadSourceAnalytics()">🔄 Refresh</button>
-          </div>
-          <div class="source-cards" id="sourceCards">
-            <div class="loading">Loading...</div>
-          </div>
-        </div>
-
-        <!-- Trends Tab -->
-        <div class="analytics-panel hidden" id="trendsPanel">
-          <div class="panel-header">
-            <h4>Daily Trends (Last 30 Days)</h4>
-            <button class="btn btn-sm" onclick="loadDailyTrends()">🔄 Refresh</button>
-          </div>
-          <div class="trends-chart" id="trendsChart">
-            <div class="loading">Loading...</div>
-          </div>
-          <div class="trends-table">
-            <table class="data-table" id="trendsTable">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>New Helpers</th>
-                  <th>Valid</th>
-                  <th>Unfollows</th>
-                </tr>
-              </thead>
-              <tbody id="trendsBody">
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Recent Events -->
-    <section class="section collapsible" id="recentEventsSection">
-      <div class="section-header" onclick="toggleSection('recentEventsSection')">
-        <div class="section-title">
-          <span class="collapse-icon">▶</span>
-          Recent Events
-          <span class="event-count" id="eventCount">(0)</span>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center;" onclick="event.stopPropagation()">
-          <select id="eventTypeFilter" onchange="filterEvents()" class="event-filter-select">
-            <option value="">All Events</option>
-            <option value="oa_subscribe">🔔 OA Subscribe</option>
-            <option value="oa_scan">📷 OA Scan</option>
-            <option value="oa_unsubscribe">🔕 OA Unsubscribe</option>
-            <option value="campaign_helper_recorded">👥 Helper Recorded</option>
-            <option value="campaign_qr_created">🎫 QR Created</option>
-            <option value="campaign_reward_claimed">🎁 Reward Claimed</option>
-            <option value="campaign_created">📝 Campaign Created</option>
-            <option value="campaign_updated">✏️ Campaign Updated</option>
-            <option value="login">🔑 Login</option>
-            <option value="register">📋 Register</option>
-          </select>
-          <input type="text" id="eventSearchInput" placeholder="Search user, ID..." 
-            onkeyup="filterEvents()" class="event-search-input" onclick="event.stopPropagation()">
-          <button class="btn-secondary" onclick="event.stopPropagation(); refreshEvents()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
-        </div>
-      </div>
-      <div class="section-content collapsible-content" style="display: none;">
-        <div class="loading" id="eventsLoading">Loading events...</div>
-        <div class="events-list" id="eventsList"></div>
-        <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
-      </div>
-    </section>
-
-    <!-- Campaign Management -->
-    <section class="section">
-      <div class="section-header">
-        <div class="section-title">
-          🎯 Campaign Management
-        </div>
+        <div class="section-title">🎯 Campaigns</div>
         <button class="btn-primary" onclick="showCreateCampaignModal()" style="padding: 8px 16px; font-size: 13px;">
           + 创建活动
         </button>
       </div>
       <div class="section-content">
-        <div class="loading" id="campaignListLoading">Loading campaigns...</div>
-        <div id="campaignListContent" style="display: none;">
-          <table class="campaign-table">
-            <thead>
-              <tr>
-                <th>活动名称</th>
-                <th>状态</th>
-                <th>参与人数</th>
-                <th>助力人数</th>
-                <th>结束时间</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="campaignTableBody">
-            </tbody>
-          </table>
+        <!-- Campaign Tabs -->
+        <div class="main-tabs">
+          <button class="main-tab active" onclick="switchCampaignTab('management')">📋 Management</button>
+          <button class="main-tab" onclick="switchCampaignTab('analytics')">📊 Analytics</button>
+          <button class="main-tab" onclick="switchCampaignTab('debug')">🔍 Debug</button>
+        </div>
+
+        <!-- Management Tab -->
+        <div class="main-tab-panel" id="campaignManagementPanel">
+          <div class="loading" id="campaignListLoading">Loading campaigns...</div>
+          <div id="campaignListContent" style="display: none;">
+            <table class="campaign-table">
+              <thead>
+                <tr>
+                  <th>活动名称</th>
+                  <th>状态</th>
+                  <th>参与人数</th>
+                  <th>助力人数</th>
+                  <th>结束时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="campaignTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="main-tab-panel hidden" id="campaignAnalyticsPanel">
+          <!-- Analytics Sub-Tabs -->
+          <div class="analytics-tabs">
+            <button class="analytics-tab active" onclick="switchAnalyticsTab('influencers')">🏆 Top Influencers</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('campaigns')">📈 Comparison</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('sources')">🎯 Sources</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('trends')">📅 Trends</button>
+          </div>
+
+          <!-- Influencers Tab -->
+          <div class="analytics-panel" id="influencersPanel">
+            <div class="panel-header">
+              <h4>Top Influencers - Who brings the most followers?</h4>
+              <button class="btn btn-sm" onclick="loadInfluencers()">🔄 Refresh</button>
+            </div>
+            <div class="table-container">
+              <table class="data-table" id="influencersTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Campaign</th>
+                    <th>Helpers</th>
+                    <th>Valid</th>
+                    <th>Retention</th>
+                    <th>Joined</th>
+                  </tr>
+                </thead>
+                <tbody id="influencersBody">
+                  <tr><td colspan="7" class="loading">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Campaigns Comparison Tab -->
+          <div class="analytics-panel hidden" id="campaignsPanel">
+            <div class="panel-header">
+              <h4>Campaign Performance Comparison</h4>
+              <button class="btn btn-sm" onclick="loadCampaignAnalytics()">🔄 Refresh</button>
+            </div>
+            <div class="table-container">
+              <table class="data-table" id="campaignsAnalyticsTable">
+                <thead>
+                  <tr>
+                    <th>Campaign</th>
+                    <th>Status</th>
+                    <th>Participants</th>
+                    <th>Helpers</th>
+                    <th>Unfollows</th>
+                    <th>Retention</th>
+                    <th>Avg/User</th>
+                    <th>Rewards</th>
+                  </tr>
+                </thead>
+                <tbody id="campaignsAnalyticsBody">
+                  <tr><td colspan="8" class="loading">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Sources Tab -->
+          <div class="analytics-panel hidden" id="sourcesPanel">
+            <div class="panel-header">
+              <h4>Traffic Source Breakdown</h4>
+              <button class="btn btn-sm" onclick="loadSourceAnalytics()">🔄 Refresh</button>
+            </div>
+            <div class="source-cards" id="sourceCards">
+              <div class="loading">Loading...</div>
+            </div>
+          </div>
+
+          <!-- Trends Tab -->
+          <div class="analytics-panel hidden" id="trendsPanel">
+            <div class="panel-header">
+              <h4>Daily Trends (Last 30 Days)</h4>
+              <button class="btn btn-sm" onclick="loadDailyTrends()">🔄 Refresh</button>
+            </div>
+            <div class="trends-chart" id="trendsChart">
+              <div class="loading">Loading...</div>
+            </div>
+            <div class="trends-table">
+              <table class="data-table" id="trendsTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>New Helpers</th>
+                    <th>Valid</th>
+                    <th>Unfollows</th>
+                  </tr>
+                </thead>
+                <tbody id="trendsBody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Debug Tab -->
+        <div class="main-tab-panel hidden" id="campaignDebugPanel">
+          <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <select id="campaignSelect" onchange="loadCampaignDebug()" style="padding: 6px 12px; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; flex: 1;">
+              <option value="">Select Campaign...</option>
+            </select>
+            <button class="btn-secondary" onclick="refreshCampaignDebug()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
+          </div>
+          <div id="campaignDebugContent">
+            <div class="empty-state">Select a campaign to view debug data</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Campaign Fission Debug -->
-    <section class="section section-collapsible collapsed" id="campaignDebugSection">
-      <div class="section-header" onclick="toggleSection('campaignDebugSection')">
+    <!-- ============================================ -->
+    <!-- 📝 EVENTS SECTION (Monitoring) -->
+    <!-- ============================================ -->
+    <section class="section" id="eventsMainSection">
+      <div class="section-header">
+        <div class="section-title">📝 Events</div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary" onclick="refreshLogs()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
+        </div>
+      </div>
+      <div class="section-content">
+        <!-- Events Tabs -->
+        <div class="main-tabs">
+          <button class="main-tab active" onclick="switchEventsTab('live')">🔴 Live Logs</button>
+          <button class="main-tab" onclick="switchEventsTab('history')">📜 Event History</button>
+        </div>
+
+        <!-- Live Logs Tab -->
+        <div class="main-tab-panel" id="eventsLivePanel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span class="live-badge" id="liveBadge">LIVE</span>
+            <button class="btn-secondary" onclick="clearLogs()" style="padding: 6px 12px; font-size: 12px;">Clear</button>
+          </div>
+          <div class="debug-logs" id="debugLogsContainer">
+            <div class="debug-log-entry" id="debugLogsPlaceholder">
+              <div class="log-time">Connecting to event stream...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event History Tab -->
+        <div class="main-tab-panel hidden" id="eventsHistoryPanel">
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 16px;">
+            <select id="eventTypeFilter" onchange="filterEvents()" class="event-filter-select">
+              <option value="">All Events</option>
+              <option value="oa_subscribe">🔔 OA Subscribe</option>
+              <option value="oa_scan">📷 OA Scan</option>
+              <option value="oa_unsubscribe">🔕 OA Unsubscribe</option>
+              <option value="campaign_helper_recorded">👥 Helper Recorded</option>
+              <option value="campaign_qr_created">🎫 QR Created</option>
+              <option value="campaign_reward_claimed">🎁 Reward Claimed</option>
+              <option value="campaign_created">📝 Campaign Created</option>
+              <option value="campaign_updated">✏️ Campaign Updated</option>
+              <option value="login">🔑 Login</option>
+              <option value="register">📋 Register</option>
+            </select>
+            <input type="text" id="eventSearchInput" placeholder="Search user, ID..." 
+              onkeyup="filterEvents()" class="event-search-input">
+            <button class="btn-secondary" onclick="refreshEvents()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
+          </div>
+          <div class="loading" id="eventsLoading">Loading events...</div>
+          <div class="events-list" id="eventsList"></div>
+          <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- ⚙️ SETTINGS SECTION (Collapsible - Default Collapsed) -->
+    <!-- ============================================ -->
+    <section class="section collapsible collapsed" id="settingsMainSection">
+      <div class="section-header" onclick="toggleSection('settingsMainSection')">
         <div class="section-title">
-          🔍 Campaign Debug
-          <span class="live-badge">MVP</span>
+          <span class="collapse-icon">▶</span>
+          ⚙️ Settings & Configuration
         </div>
         <span class="section-toggle">▼</span>
       </div>
-      <div class="section-content">
-        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-          <select id="campaignSelect" onchange="loadCampaignDebug()" style="padding: 6px 12px; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; flex: 1;">
-            <option value="">Select Campaign...</option>
-          </select>
-          <button class="btn-secondary" onclick="refreshCampaignDebug()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
+      <div class="section-content collapsible-content">
+        <!-- Settings Tabs -->
+        <div class="main-tabs">
+          <button class="main-tab active" onclick="switchSettingsTab('connection')">🔌 Connection</button>
+          <button class="main-tab" onclick="switchSettingsTab('tunnel')">🛡️ Tunnel</button>
+          <button class="main-tab" onclick="switchSettingsTab('debug')">🐛 Debug</button>
+          <button class="main-tab" onclick="switchSettingsTab('test')">🧪 Test</button>
         </div>
-        <div id="campaignDebugContent">
-          <div class="empty-state">Select a campaign to view debug data</div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Debug Settings -->
-    <section class="section section-collapsible collapsed" id="debugSettingsSection">
-      <div class="section-header" onclick="toggleSection('debugSettingsSection')">
-        <div class="section-title">Debug Settings</div>
-        <span class="section-toggle">▼</span>
-      </div>
-      <div class="section-content">
-        <div class="loading" id="debugSettingsLoading">Loading settings...</div>
-        <div id="debugSettingsForm" style="display: none;">
-          <form id="debugSettingsFormElement">
-            <div class="settings-grid">
-              <div class="setting-item">
-                <label>
-                  <input type="checkbox" id="debugMode" name="debug_mode">
-                  <span>Debug Mode</span>
-                </label>
-                <p class="setting-desc">Enable verbose logging</p>
+        <!-- Connection Tab -->
+        <div class="main-tab-panel" id="settingsConnectionPanel">
+          <div class="env-grid">
+            <!-- Cloudflare Tunnel -->
+            <div class="env-card" id="tunnelCard">
+              <div class="env-header">
+                <span class="env-icon">🌐</span>
+                <span class="env-name">Cloudflare Tunnel</span>
+                <span class="env-status" id="tunnelStatus">⏳ Checking...</span>
               </div>
-
-              <div class="setting-item">
-                <label>
-                  <span>Log Level</span>
-                </label>
-                <select id="logLevel" name="log_level">
-                  <option value="debug">Debug</option>
-                  <option value="info" selected>Info</option>
-                  <option value="warn">Warn</option>
-                  <option value="error">Error</option>
-                </select>
+              <div class="env-details" id="tunnelDetails">
+                <div class="env-row">
+                  <span class="env-label">Tunnel URL:</span>
+                  <input type="text" id="tunnelUrlInput" placeholder="https://xxx.trycloudflare.com" 
+                    style="flex: 1; padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 11px; font-family: monospace;">
+                  <button class="btn-copy" onclick="saveTunnelUrl()" style="background: #10b981; color: white;">Save</button>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Webhook URL:</span>
+                  <span class="env-value" id="webhookUrl">-</span>
+                  <button class="btn-copy" onclick="copyToClipboard(document.getElementById('webhookUrl').textContent)">Copy</button>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Status:</span>
+                  <span class="env-value" id="tunnelStatusText">-</span>
+                </div>
               </div>
-
-              <div class="setting-item">
-                <label>
-                  <input type="checkbox" id="eventLogEnabled" name="event_log_enabled" checked>
-                  <span>Event Logging</span>
-                </label>
-                <p class="setting-desc">Log events to database</p>
-              </div>
-
-              <div class="setting-item">
-                <label>
-                  <input type="checkbox" id="apiLogging" name="api_logging" checked>
-                  <span>API Logging</span>
-                </label>
-                <p class="setting-desc">Log API requests</p>
-              </div>
-
-              <div class="setting-item">
-                <label>
-                  <input type="checkbox" id="errorTracking" name="error_tracking" checked>
-                  <span>Error Tracking</span>
-                </label>
-                <p class="setting-desc">Track and report errors</p>
-              </div>
-
-              <div class="setting-item">
-                <label>
-                  <input type="checkbox" id="performanceMonitoring" name="performance_monitoring">
-                  <span>Performance Monitoring</span>
-                </label>
-                <p class="setting-desc">Monitor response times</p>
-              </div>
-
-              <div class="setting-item">
-                <label>
-                  <span>Log Retention (days)</span>
-                </label>
-                <input type="number" id="maxLogRetentionDays" name="max_log_retention_days" value="30" min="1" max="365">
-              </div>
-
-              <div class="setting-item">
-                <label>
-                  <input type="checkbox" id="showSensitiveData" name="show_sensitive_data">
-                  <span>Show Sensitive Data</span>
-                </label>
-                <p class="setting-desc warning">⚠️ Security risk - logs tokens/passwords</p>
+              <div class="env-action">
+                <button class="btn-secondary" onclick="validateTunnel()">Check Tunnel</button>
               </div>
             </div>
 
-            <button type="submit" class="btn-save">Save Settings</button>
-            <div id="debugSettingsMessage" class="settings-message"></div>
-          </form>
-        </div>
-      </div>
-    </section>
+            <!-- WeChat OA Config -->
+            <div class="env-card" id="oaCard">
+              <div class="env-header">
+                <span class="env-icon">📱</span>
+                <span class="env-name">WeChat Official Account</span>
+                <span class="env-status" id="oaStatus">⏳ Checking...</span>
+              </div>
+              <div class="env-details" id="oaDetails">
+                <div class="env-row">
+                  <span class="env-label">OA AppID:</span>
+                  <span class="env-value" id="oaAppId">-</span>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Access Token:</span>
+                  <span class="env-value" id="oaTokenStatus">-</span>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Last Webhook:</span>
+                  <span class="env-value" id="lastWebhook">-</span>
+                </div>
+                <div class="env-row" id="webhookMismatchRow" style="display: none;">
+                  <span class="env-label" style="color: var(--error);">⚠️ Warning:</span>
+                  <span class="env-value" id="webhookMismatchMsg" style="color: var(--error);">-</span>
+                </div>
+              </div>
+              <div class="env-action">
+                <button class="btn-secondary" onclick="validateOA()">Check OA</button>
+              </div>
+            </div>
 
-    <!-- Tunnel Manager -->
-    <section class="section">
-      <div class="section-header">
-        <div class="section-title">
-          🛡️ Tunnel Manager
-        </div>
-        <span class="status-badge connected" id="tunnelStatusBadge">Connected</span>
-      </div>
-      <div class="section-content">
-        <div class="tunnel-grid">
-          <div>
-            <button class="btn-validate" onclick="validateLocalTunnel()" id="validateBtn">
-              Validate Connection
+            <!-- Database -->
+            <div class="env-card" id="dbCard">
+              <div class="env-header">
+                <span class="env-icon">🗄️</span>
+                <span class="env-name">Database (Supabase)</span>
+                <span class="env-status" id="dbStatus">⏳ Checking...</span>
+              </div>
+              <div class="env-details" id="dbDetails">
+                <div class="env-row">
+                  <span class="env-label">Connection:</span>
+                  <span class="env-value" id="dbConnection">-</span>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Tables:</span>
+                  <span class="env-value" id="dbTables">-</span>
+                </div>
+              </div>
+              <div class="env-action">
+                <button class="btn-secondary" onclick="validateDB()">Check DB</button>
+              </div>
+            </div>
+
+            <!-- Backend Server -->
+            <div class="env-card" id="backendCard">
+              <div class="env-header">
+                <span class="env-icon">⚙️</span>
+                <span class="env-name">Backend Server</span>
+                <span class="env-status" id="backendStatus">⏳ Checking...</span>
+              </div>
+              <div class="env-details" id="backendDetails">
+                <div class="env-row">
+                  <span class="env-label">Local URL:</span>
+                  <span class="env-value" id="backendUrl">http://localhost:3000</span>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">API Status:</span>
+                  <span class="env-value" id="apiStatus">-</span>
+                </div>
+              </div>
+              <div class="env-action">
+                <button class="btn-secondary" onclick="validateBackend()">Check Backend</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 16px; text-align: center;">
+            <button class="btn-primary" onclick="runAllValidations()" style="padding: 8px 24px;">
+              Run All Checks
             </button>
-
-            <div class="tunnel-status-cards" id="tunnelStatusCards">
-              <div class="status-card">
-                <div class="status-card-icon">📦</div>
-                <div class="status-card-content">
-                  <div class="status-card-label">Local Server</div>
-                  <div class="status-card-value" id="localServerCard">Port 3000</div>
-                </div>
-                <div class="status-card-check" id="localServerCheck">✓</div>
-              </div>
-              <div class="status-card">
-                <div class="status-card-icon">⚡</div>
-                <div class="status-card-content">
-                  <div class="status-card-label">Process PID</div>
-                  <div class="status-card-value" id="processPidCard">-</div>
-                </div>
-                <div class="status-card-check" id="processPidCheck" style="display: none;">✓</div>
-              </div>
-              <div class="status-card">
-                <div class="status-card-icon">🌐</div>
-                <div class="status-card-content">
-                  <div class="status-card-label">Latency</div>
-                  <div class="status-card-value" id="latencyCard">-</div>
-                </div>
-                <div class="status-card-check" id="latencyCheck" style="display: none;">✓</div>
-              </div>
-            </div>
-
-            <div class="tunnel-url-group" id="tunnelUrlSection" style="display: none;">
-              <label class="tunnel-url-label">Current Callback URL</label>
-              <div class="tunnel-url-input-group">
-                <span class="url-prefix">GET</span>
-                <input type="text" class="tunnel-url-input" id="tunnelUrlValue" readonly>
-                <button class="btn-copy" onclick="copyTunnelUrl()">Copy</button>
-              </div>
-            </div>
-
-            <div class="tunnel-update-section">
-              <label class="tunnel-url-label">Update Tunnel URL</label>
-              <p class="tunnel-update-desc">Paste the URL from cloudflared output</p>
-              <div class="tunnel-url-input-group">
-                <span class="url-prefix">🌐</span>
-                <input type="text" class="tunnel-url-input" id="tunnelUrlInput" placeholder="https://xxx.trycloudflare.com">
-                <button class="btn-copy" onclick="updateTunnelUrl()">Save & Verify</button>
-              </div>
-            </div>
-
-            <div class="tunnel-error" id="tunnelError" style="display: none;"></div>
-
-            <div class="tunnel-instructions" id="tunnelCommandInstructions" style="display: none;">
-              <div class="instructions-header">⚠️ Tunnel Not Connected</div>
-              <div class="command-section">
-                <div class="command-label">Run this command in your terminal:</div>
-                <div class="command-code-container">
-                  <code class="command-code" id="commandToRun">cloudflared tunnel --url http://localhost:3000</code>
-                  <button class="btn-copy-command" onclick="copyCommand()">Copy</button>
-                </div>
-              </div>
-              <div>
-                <div class="command-label">Expected output:</div>
-                <pre class="expected-output" id="expectedOutput"></pre>
-              </div>
-              <div>
-                <div class="command-label">Next steps:</div>
-                <ul class="steps-list" id="stepsList"></ul>
-              </div>
-            </div>
           </div>
+        </div>
 
-          <div class="quick-ref collapsed" id="quickRefSection">
-            <div class="quick-ref-header" onclick="toggleQuickRef()">
-              <div class="quick-ref-title">Quick Reference</div>
-              <span class="quick-ref-toggle">▼</span>
+        <!-- Tunnel Tab -->
+        <div class="main-tab-panel hidden" id="settingsTunnelPanel">
+          <div class="tunnel-grid">
+            <div>
+              <button class="btn-validate" onclick="validateLocalTunnel()" id="validateBtn">
+                Validate Connection
+              </button>
+
+              <div class="tunnel-status-cards" id="tunnelStatusCards">
+                <div class="status-card">
+                  <div class="status-card-icon">📦</div>
+                  <div class="status-card-content">
+                    <div class="status-card-label">Local Server</div>
+                    <div class="status-card-value" id="localServerCard">Port 3000</div>
+                  </div>
+                  <div class="status-card-check" id="localServerCheck">✓</div>
+                </div>
+                <div class="status-card">
+                  <div class="status-card-icon">⚡</div>
+                  <div class="status-card-content">
+                    <div class="status-card-label">Process PID</div>
+                    <div class="status-card-value" id="processPidCard">-</div>
+                  </div>
+                  <div class="status-card-check" id="processPidCheck" style="display: none;">✓</div>
+                </div>
+                <div class="status-card">
+                  <div class="status-card-icon">🌐</div>
+                  <div class="status-card-content">
+                    <div class="status-card-label">Latency</div>
+                    <div class="status-card-value" id="latencyCard">-</div>
+                  </div>
+                  <div class="status-card-check" id="latencyCheck" style="display: none;">✓</div>
+                </div>
+              </div>
+
+              <div class="tunnel-url-group" id="tunnelUrlSection" style="display: none;">
+                <label class="tunnel-url-label">Current Callback URL</label>
+                <div class="tunnel-url-input-group">
+                  <span class="url-prefix">GET</span>
+                  <input type="text" class="tunnel-url-input" id="tunnelUrlValue" readonly>
+                  <button class="btn-copy" onclick="copyTunnelUrl()">Copy</button>
+                </div>
+              </div>
+
+              <div class="tunnel-update-section">
+                <label class="tunnel-url-label">Update Tunnel URL</label>
+                <p class="tunnel-update-desc">Paste the URL from cloudflared output</p>
+                <div class="tunnel-url-input-group">
+                  <span class="url-prefix">🌐</span>
+                  <input type="text" class="tunnel-url-input" id="tunnelUrlInputAlt" placeholder="https://xxx.trycloudflare.com">
+                  <button class="btn-copy" onclick="updateTunnelUrl()">Save & Verify</button>
+                </div>
+              </div>
+
+              <div class="tunnel-error" id="tunnelError" style="display: none;"></div>
+
+              <div class="tunnel-instructions" id="tunnelCommandInstructions" style="display: none;">
+                <div class="instructions-header">⚠️ Tunnel Not Connected</div>
+                <div class="command-section">
+                  <div class="command-label">Run this command in your terminal:</div>
+                  <div class="command-code-container">
+                    <code class="command-code" id="commandToRun">cloudflared tunnel --url http://localhost:3000</code>
+                    <button class="btn-copy-command" onclick="copyCommand()">Copy</button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="quick-ref-content">
-              <div class="quick-ref-item">
-                <div class="quick-ref-label">Install cloudflared</div>
-                <code class="quick-ref-code">brew install cloudflare/cloudflare/cloudflared</code>
+
+            <div class="quick-ref collapsed" id="quickRefSection">
+              <div class="quick-ref-header" onclick="toggleQuickRef()">
+                <div class="quick-ref-title">Quick Reference</div>
+                <span class="quick-ref-toggle">▼</span>
               </div>
-              <div class="quick-ref-item">
-                <div class="quick-ref-label">Start Tunnel</div>
-                <code class="quick-ref-code">cloudflared tunnel --url http://localhost:3000</code>
-              </div>
-              <div class="quick-ref-item">
-                <div class="quick-ref-label">Check Status</div>
-                <code class="quick-ref-code">pgrep -fl cloudflared</code>
-              </div>
-              <div class="quick-ref-item">
-                <div class="quick-ref-label">Stop Tunnel</div>
-                <code class="quick-ref-code">pkill -f cloudflared</code>
+              <div class="quick-ref-content">
+                <div class="quick-ref-item">
+                  <div class="quick-ref-label">Install cloudflared</div>
+                  <code class="quick-ref-code">brew install cloudflare/cloudflare/cloudflared</code>
+                </div>
+                <div class="quick-ref-item">
+                  <div class="quick-ref-label">Start Tunnel</div>
+                  <code class="quick-ref-code">cloudflared tunnel --url http://localhost:3000</code>
+                </div>
+                <div class="quick-ref-item">
+                  <div class="quick-ref-label">Check Status</div>
+                  <code class="quick-ref-code">pgrep -fl cloudflared</code>
+                </div>
+                <div class="quick-ref-item">
+                  <div class="quick-ref-label">Stop Tunnel</div>
+                  <code class="quick-ref-code">pkill -f cloudflared</code>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- Test Webhook -->
-    <section class="section">
-      <div class="section-header">
-        <div class="section-title">Test Webhook Trigger</div>
-      </div>
-      <div class="section-content">
-        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
-          Simulate WeChat events with mock data for testing
-        </p>
-        <div class="webhook-buttons">
-          <button class="btn-webhook" onclick="triggerTestWebhook('scan')">
-            <span>📱</span> Scan QR
-          </button>
-          <button class="btn-webhook" onclick="triggerTestWebhook('follow')">
-            <span>➕</span> Follow OA
-          </button>
-          <button class="btn-webhook" onclick="triggerTestWebhook('unfollow')">
-            <span>➖</span> Unfollow OA
-          </button>
-          <button class="btn-webhook" onclick="triggerTestWebhook('login')">
-            <span>🔐</span> Login
-          </button>
-          <button class="btn-webhook" onclick="triggerTestWebhook('register')">
-            <span>📝</span> Register
-          </button>
-        </div>
-        <div class="webhook-result" id="testWebhookResult" style="display: none;"></div>
-      </div>
-    </section>
+        <!-- Debug Settings Tab -->
+        <div class="main-tab-panel hidden" id="settingsDebugPanel">
+          <div class="loading" id="debugSettingsLoading">Loading settings...</div>
+          <div id="debugSettingsForm" style="display: none;">
+            <form id="debugSettingsFormElement">
+              <div class="settings-grid">
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="debugMode" name="debug_mode">
+                    <span>Debug Mode</span>
+                  </label>
+                  <p class="setting-desc">Enable verbose logging</p>
+                </div>
 
-    <!-- Environment Validation -->
-    <section class="section">
-      <div class="section-header">
-        <div class="section-title">Environment Validation</div>
-      </div>
-      <div class="section-content">
-        <div class="loading" id="validationLoading">Loading validation...</div>
-        <div id="validationContent" style="display: none;">
-          <div class="validation-grid" id="validationGrid"></div>
-          <div class="buttons-row">
-            <button class="btn-validate" onclick="runFullValidation()">Run Full Validation</button>
+                <div class="setting-item">
+                  <label>
+                    <span>Log Level</span>
+                  </label>
+                  <select id="logLevel" name="log_level">
+                    <option value="debug">Debug</option>
+                    <option value="info" selected>Info</option>
+                    <option value="warn">Warn</option>
+                    <option value="error">Error</option>
+                  </select>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="eventLogEnabled" name="event_log_enabled" checked>
+                    <span>Event Logging</span>
+                  </label>
+                  <p class="setting-desc">Log events to database</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="apiLogging" name="api_logging" checked>
+                    <span>API Logging</span>
+                  </label>
+                  <p class="setting-desc">Log API requests</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="errorTracking" name="error_tracking" checked>
+                    <span>Error Tracking</span>
+                  </label>
+                  <p class="setting-desc">Track and report errors</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="performanceMonitoring" name="performance_monitoring">
+                    <span>Performance Monitoring</span>
+                  </label>
+                  <p class="setting-desc">Monitor response times</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <span>Log Retention (days)</span>
+                  </label>
+                  <input type="number" id="maxLogRetentionDays" name="max_log_retention_days" value="30" min="1" max="365">
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="showSensitiveData" name="show_sensitive_data">
+                    <span>Show Sensitive Data</span>
+                  </label>
+                  <p class="setting-desc warning">⚠️ Security risk - logs tokens/passwords</p>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-save">Save Settings</button>
+              <div id="debugSettingsMessage" class="settings-message"></div>
+            </form>
           </div>
+        </div>
+
+        <!-- Test Webhook Tab -->
+        <div class="main-tab-panel hidden" id="settingsTestPanel">
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+            Simulate WeChat events with mock data for testing
+          </p>
+          <div class="webhook-buttons">
+            <button class="btn-webhook" onclick="triggerTestWebhook('scan')">
+              <span>📱</span> Scan QR
+            </button>
+            <button class="btn-webhook" onclick="triggerTestWebhook('follow')">
+              <span>➕</span> Follow OA
+            </button>
+            <button class="btn-webhook" onclick="triggerTestWebhook('unfollow')">
+              <span>➖</span> Unfollow OA
+            </button>
+            <button class="btn-webhook" onclick="triggerTestWebhook('login')">
+              <span>🔐</span> Login
+            </button>
+            <button class="btn-webhook" onclick="triggerTestWebhook('register')">
+              <span>📝</span> Register
+            </button>
+          </div>
+          <div class="webhook-result" id="testWebhookResult" style="display: none;"></div>
         </div>
       </div>
     </section>
@@ -3344,6 +3314,87 @@
     // Analytics Functions
     // ============================================
 
+    // Campaign Section Tab Switching
+    function switchCampaignTab(tab) {
+      // Update tab buttons
+      document.querySelectorAll('#campaignsMainSection .main-tab').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // Show/hide panels
+      document.getElementById('campaignManagementPanel').classList.add('hidden');
+      document.getElementById('campaignAnalyticsPanel').classList.add('hidden');
+      document.getElementById('campaignDebugPanel').classList.add('hidden');
+
+      switch (tab) {
+        case 'management':
+          document.getElementById('campaignManagementPanel').classList.remove('hidden');
+          break;
+        case 'analytics':
+          document.getElementById('campaignAnalyticsPanel').classList.remove('hidden');
+          loadInfluencers();
+          break;
+        case 'debug':
+          document.getElementById('campaignDebugPanel').classList.remove('hidden');
+          break;
+      }
+    }
+
+    // Events Section Tab Switching
+    function switchEventsTab(tab) {
+      // Update tab buttons
+      document.querySelectorAll('#eventsMainSection .main-tab').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // Show/hide panels
+      document.getElementById('eventsLivePanel').classList.add('hidden');
+      document.getElementById('eventsHistoryPanel').classList.add('hidden');
+
+      switch (tab) {
+        case 'live':
+          document.getElementById('eventsLivePanel').classList.remove('hidden');
+          break;
+        case 'history':
+          document.getElementById('eventsHistoryPanel').classList.remove('hidden');
+          refreshEvents();
+          break;
+      }
+    }
+
+    // Settings Section Tab Switching
+    function switchSettingsTab(tab) {
+      // Update tab buttons
+      document.querySelectorAll('#settingsMainSection .main-tab').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // Show/hide panels
+      document.getElementById('settingsConnectionPanel').classList.add('hidden');
+      document.getElementById('settingsTunnelPanel').classList.add('hidden');
+      document.getElementById('settingsDebugPanel').classList.add('hidden');
+      document.getElementById('settingsTestPanel').classList.add('hidden');
+
+      switch (tab) {
+        case 'connection':
+          document.getElementById('settingsConnectionPanel').classList.remove('hidden');
+          runAllValidations();
+          break;
+        case 'tunnel':
+          document.getElementById('settingsTunnelPanel').classList.remove('hidden');
+          break;
+        case 'debug':
+          document.getElementById('settingsDebugPanel').classList.remove('hidden');
+          break;
+        case 'test':
+          document.getElementById('settingsTestPanel').classList.remove('hidden');
+          break;
+      }
+    }
+
     function switchAnalyticsTab(tab) {
       // Update tab buttons
       document.querySelectorAll('.analytics-tab').forEach(btn => {
@@ -3764,7 +3815,9 @@
 
         if (res.ok) {
           const data = await res.json();
-          updateTunnelStatusUI(data.data);
+          if (data && data.data) {
+            updateTunnelStatusUI(data.data);
+          }
         }
       } catch (error) {
         console.error('Error loading tunnel status:', error);
@@ -3772,6 +3825,8 @@
     }
 
     function updateTunnelStatusUI(status) {
+      if (!status) return;
+      
       const badge = document.getElementById('tunnelStatusBadge');
       const urlSection = document.getElementById('tunnelUrlSection');
       const urlValue = document.getElementById('tunnelUrlValue');
@@ -4017,17 +4072,23 @@
           const data = await res.json();
           displayValidationResults(data.data);
         } else {
-          document.getElementById('validationLoading').textContent = 'Failed to load';
+          const loadingEl = document.getElementById('validationLoading');
+          if (loadingEl) loadingEl.textContent = 'Failed to load';
         }
       } catch (error) {
-        document.getElementById('validationLoading').textContent = 'Error loading';
+        const loadingEl = document.getElementById('validationLoading');
+        if (loadingEl) loadingEl.textContent = 'Error loading';
       }
     }
 
     function displayValidationResults(validation) {
       const grid = document.getElementById('validationGrid');
-      document.getElementById('validationLoading').style.display = 'none';
-      document.getElementById('validationContent').style.display = 'block';
+      if (!grid) return; // Element removed in new layout
+      
+      const loadingEl = document.getElementById('validationLoading');
+      const contentEl = document.getElementById('validationContent');
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (contentEl) contentEl.style.display = 'block';
 
       grid.innerHTML = '';
 
