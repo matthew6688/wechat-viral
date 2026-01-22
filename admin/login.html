@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - WeChat Viral</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      color: #000000;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    .login-header {
+      margin-bottom: 64px;
+      text-align: left;
+    }
+
+    .login-header h1 {
+      font-size: 24px;
+      font-weight: 500;
+      color: #000000;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .login-header p {
+      color: #737373;
+      font-size: 14px;
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    .form-group {
+      margin-bottom: 32px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #000000;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 0;
+      border: none;
+      border-bottom: 1px solid #e5e5e5;
+      font-size: 15px;
+      background: transparent;
+      color: #000000;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-bottom-color: #000000;
+    }
+
+    .form-group input::placeholder {
+      color: #a3a3a3;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 12px 0;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      font-family: inherit;
+      letter-spacing: -0.01em;
+      margin-top: 8px;
+    }
+
+    .btn-login:hover {
+      opacity: 0.8;
+    }
+
+    .btn-login:active {
+      opacity: 0.9;
+    }
+
+    .btn-login:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      background: transparent;
+      color: #737373;
+      padding: 0;
+      font-size: 13px;
+      margin-bottom: 24px;
+      display: none;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 12px;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-header">
+      <h1>Admin Login</h1>
+      <p>WeChat Viral Marketing System</p>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          required 
+          autocomplete="email"
+          placeholder="your@email.com"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          required 
+          autocomplete="current-password"
+          placeholder="Enter your password"
+        />
+      </div>
+
+      <button type="submit" class="btn-login" id="loginButton">
+        Sign In
+      </button>
+    </form>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:3000/api';
+    
+    const form = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const loginButton = document.getElementById('loginButton');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Show loading
+      loginButton.disabled = true;
+      loginButton.innerHTML = '<span class="loading"></span>Signing in...';
+      errorMessage.classList.remove('show');
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/login-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Login failed');
+        }
+
+        // Store token
+        if (data.data && data.data.token) {
+          localStorage.setItem('admin_token', data.data.token);
+          localStorage.setItem('admin_user', JSON.stringify(data.data.user));
+          
+          // Redirect to admin dashboard or show success
+          window.location.href = './dashboard.html';
+        } else {
+          throw new Error('Invalid response from server');
+        }
+      } catch (error) {
+        errorMessage.textContent = error.message || 'Login failed. Please try again.';
+        errorMessage.classList.add('show');
+        loginButton.disabled = false;
+        loginButton.innerHTML = 'Sign In';
+      }
+    });
+
+    // Check if already logged in
+    const token = localStorage.getItem('admin_token');
+    if (token) {
+      // Verify token is still valid
+      fetch(`${API_BASE_URL}/users/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+      .then(res => {
+        if (res.ok) {
+          window.location.href = '/admin/dashboard.html';
+        }
+      })
+      .catch(() => {
+        // Token invalid, stay on login page
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+.home-container {
+  padding-bottom: 120rpx;
+  background-color: #ffffff;
+}
+
+.header {
+  background-color: #ffffff;
+  color: #000000;
+  padding: 80rpx 40rpx 60rpx;
+  border-bottom: 1rpx solid #e5e5e5;
+}
+
+.welcome-text {
+  font-size: 13px;
+  color: #737373;
+  margin-bottom: 8rpx;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 400;
+}
+
+.user-name {
+  font-size: 24px;
+  font-weight: 500;
+  color: #000000;
+  display: block;
+  letter-spacing: -0.02em;
+}
+
+.points-section {
+  text-align: left;
+  margin: 60rpx 40rpx 80rpx;
+  padding-bottom: 40rpx;
+  border-bottom: 1rpx solid #e5e5e5;
+}
+
+.points-value {
+  font-size: 48px;
+  font-weight: 500;
+  color: #000000;
+  display: block;
+  letter-spacing: -0.03em;
+  margin-bottom: 8rpx;
+}
+
+.points-label {
+  font-size: 12px;
+  color: #737373;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 400;
+}
+
+.section {
+  padding: 0 40rpx 80rpx;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #737373;
+  margin-bottom: 32rpx;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.task-item {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  border: none;
+  border-bottom: 1rpx solid #e5e5e5;
+  padding-bottom: 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12rpx;
+}
+
+.task-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: -0.01em;
+  flex: 1;
+}
+
+.task-points {
+  font-size: 13px;
+  font-weight: 500;
+  color: #737373;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  letter-spacing: -0.01em;
+}
+
+.task-desc {
+  font-size: 13px;
+  color: #737373;
+  margin-bottom: 20rpx;
+  display: block;
+  line-height: 1.5;
+}
+
+.btn-task {
+  width: 100%;
+  background-color: transparent;
+  color: #000000;
+  border-radius: 0;
+  padding: 16rpx 0;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1rpx solid #e5e5e5;
+  letter-spacing: -0.01em;
+}
+
+.btn-claim {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+.task-completed {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.completed-text {
+  font-size: 28rpx;
+  color: #111827;
+  font-weight: 500;
+}
+
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.log-item {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border: none;
+  border-bottom: 1rpx solid #e5e5e5;
+  padding-bottom: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.log-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.log-remark {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: -0.01em;
+}
+
+.log-date {
+  font-size: 12px;
+  color: #a3a3a3;
+  margin-top: 4rpx;
+  display: block;
+  font-weight: 400;
+}
+
+.log-points {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: -0.01em;
+}

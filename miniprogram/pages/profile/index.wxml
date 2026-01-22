@@ -1,0 +1,68 @@
+<view class="container">
+  <view class="profile-header">
+    <view class="avatar-section">
+      <image wx:if="{{user && user.avatar_url}}" class="avatar-image" src="{{user.avatar_url}}" mode="aspectFill" />
+      <view wx:else class="avatar">{{user && user.name ? user.name.charAt(0) : 'U'}}</view>
+      <text class="user-name">{{user && (user.nickname || user.name) ? (user.nickname || user.name) : '用户'}}</text>
+      <text class="user-company">{{user && user.company ? user.company : ''}}</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="info-grid">
+      <view class="info-item">
+        <text class="info-label">手机号</text>
+        <text class="info-value">{{user && user.phone ? user.phone : '-'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">微信号</text>
+        <text class="info-value">{{user && user.wechat_id ? user.wechat_id : '-'}}</text>
+      </view>
+    </view>
+
+    <view class="info-list">
+      <view class="info-row">
+        <view class="info-icon">🏢</view>
+        <view class="info-content">
+          <text class="info-label">公司</text>
+          <text class="info-value">{{user && user.company ? user.company : '-'}}</text>
+        </view>
+      </view>
+      <view class="info-row">
+        <view class="info-icon">👤</view>
+        <view class="info-content">
+          <text class="info-label">角色</text>
+          <text class="info-value">{{user && user.role ? user.role : '-'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="debug-section" wx:if="{{user}}">
+      <view class="info-row">
+        <view class="info-icon">🔑</view>
+        <view class="info-content">
+          <text class="info-label">UnionID</text>
+          <text class="info-value debug-id">{{user.unionid || '未绑定开放平台'}}</text>
+        </view>
+      </view>
+      <view class="info-row">
+        <view class="info-icon">🆔</view>
+        <view class="info-content">
+          <text class="info-label">OpenID</text>
+          <text class="info-value debug-id">{{user.openid ? user.openid.substring(0, 20) + '...' : 'N/A'}}</text>
+        </view>
+      </view>
+      <view class="info-row" wx:if="{{user.unionid}}">
+        <view class="info-icon">💡</view>
+        <view class="info-content">
+          <text class="info-label">设置管理员</text>
+          <text class="info-value">使用 UnionID: {{user.unionid}}</text>
+          <text class="info-hint">在终端运行: node scripts/set-admin.js --unionid {{user.unionid}}</text>
+        </view>
+      </view>
+    </view>
+
+    <button wx:if="{{user && user.is_admin}}" class="btn-admin" bindtap="goToAdmin">管理员后台</button>
+    <button class="btn-logout" bindtap="logout">退出登录</button>
+  </view>
+</view>

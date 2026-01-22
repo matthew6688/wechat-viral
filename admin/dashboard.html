@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - WeChat Viral</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      color: #000000;
+    }
+
+    .header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 24px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 500;
+      color: #000000;
+      letter-spacing: -0.02em;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .user-info span {
+      font-size: 13px;
+      color: #737373;
+      font-weight: 400;
+    }
+
+    .logout-btn {
+      padding: 6px 12px;
+      background: transparent;
+      color: #737373;
+      border: 1px solid #e5e5e5;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 400;
+      font-family: inherit;
+      transition: all 0.2s;
+      letter-spacing: -0.01em;
+    }
+
+    .logout-btn:hover {
+      color: #000000;
+      border-color: #000000;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 40px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1px;
+      margin-bottom: 80px;
+      border-top: 1px solid #e5e5e5;
+      border-left: 1px solid #e5e5e5;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      padding: 32px 24px;
+      border-right: 1px solid #e5e5e5;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 500;
+      color: #000000;
+      margin-bottom: 4px;
+      letter-spacing: -0.03em;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #737373;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .section {
+      margin-bottom: 80px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #737373;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .events-list {
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .event-item {
+      padding: 20px 0;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .event-item:last-child {
+      border-bottom: none;
+    }
+
+    .event-info {
+      flex: 1;
+    }
+
+    .event-type {
+      font-size: 14px;
+      font-weight: 500;
+      color: #000000;
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+
+    .event-details {
+      font-size: 12px;
+      color: #737373;
+      margin-top: 2px;
+    }
+
+    .event-time {
+      font-size: 12px;
+      color: #a3a3a3;
+      font-weight: 400;
+    }
+
+    .loading {
+      text-align: left;
+      padding: 40px 0;
+      color: #737373;
+      font-size: 13px;
+    }
+
+    .empty-state {
+      padding: 60px 0;
+      text-align: center;
+      color: #a3a3a3;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Admin Dashboard</h1>
+    <div class="user-info">
+      <span id="userName">Loading...</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalUsers">-</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalScans">-</div>
+        <div class="stat-label">Total Scans</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalFollows">-</div>
+        <div class="stat-label">Total Follows</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalInvites">-</div>
+        <div class="stat-label">Total Invites</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Recent Events</div>
+      <div class="loading" id="eventsLoading">Loading events...</div>
+      <div class="events-list" id="eventsList"></div>
+      <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:3000/api';
+    
+    // Check authentication
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      window.location.href = './login.html';
+    }
+
+    // Load user info
+    const user = JSON.parse(localStorage.getItem('admin_user') || '{}');
+    document.getElementById('userName').textContent = user.name || user.email || 'Admin';
+
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        // Load stats
+        const statsRes = await fetch(`${API_BASE_URL}/admin/debug/stats`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+          document.getElementById('totalScans').textContent = stats.totalScans || 0;
+          document.getElementById('totalFollows').textContent = stats.totalFollows || 0;
+          document.getElementById('totalInvites').textContent = stats.totalInvites || 0;
+        }
+
+        // Load all events from unified event log
+        const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=50`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (eventsRes.ok) {
+          const eventsData = await eventsRes.json();
+          const eventsList = document.getElementById('eventsList');
+          eventsList.innerHTML = '';
+          
+          const events = eventsData.data?.events || [];
+          
+          if (events.length === 0) {
+            document.getElementById('emptyState').style.display = 'block';
+          } else {
+            // Map event types to display names
+            const eventTypeNames = {
+              'login': '登录',
+              'login_email': '邮箱登录',
+              'register': '注册',
+              'scan_qr': '扫描二维码',
+              'follow_oa': '关注公众号',
+              'unfollow_oa': '取消关注',
+              'invite': '邀请',
+              'redeem': '兑换',
+            };
+            
+            events.forEach(event => {
+              const div = document.createElement('div');
+              div.className = 'event-item';
+              const eventTime = new Date(event.created_at);
+              const timeStr = eventTime.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+              
+              const eventTypeName = eventTypeNames[event.event_type] || event.event_type;
+              const userName = event.user ? (event.user.name || event.user.phone || 'Unknown') : 'N/A';
+              
+              let detailsHtml = '';
+              if (event.event_data) {
+                if (event.event_data.scene_str) {
+                  detailsHtml += `<div class="event-details">场景: ${event.event_data.scene_str}</div>`;
+                }
+                if (event.event_data.referral_code) {
+                  detailsHtml += `<div class="event-details">邀请码: ${event.event_data.referral_code}</div>`;
+                }
+                if (event.event_data.reward_name) {
+                  detailsHtml += `<div class="event-details">奖励: ${event.event_data.reward_name} (${event.event_data.points_used}积分)</div>`;
+                }
+                if (event.related_user) {
+                  detailsHtml += `<div class="event-details">关联用户: ${event.related_user.name || event.related_user.phone || 'N/A'}</div>`;
+                }
+              }
+              
+              div.innerHTML = `
+                <div class="event-info">
+                  <div class="event-type">${eventTypeName}</div>
+                  <div class="event-details">用户: ${userName}</div>
+                  ${detailsHtml}
+                </div>
+                <div class="event-time">${timeStr}</div>
+              `;
+              eventsList.appendChild(div);
+            });
+          }
+          
+          document.getElementById('eventsLoading').style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+        if (error.message.includes('401') || error.message.includes('403')) {
+          logout();
+        }
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      window.location.href = './login.html';
+    }
+
+    // Load dashboard on page load
+    loadDashboard();
+  </script>
+</body>
+</html>

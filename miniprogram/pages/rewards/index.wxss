@@ -1,0 +1,175 @@
+.rewards-container {
+  padding-bottom: 120rpx;
+  background-color: #ffffff;
+}
+
+.points-header {
+  background-color: #ffffff;
+  color: #000000;
+  padding: 80rpx 40rpx 60rpx;
+  margin-bottom: 0;
+  border-bottom: 1rpx solid #e5e5e5;
+}
+
+.points-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.points-label {
+  font-size: 12px;
+  color: #737373;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 400;
+  margin-bottom: 8rpx;
+}
+
+.points-value {
+  font-size: 48px;
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: -0.03em;
+}
+
+.section {
+  padding: 80rpx 40rpx;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #737373;
+  margin-bottom: 32rpx;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rewards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+}
+
+.reward-item {
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1rpx solid #e5e5e5;
+  padding-bottom: 40rpx;
+  margin-bottom: 40rpx;
+}
+
+.reward-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.reward-content {
+  padding: 0;
+}
+
+.reward-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12rpx;
+}
+
+.reward-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: -0.01em;
+  flex: 1;
+}
+
+.reward-points {
+  font-size: 13px;
+  font-weight: 500;
+  color: #737373;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  letter-spacing: -0.01em;
+}
+
+.reward-desc {
+  font-size: 13px;
+  color: #737373;
+  margin-bottom: 20rpx;
+  display: block;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.btn-redeem {
+  width: 100%;
+  border-radius: 0;
+  padding: 16rpx 0;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1rpx solid #e5e5e5;
+  letter-spacing: -0.01em;
+}
+
+.btn-redeem-active {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+.btn-redeem-disabled {
+  background-color: transparent;
+  color: #a3a3a3;
+  border-color: #e5e5e5;
+}
+
+.redemptions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.redemption-item {
+  background: transparent;
+  border-left: none;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border: none;
+  border-bottom: 1rpx solid #e5e5e5;
+  padding-bottom: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.redemption-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.redemption-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: -0.01em;
+}
+
+.redemption-date {
+  font-size: 12px;
+  color: #a3a3a3;
+  margin-top: 4rpx;
+  display: block;
+  font-weight: 400;
+}
+
+.redemption-arrow {
+  font-size: 20px;
+  color: #737373;
+  opacity: 0.6;
+}

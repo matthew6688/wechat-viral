@@ -1,0 +1,41 @@
+<view class="home-container">
+  <view class="header">
+    <text class="welcome-text">欢迎回来</text>
+    <text class="user-name">{{user && user.name ? user.name : '用户'}}</text>
+  </view>
+  
+  <view class="points-section">
+    <text class="points-value">{{points}}</text>
+    <text class="points-label">积分</text>
+  </view>
+
+  <view class="section">
+    <text class="section-title">任务</text>
+    <view class="tasks-list">
+      <view wx:for="{{tasks || []}}" wx:key="id" class="task-item">
+        <view class="task-header">
+          <text class="task-title">{{item.name}}</text>
+          <text class="task-points">+{{item.points}} 积分</text>
+        </view>
+        <text class="task-desc">{{item.description}}</text>
+        <button wx:if="{{!item.completed}}" class="btn-task btn-claim" data-id="{{item.id}}" bindtap="completeTask">完成任务</button>
+        <view wx:else class="task-completed">
+          <text class="completed-text">✓ 已完成</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">最近活动</text>
+    <view class="logs-list">
+      <view wx:for="{{logs || []}}" wx:key="id" class="log-item">
+        <view class="log-content">
+          <text class="log-remark">{{item.remark}}</text>
+          <text class="log-date">{{item.created_at}}</text>
+        </view>
+        <text class="log-points {{item.points > 0 ? 'positive' : 'negative'}}">{{item.points > 0 ? '+' : ''}}{{item.points}}</text>
+      </view>
+    </view>
+  </view>
+</view>

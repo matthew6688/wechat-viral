@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+exportgrowth-lab-mvp/node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
+
+# Build outputs
+backend/dist/
+*.log
+*.log.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# WeChat Mini Program
+miniprogram/poster_*.png
+miniprogram/poster.png
+
+# Temporary files
+*.tmp
+*.temp

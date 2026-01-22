@@ -1,0 +1,22 @@
+<view class="container">
+  <view class="card">
+    <view class="success-icon">✓</view>
+    <text class="success-title">兑换成功！</text>
+    <text class="success-desc">您已成功兑换奖励</text>
+    
+    <view wx:if="{{redemption}}">
+      <text class="reward-name">{{redemption.reward_name}}</text>
+      
+      <view class="delivery-section">
+        <text class="delivery-label">奖励内容</text>
+        <view class="delivery-content">
+          <text wx:if="{{redemption.delivery_url}}" class="url-display">{{redemption.delivery_url}}</text>
+          <text wx:if="{{redemption.delivery_code}}" class="code-display">{{redemption.delivery_code}}</text>
+          <text wx:if="{{redemption.delivery_text}}" class="text-display">{{redemption.delivery_text}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <button class="btn-primary" bindtap="goBack">返回</button>
+  </view>
+</view>

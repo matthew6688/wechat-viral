@@ -1,0 +1,74 @@
+<view class="container">
+  <view class="header">
+    <text class="title">邀请好友</text>
+  </view>
+
+  <!-- Referral Code -->
+  <view class="section">
+    <text class="label">我的邀请码</text>
+    <view class="code-display">
+      <text class="code-text">{{referralCode}}</text>
+      <button class="btn-copy" bindtap="copyReferralCode">复制</button>
+    </view>
+  </view>
+
+  <!-- QR Code Type Selection -->
+  <view class="section">
+    <view class="qr-type-tabs">
+      <view 
+        class="qr-type-tab {{qrType === 'mp' ? 'active' : ''}}"
+        data-type="mp"
+        bindtap="switchQRType"
+      >
+        小程序码
+      </view>
+      <view 
+        class="qr-type-tab {{qrType === 'oa' ? 'active' : ''}}"
+        data-type="oa"
+        bindtap="switchQRType"
+      >
+        服务号二维码
+      </view>
+    </view>
+
+    <!-- Mini Program QR Code -->
+    <view wx:if="{{qrType === 'mp' && mpQRCode}}" class="qr-container">
+      <image class="qr-image" src="{{mpQRCode}}" mode="aspectFit" />
+    </view>
+
+    <!-- Official Account QR Code -->
+    <view wx:if="{{qrType === 'oa'}}" class="qr-container">
+      <view wx:if="{{loading.oa}}" class="loading-text">加载中...</view>
+      <image wx:if="{{oaQRCode}}" class="qr-image" src="{{oaQRCode}}" mode="aspectFit" />
+      <view wx:if="{{!loading.oa && !oaQRCode}}" class="error-text">二维码加载失败</view>
+    </view>
+  </view>
+
+  <!-- Poster Section -->
+  <view class="section">
+    <text class="label">生成海报</text>
+    <button 
+      class="btn-primary" 
+      bindtap="generatePoster"
+      disabled="{{loading.poster}}"
+    >
+      {{loading.poster ? '生成中...' : '生成海报'}}
+    </button>
+
+    <view wx:if="{{posterImage}}" class="poster-container">
+      <image class="poster-image" src="{{posterImage}}" mode="aspectFit" />
+      <button class="btn-secondary" bindtap="savePoster">保存到相册</button>
+    </view>
+  </view>
+
+  <!-- Share Info -->
+  <view class="section">
+    <view class="info-card">
+      <text class="info-title">邀请奖励</text>
+      <view class="info-item">
+        <text>成功邀请</text>
+        <text class="info-value">+50 积分</text>
+      </view>
+    </view>
+  </view>
+</view>

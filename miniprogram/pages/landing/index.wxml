@@ -1,0 +1,14 @@
+<view class="landing-container">
+  <view class="landing-hero">
+    <view class="hero-content">
+      <text class="headline">{{headline}}</text>
+      <text class="subheadline">{{subheadline}}</text>
+      <view class="body-card">
+        <text class="body-content">{{body}}</text>
+      </view>
+    </view>
+  </view>
+  <view class="cta-section">
+    <button class="btn-primary" bindtap="handleCTA">立即开始</button>
+  </view>
+</view>

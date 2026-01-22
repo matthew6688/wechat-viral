@@ -1,0 +1,121 @@
+.container {
+  padding: 80rpx 40rpx;
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.card {
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0;
+  border: none;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 80rpx;
+  display: block;
+  letter-spacing: -0.02em;
+}
+
+.form-item {
+  margin-bottom: 60rpx;
+}
+
+.label {
+  font-size: 13px;
+  color: #000000;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+  display: block;
+  letter-spacing: -0.01em;
+}
+
+.input, .textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1rpx solid #e5e5e5;
+  border-radius: 0;
+  padding: 16rpx 0;
+  font-size: 15px;
+  background-color: transparent;
+  color: #000000;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.input:focus, .textarea:focus {
+  outline: none;
+  border-bottom-color: #000000;
+}
+
+.textarea {
+  min-height: 120rpx;
+  resize: none;
+}
+
+.btn-primary {
+  width: 100%;
+  background-color: #000000;
+  color: #ffffff;
+  border-radius: 0;
+  padding: 20rpx 0;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 80rpx;
+  letter-spacing: -0.01em;
+}
+
+.wechat-profile {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1rpx solid #e5e5e5;
+  border-radius: 0;
+  opacity: 0.6;
+  padding-bottom: 32rpx;
+  margin-bottom: 60rpx;
+}
+
+.wechat-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 2rpx solid #d1d5db;
+}
+
+.wechat-avatar-placeholder {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #9ca3af;
+  border: 2rpx solid #d1d5db;
+}
+
+.wechat-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.wechat-nickname {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.wechat-hint {
+  font-size: 22rpx;
+  color: #9ca3af;
+}

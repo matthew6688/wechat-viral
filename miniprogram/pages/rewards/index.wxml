@@ -1,0 +1,44 @@
+<view class="rewards-container">
+  <view class="points-header">
+    <view class="points-info">
+      <text class="points-label">当前积分</text>
+      <text class="points-value">{{points}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">可兑换奖励</text>
+    <view class="rewards-list">
+      <view wx:for="{{rewards || []}}" wx:key="id" class="reward-item">
+        <view class="reward-content">
+          <view class="reward-header">
+            <text class="reward-name">{{item.name}}</text>
+            <text class="reward-points">{{item.points_required}} 积分</text>
+          </view>
+          <text class="reward-desc">{{item.description}}</text>
+          <button 
+            class="btn-redeem {{points >= item.points_required ? 'btn-redeem-active' : 'btn-redeem-disabled'}}"
+            data-id="{{item.id}}"
+            bindtap="redeemReward"
+            disabled="{{points < item.points_required}}"
+          >
+            {{points >= item.points_required ? '立即兑换' : '积分不足'}}
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">兑换记录</text>
+    <view class="redemptions-list">
+      <view wx:for="{{redemptions || []}}" wx:key="id" class="redemption-item">
+        <view class="redemption-content">
+          <text class="redemption-name">{{item.reward_name}}</text>
+          <text class="redemption-date">{{item.created_at}}</text>
+        </view>
+        <text class="redemption-arrow">→</text>
+      </view>
+    </view>
+  </view>
+</view>
