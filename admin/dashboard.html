@@ -19,9 +19,19 @@
       --text-secondary: #6b7280;
       --text-muted: #9ca3af;
       --accent: #000000;
+      --accent-color: #3b82f6;
       --success: #10b981;
       --warning: #f59e0b;
       --error: #ef4444;
+      
+      /* Sidebar colors */
+      --sidebar-bg: #0f0f0f;
+      --sidebar-text: #a0a0a0;
+      --sidebar-text-hover: #ffffff;
+      --sidebar-active-bg: #1a1a1a;
+      --sidebar-active-text: #ffffff;
+      --sidebar-border: #2a2a2a;
+      --sidebar-width: 260px;
     }
 
     body {
@@ -33,12 +43,212 @@
       line-height: 1.5;
     }
 
-    /* Navigation */
-    .nav {
+    /* App Layout */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-logo span {
+      color: var(--accent-color);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+    }
+
+    .nav-section {
+      margin-bottom: 8px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--sidebar-text);
+      padding: 8px 12px 8px;
+      opacity: 0.6;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-bottom: 2px;
+      font-size: 14px;
+      color: var(--sidebar-text);
+      background: transparent;
+      border: none;
+      text-align: left;
+      font-family: inherit;
+    }
+
+    .nav-item:hover {
+      background: var(--sidebar-active-bg);
+      color: var(--sidebar-text-hover);
+    }
+
+    .nav-item.active {
+      background: var(--sidebar-active-bg);
+      color: var(--sidebar-active-text);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 3px;
+      height: 24px;
+      background: var(--accent-color);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .nav-item-icon {
+      width: 20px;
+      margin-right: 12px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .nav-item-text {
+      flex: 1;
+    }
+
+    .nav-item-badge {
+      background: var(--accent-color);
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .nav-item-arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+      opacity: 0.5;
+    }
+
+    .nav-item.expanded .nav-item-arrow {
+      transform: rotate(90deg);
+    }
+
+    /* Submenu */
+    .nav-submenu {
+      display: none;
+      padding-left: 32px;
+    }
+
+    .nav-submenu.show {
+      display: block;
+    }
+
+    .nav-submenu .nav-item {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--sidebar-active-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--sidebar-text-hover);
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+    }
+
+    .sidebar-user-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sidebar-text-hover);
+    }
+
+    .sidebar-user-role {
+      font-size: 11px;
+      color: var(--sidebar-text);
+    }
+
+    .sidebar-logout {
+      padding: 6px 10px;
+      background: transparent;
+      border: 1px solid var(--sidebar-border);
+      border-radius: 6px;
+      color: var(--sidebar-text);
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.15s;
+    }
+
+    .sidebar-logout:hover {
+      background: var(--sidebar-active-bg);
+      color: var(--sidebar-text-hover);
+      border-color: var(--sidebar-text);
+    }
+
+    /* Main Content */
+    .main-wrapper {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--bg-primary);
+    }
+
+    .main-header {
       background: var(--bg-secondary);
       border-bottom: 1px solid var(--border-color);
-      padding: 0 32px;
-      height: 56px;
+      padding: 16px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -47,46 +257,676 @@
       z-index: 100;
     }
 
-    .nav-brand {
-      font-size: 15px;
+    .main-header-title {
+      font-size: 18px;
       font-weight: 600;
       color: var(--text-primary);
-      letter-spacing: -0.02em;
     }
 
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .nav-user {
+    .main-header-subtitle {
       font-size: 13px;
       color: var(--text-secondary);
+      margin-top: 2px;
     }
 
-    .btn-logout {
-      padding: 6px 12px;
+    .main-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .main-content {
+      padding: 24px 32px;
+      max-width: 1400px;
+    }
+
+    /* Content Panels */
+    .content-panel {
+      display: none;
+    }
+
+    .content-panel.active {
+      display: block;
+    }
+
+    /* Hide old nav */
+    .nav {
+      display: none;
+    }
+
+    /* Main Layout - Updated */
+    .main {
+      display: none;
+    }
+
+    /* Responsive Sidebar - disabled for now */
+    /*
+    @media (max-width: 1024px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .main-wrapper {
+        margin-left: 0;
+      }
+    }
+    */
+
+    /* Analytics Tabs in Overview */
+    .analytics-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .analytics-tab {
+      padding: 8px 16px;
       background: transparent;
-      color: var(--text-secondary);
       border: 1px solid var(--border-color);
       border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
-      font-weight: 500;
-      transition: all 0.15s ease;
+      color: var(--text-secondary);
+      transition: all 0.15s;
     }
 
-    .btn-logout:hover {
+    .analytics-tab:hover {
+      background: var(--bg-primary);
       color: var(--text-primary);
-      border-color: var(--text-primary);
     }
 
-    /* Main Layout */
-    .main {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 32px;
+    .analytics-tab.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .analytics-panel {
+      padding: 16px 0;
+    }
+
+    .analytics-panel.hidden {
+      display: none;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .panel-header h4 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    /* Environment Cards Grid */
+    .env-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .env-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s;
+    }
+
+    .env-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .env-card.success {
+      border-color: var(--success);
+    }
+
+    .env-card.error {
+      border-color: var(--error);
+    }
+
+    .env-card.warning {
+      border-color: var(--warning);
+    }
+
+    .env-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .env-icon {
+      font-size: 24px;
+    }
+
+    .env-name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .env-status {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: var(--bg-primary);
+    }
+
+    .env-status.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .env-status.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    .env-details {
+      margin-bottom: 16px;
+    }
+
+    .env-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13px;
+    }
+
+    .env-row:last-child {
+      border-bottom: none;
+    }
+
+    .env-label {
+      color: var(--text-secondary);
+      min-width: 100px;
+    }
+
+    .env-value {
+      flex: 1;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    .env-action {
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Event Filter Styles */
+    .event-filter-select {
+      padding: 8px 12px;
+      font-size: 13px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-secondary);
+      min-width: 180px;
+    }
+
+    .event-search-input {
+      padding: 8px 12px;
+      font-size: 13px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-secondary);
+    }
+
+    /* Settings Grid */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .setting-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .setting-item label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .setting-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .setting-item select,
+    .setting-item input[type="number"] {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .setting-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    .setting-desc.warning {
+      color: var(--warning);
+    }
+
+    .btn-save {
+      margin-top: 24px;
+      padding: 12px 32px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-save:hover {
+      opacity: 0.9;
+    }
+
+    .settings-message {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .settings-message.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .settings-message.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    /* Webhook Test Buttons */
+    .webhook-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn-webhook {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+
+    .btn-webhook:hover {
+      background: var(--bg-primary);
+      border-color: var(--text-secondary);
+    }
+
+    .btn-webhook span {
+      font-size: 18px;
+    }
+
+    .webhook-result {
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    /* Tunnel Grid */
+    .tunnel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .tunnel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn-validate {
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 20px;
+    }
+
+    .btn-validate:hover {
+      opacity: 0.9;
+    }
+
+    .tunnel-status-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .status-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    .status-card-icon {
+      font-size: 20px;
+    }
+
+    .status-card-content {
+      flex: 1;
+    }
+
+    .status-card-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .status-card-value {
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+
+    .status-card-check {
+      width: 24px;
+      height: 24px;
+      background: var(--success);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .tunnel-update-section {
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+    }
+
+    .tunnel-url-label {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .tunnel-update-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .tunnel-url-input-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .url-prefix {
+      font-size: 16px;
+    }
+
+    .tunnel-url-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+
+    .tunnel-error {
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--error);
+      border-radius: 8px;
+      color: var(--error);
+      font-size: 13px;
+    }
+
+    /* Quick Reference */
+    .quick-ref {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .quick-ref.collapsed .quick-ref-content {
+      display: none;
+    }
+
+    .quick-ref-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .quick-ref-header:hover {
+      background: var(--bg-primary);
+    }
+
+    .quick-ref-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .quick-ref-toggle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      transition: transform 0.2s;
+    }
+
+    .quick-ref:not(.collapsed) .quick-ref-toggle {
+      transform: rotate(180deg);
+    }
+
+    .quick-ref-content {
+      padding: 0 20px 20px;
+    }
+
+    .quick-ref-item {
+      margin-bottom: 16px;
+    }
+
+    .quick-ref-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .quick-ref-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .quick-ref-code {
+      display: block;
+      padding: 10px 14px;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      border-radius: 6px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      overflow-x: auto;
+    }
+
+    /* Critical Alert Banner */
+    .critical-alert {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      max-width: 480px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--error);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      z-index: 2000;
+      display: flex;
+      gap: 16px;
+    }
+
+    .alert-icon {
+      font-size: 24px;
+    }
+
+    .alert-content {
+      flex: 1;
+    }
+
+    .alert-title {
+      font-weight: 600;
+      color: var(--error);
+      margin-bottom: 8px;
+    }
+
+    .alert-message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .alert-action {
+      font-size: 12px;
+    }
+
+    .alert-action code {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--bg-primary);
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+      margin-top: 4px;
+    }
+
+    .alert-dismiss {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .alert-dismiss:hover {
+      color: var(--text-primary);
+    }
+
+    /* Debug Sections */
+    .debug-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .debug-section {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .debug-section h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .debug-section pre {
+      background: #1a1a1a;
+      color: #e0e0e0;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      font-family: 'SF Mono', Monaco, monospace;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* Empty State */
+    .empty-state {
+      padding: 48px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    /* Loading State */
+    .loading {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    /* Error State */
+    .error {
+      padding: 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--error);
+      border-radius: 8px;
+      color: var(--error);
+      font-size: 13px;
     }
 
     /* Page Header */
@@ -2063,7 +2903,646 @@
   </style>
 </head>
 <body>
-  <nav class="nav">
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">WeChat<span>Viral</span></div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <!-- Overview -->
+        <div class="nav-section">
+          <button class="nav-item active" data-panel="overview" onclick="switchPanel('overview')">
+            <span class="nav-item-icon">📊</span>
+            <span class="nav-item-text">Overview</span>
+          </button>
+        </div>
+
+        <!-- Campaigns -->
+        <div class="nav-section">
+          <div class="nav-section-title">Campaigns</div>
+          <button class="nav-item" data-panel="campaigns-management" onclick="switchPanel('campaigns-management')">
+            <span class="nav-item-icon">📋</span>
+            <span class="nav-item-text">Management</span>
+          </button>
+          <button class="nav-item" data-panel="campaigns-analytics" onclick="switchPanel('campaigns-analytics')">
+            <span class="nav-item-icon">📈</span>
+            <span class="nav-item-text">Analytics</span>
+          </button>
+          <button class="nav-item" data-panel="campaigns-debug" onclick="switchPanel('campaigns-debug')">
+            <span class="nav-item-icon">🔍</span>
+            <span class="nav-item-text">Debug</span>
+          </button>
+        </div>
+
+        <!-- Events -->
+        <div class="nav-section">
+          <div class="nav-section-title">Monitoring</div>
+          <button class="nav-item" data-panel="events-live" onclick="switchPanel('events-live')">
+            <span class="nav-item-icon">🔴</span>
+            <span class="nav-item-text">Live Logs</span>
+            <span class="nav-item-badge" id="liveLogsBadge">LIVE</span>
+          </button>
+          <button class="nav-item" data-panel="events-history" onclick="switchPanel('events-history')">
+            <span class="nav-item-icon">📜</span>
+            <span class="nav-item-text">Event History</span>
+          </button>
+        </div>
+
+        <!-- Settings -->
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <button class="nav-item" data-panel="settings-connection" onclick="switchPanel('settings-connection')">
+            <span class="nav-item-icon">🔌</span>
+            <span class="nav-item-text">Connection</span>
+          </button>
+          <button class="nav-item" data-panel="settings-tunnel" onclick="switchPanel('settings-tunnel')">
+            <span class="nav-item-icon">🛡️</span>
+            <span class="nav-item-text">Tunnel</span>
+          </button>
+          <button class="nav-item" data-panel="settings-debug" onclick="switchPanel('settings-debug')">
+            <span class="nav-item-icon">🐛</span>
+            <span class="nav-item-text">Debug Settings</span>
+          </button>
+          <button class="nav-item" data-panel="settings-test" onclick="switchPanel('settings-test')">
+            <span class="nav-item-icon">🧪</span>
+            <span class="nav-item-text">Test Webhook</span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">👤</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarUserName">Admin</div>
+            <div class="sidebar-user-role">Administrator</div>
+          </div>
+          <button class="sidebar-logout" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+      <header class="main-header">
+        <div>
+          <h1 class="main-header-title" id="panelTitle">Overview</h1>
+          <p class="main-header-subtitle" id="panelSubtitle">Dashboard overview and key metrics</p>
+        </div>
+        <div class="main-header-actions" id="panelActions">
+          <!-- Dynamic actions will be inserted here -->
+        </div>
+      </header>
+
+      <div class="main-content">
+        <!-- ============================================ -->
+        <!-- OVERVIEW PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel active" id="panel-overview">
+          <!-- Stats -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">👥 Total Users</div>
+              <div class="stat-value" id="totalUsers">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🎯 Participants</div>
+              <div class="stat-value" id="totalParticipants">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🤝 Total Helpers</div>
+              <div class="stat-value" id="totalHelpers">-</div>
+              <div class="stat-sub" id="validHelpers">- valid</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📈 Retention</div>
+              <div class="stat-value" id="retentionRate">-</div>
+              <div class="stat-sub" id="unfollows">- unfollows</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🎁 Rewards Claimed</div>
+              <div class="stat-value" id="rewardsClaimed">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📊 Avg Helpers/User</div>
+              <div class="stat-value" id="avgHelpers">-</div>
+            </div>
+          </div>
+
+          <!-- Quick Stats Summary -->
+          <div class="section" style="margin-top: 24px;">
+            <div class="section-header">
+              <div class="section-title">📊 Quick Analytics</div>
+            </div>
+            <div class="section-content">
+              <div class="analytics-tabs">
+                <button class="analytics-tab active" onclick="switchAnalyticsTab('influencers')">🏆 Top Influencers</button>
+                <button class="analytics-tab" onclick="switchAnalyticsTab('campaigns')">📈 Comparison</button>
+                <button class="analytics-tab" onclick="switchAnalyticsTab('sources')">🎯 Sources</button>
+                <button class="analytics-tab" onclick="switchAnalyticsTab('trends')">📅 Trends</button>
+              </div>
+
+              <div class="analytics-panel" id="influencersPanel">
+                <div class="panel-header">
+                  <h4>Top Influencers - Who brings the most followers?</h4>
+                  <button class="btn btn-sm" onclick="loadInfluencers()">🔄 Refresh</button>
+                </div>
+                <div class="table-container">
+                  <table class="data-table" id="influencersTable">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>Campaign</th>
+                        <th>Helpers</th>
+                        <th>Valid</th>
+                        <th>Retention</th>
+                        <th>Joined</th>
+                      </tr>
+                    </thead>
+                    <tbody id="influencersBody">
+                      <tr><td colspan="7" class="loading">Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="analytics-panel hidden" id="campaignsPanel">
+                <div class="panel-header">
+                  <h4>Campaign Performance Comparison</h4>
+                  <button class="btn btn-sm" onclick="loadCampaignAnalytics()">🔄 Refresh</button>
+                </div>
+                <div class="table-container">
+                  <table class="data-table" id="campaignsAnalyticsTable">
+                    <thead>
+                      <tr>
+                        <th>Campaign</th>
+                        <th>Status</th>
+                        <th>Participants</th>
+                        <th>Helpers</th>
+                        <th>Unfollows</th>
+                        <th>Retention</th>
+                        <th>Avg/User</th>
+                        <th>Rewards</th>
+                      </tr>
+                    </thead>
+                    <tbody id="campaignsAnalyticsBody">
+                      <tr><td colspan="8" class="loading">Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="analytics-panel hidden" id="sourcesPanel">
+                <div class="panel-header">
+                  <h4>Traffic Source Breakdown</h4>
+                  <button class="btn btn-sm" onclick="loadSourceAnalytics()">🔄 Refresh</button>
+                </div>
+                <div class="source-cards" id="sourceCards">
+                  <div class="loading">Loading...</div>
+                </div>
+              </div>
+
+              <div class="analytics-panel hidden" id="trendsPanel">
+                <div class="panel-header">
+                  <h4>Daily Trends (Last 30 Days)</h4>
+                  <button class="btn btn-sm" onclick="loadDailyTrends()">🔄 Refresh</button>
+                </div>
+                <div class="trends-chart" id="trendsChart">
+                  <div class="loading">Loading...</div>
+                </div>
+                <div class="trends-table">
+                  <table class="data-table" id="trendsTable">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>New Helpers</th>
+                        <th>Valid</th>
+                        <th>Unfollows</th>
+                      </tr>
+                    </thead>
+                    <tbody id="trendsBody">
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- CAMPAIGNS MANAGEMENT PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-campaigns-management">
+          <div class="loading" id="campaignListLoading">Loading campaigns...</div>
+          <div id="campaignListContent" style="display: none;">
+            <table class="campaign-table">
+              <thead>
+                <tr>
+                  <th>活动名称</th>
+                  <th>状态</th>
+                  <th>参与人数</th>
+                  <th>助力人数</th>
+                  <th>结束时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="campaignTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- CAMPAIGNS ANALYTICS PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-campaigns-analytics">
+          <div class="analytics-tabs">
+            <button class="analytics-tab active" onclick="switchAnalyticsTab('influencers')">🏆 Top Influencers</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('campaigns')">📈 Comparison</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('sources')">🎯 Sources</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('trends')">📅 Trends</button>
+          </div>
+          <div id="analyticsContent">
+            <!-- Analytics content loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- CAMPAIGNS DEBUG PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-campaigns-debug">
+          <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <select id="campaignSelect" onchange="loadCampaignDebug()" style="padding: 8px 12px; font-size: 13px; border: 1px solid var(--border-color); border-radius: 6px; flex: 1;">
+              <option value="">Select Campaign...</option>
+            </select>
+            <button class="btn-secondary" onclick="refreshCampaignDebug()" style="padding: 8px 16px;">Refresh</button>
+          </div>
+          <div id="campaignDebugContent">
+            <div class="empty-state">Select a campaign to view debug data</div>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- EVENTS LIVE PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-events-live">
+          <div class="debug-logs" id="debugLogsContainer" style="min-height: 400px;">
+            <div class="debug-log-entry" id="debugLogsPlaceholder">
+              <div class="log-time">Connecting to event stream...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- EVENTS HISTORY PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-events-history">
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 16px;">
+            <select id="eventTypeFilter" onchange="filterEvents()" class="event-filter-select">
+              <option value="">All Events</option>
+              <option value="oa_subscribe">🔔 OA Subscribe</option>
+              <option value="oa_scan">📷 OA Scan</option>
+              <option value="oa_unsubscribe">🔕 OA Unsubscribe</option>
+              <option value="campaign_helper_recorded">👥 Helper Recorded</option>
+              <option value="campaign_qr_created">🎫 QR Created</option>
+              <option value="campaign_reward_claimed">🎁 Reward Claimed</option>
+              <option value="campaign_created">📝 Campaign Created</option>
+              <option value="campaign_updated">✏️ Campaign Updated</option>
+              <option value="login">🔑 Login</option>
+              <option value="register">📋 Register</option>
+            </select>
+            <input type="text" id="eventSearchInput" placeholder="Search user, ID..." 
+              onkeyup="filterEvents()" class="event-search-input" style="flex: 1;">
+            <button class="btn-secondary" onclick="refreshEvents()" style="padding: 8px 16px;">Refresh</button>
+          </div>
+          <div class="loading" id="eventsLoading">Loading events...</div>
+          <div class="events-list" id="eventsList"></div>
+          <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SETTINGS CONNECTION PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-settings-connection">
+          <div class="env-grid">
+            <!-- Cloudflare Tunnel -->
+            <div class="env-card" id="tunnelCard">
+              <div class="env-header">
+                <span class="env-icon">🌐</span>
+                <span class="env-name">Cloudflare Tunnel</span>
+                <span class="env-status" id="tunnelStatus">⏳ Checking...</span>
+              </div>
+              <div class="env-details" id="tunnelDetails">
+                <div class="env-row">
+                  <span class="env-label">Tunnel URL:</span>
+                  <input type="text" id="tunnelUrlInput" placeholder="https://xxx.trycloudflare.com" 
+                    style="flex: 1; padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 11px; font-family: monospace;">
+                  <button class="btn-copy" onclick="saveTunnelUrl()" style="background: #10b981; color: white;">Save</button>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Webhook URL:</span>
+                  <span class="env-value" id="webhookUrl">-</span>
+                  <button class="btn-copy" onclick="copyToClipboard(document.getElementById('webhookUrl').textContent)">Copy</button>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Status:</span>
+                  <span class="env-value" id="tunnelStatusText">-</span>
+                </div>
+              </div>
+              <div class="env-action">
+                <button class="btn-secondary" onclick="validateTunnel()">Check Tunnel</button>
+              </div>
+            </div>
+
+            <!-- WeChat OA Config -->
+            <div class="env-card" id="oaCard">
+              <div class="env-header">
+                <span class="env-icon">📱</span>
+                <span class="env-name">WeChat Official Account</span>
+                <span class="env-status" id="oaStatus">⏳ Checking...</span>
+              </div>
+              <div class="env-details" id="oaDetails">
+                <div class="env-row">
+                  <span class="env-label">OA AppID:</span>
+                  <span class="env-value" id="oaAppId">-</span>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Access Token:</span>
+                  <span class="env-value" id="oaTokenStatus">-</span>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Last Webhook:</span>
+                  <span class="env-value" id="lastWebhook">-</span>
+                </div>
+              </div>
+              <div class="env-action">
+                <button class="btn-secondary" onclick="validateOA()">Check OA</button>
+              </div>
+            </div>
+
+            <!-- Database -->
+            <div class="env-card" id="dbCard">
+              <div class="env-header">
+                <span class="env-icon">🗄️</span>
+                <span class="env-name">Database (Supabase)</span>
+                <span class="env-status" id="dbStatus">⏳ Checking...</span>
+              </div>
+              <div class="env-details" id="dbDetails">
+                <div class="env-row">
+                  <span class="env-label">Connection:</span>
+                  <span class="env-value" id="dbConnection">-</span>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">Tables:</span>
+                  <span class="env-value" id="dbTables">-</span>
+                </div>
+              </div>
+              <div class="env-action">
+                <button class="btn-secondary" onclick="validateDB()">Check DB</button>
+              </div>
+            </div>
+
+            <!-- Backend Server -->
+            <div class="env-card" id="backendCard">
+              <div class="env-header">
+                <span class="env-icon">⚙️</span>
+                <span class="env-name">Backend Server</span>
+                <span class="env-status" id="backendStatus">⏳ Checking...</span>
+              </div>
+              <div class="env-details" id="backendDetails">
+                <div class="env-row">
+                  <span class="env-label">Local URL:</span>
+                  <span class="env-value" id="backendUrl">http://localhost:3000</span>
+                </div>
+                <div class="env-row">
+                  <span class="env-label">API Status:</span>
+                  <span class="env-value" id="apiStatus">-</span>
+                </div>
+              </div>
+              <div class="env-action">
+                <button class="btn-secondary" onclick="validateBackend()">Check Backend</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 24px; text-align: center;">
+            <button class="btn-primary" onclick="runAllValidations()" style="padding: 12px 32px;">
+              Run All Checks
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SETTINGS TUNNEL PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-settings-tunnel">
+          <div class="tunnel-grid">
+            <div>
+              <button class="btn-validate" onclick="validateLocalTunnel()" id="validateBtn">
+                Validate Connection
+              </button>
+
+              <div class="tunnel-status-cards" id="tunnelStatusCards">
+                <div class="status-card">
+                  <div class="status-card-icon">📦</div>
+                  <div class="status-card-content">
+                    <div class="status-card-label">Local Server</div>
+                    <div class="status-card-value" id="localServerCard">Port 3000</div>
+                  </div>
+                  <div class="status-card-check" id="localServerCheck">✓</div>
+                </div>
+                <div class="status-card">
+                  <div class="status-card-icon">⚡</div>
+                  <div class="status-card-content">
+                    <div class="status-card-label">Process PID</div>
+                    <div class="status-card-value" id="processPidCard">-</div>
+                  </div>
+                  <div class="status-card-check" id="processPidCheck" style="display: none;">✓</div>
+                </div>
+                <div class="status-card">
+                  <div class="status-card-icon">🌐</div>
+                  <div class="status-card-content">
+                    <div class="status-card-label">Latency</div>
+                    <div class="status-card-value" id="latencyCard">-</div>
+                  </div>
+                  <div class="status-card-check" id="latencyCheck" style="display: none;">✓</div>
+                </div>
+              </div>
+
+              <div class="tunnel-update-section" style="margin-top: 24px;">
+                <label class="tunnel-url-label">Update Tunnel URL</label>
+                <p class="tunnel-update-desc">Paste the URL from cloudflared output</p>
+                <div class="tunnel-url-input-group">
+                  <span class="url-prefix">🌐</span>
+                  <input type="text" class="tunnel-url-input" id="tunnelUrlInputAlt" placeholder="https://xxx.trycloudflare.com">
+                  <button class="btn-copy" onclick="updateTunnelUrl()">Save & Verify</button>
+                </div>
+              </div>
+
+              <div class="tunnel-error" id="tunnelError" style="display: none;"></div>
+            </div>
+
+            <div class="quick-ref collapsed" id="quickRefSection">
+              <div class="quick-ref-header" onclick="toggleQuickRef()">
+                <div class="quick-ref-title">Quick Reference</div>
+                <span class="quick-ref-toggle">▼</span>
+              </div>
+              <div class="quick-ref-content">
+                <div class="quick-ref-item">
+                  <div class="quick-ref-label">Install cloudflared</div>
+                  <code class="quick-ref-code">brew install cloudflare/cloudflare/cloudflared</code>
+                </div>
+                <div class="quick-ref-item">
+                  <div class="quick-ref-label">Start Tunnel</div>
+                  <code class="quick-ref-code">cloudflared tunnel --url http://localhost:3000</code>
+                </div>
+                <div class="quick-ref-item">
+                  <div class="quick-ref-label">Check Status</div>
+                  <code class="quick-ref-code">pgrep -fl cloudflared</code>
+                </div>
+                <div class="quick-ref-item">
+                  <div class="quick-ref-label">Stop Tunnel</div>
+                  <code class="quick-ref-code">pkill -f cloudflared</code>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SETTINGS DEBUG PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-settings-debug">
+          <div class="loading" id="debugSettingsLoading">Loading settings...</div>
+          <div id="debugSettingsForm" style="display: none;">
+            <form id="debugSettingsFormElement">
+              <div class="settings-grid">
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="debugMode" name="debug_mode">
+                    <span>Debug Mode</span>
+                  </label>
+                  <p class="setting-desc">Enable verbose logging</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <span>Log Level</span>
+                  </label>
+                  <select id="logLevel" name="log_level">
+                    <option value="debug">Debug</option>
+                    <option value="info" selected>Info</option>
+                    <option value="warn">Warn</option>
+                    <option value="error">Error</option>
+                  </select>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="eventLogEnabled" name="event_log_enabled" checked>
+                    <span>Event Logging</span>
+                  </label>
+                  <p class="setting-desc">Log events to database</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="apiLogging" name="api_logging" checked>
+                    <span>API Logging</span>
+                  </label>
+                  <p class="setting-desc">Log API requests</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="errorTracking" name="error_tracking" checked>
+                    <span>Error Tracking</span>
+                  </label>
+                  <p class="setting-desc">Track and report errors</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="performanceMonitoring" name="performance_monitoring">
+                    <span>Performance Monitoring</span>
+                  </label>
+                  <p class="setting-desc">Monitor response times</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <span>Log Retention (days)</span>
+                  </label>
+                  <input type="number" id="maxLogRetentionDays" name="max_log_retention_days" value="30" min="1" max="365">
+                </div>
+
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="showSensitiveData" name="show_sensitive_data">
+                    <span>Show Sensitive Data</span>
+                  </label>
+                  <p class="setting-desc warning">⚠️ Security risk - logs tokens/passwords</p>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-save">Save Settings</button>
+              <div id="debugSettingsMessage" class="settings-message"></div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SETTINGS TEST PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-settings-test">
+          <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;">
+            Simulate WeChat events with mock data for testing your webhook handlers.
+          </p>
+          <div class="webhook-buttons">
+            <button class="btn-webhook" onclick="triggerTestWebhook('scan')">
+              <span>📱</span> Scan QR
+            </button>
+            <button class="btn-webhook" onclick="triggerTestWebhook('follow')">
+              <span>➕</span> Follow OA
+            </button>
+            <button class="btn-webhook" onclick="triggerTestWebhook('unfollow')">
+              <span>➖</span> Unfollow OA
+            </button>
+            <button class="btn-webhook" onclick="triggerTestWebhook('login')">
+              <span>🔐</span> Login
+            </button>
+            <button class="btn-webhook" onclick="triggerTestWebhook('register')">
+              <span>📝</span> Register
+            </button>
+          </div>
+          <div class="webhook-result" id="testWebhookResult" style="display: none;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Critical Alert Banner (hidden by default) -->
+  <div id="criticalAlertBanner" class="critical-alert" style="display: none;">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-content">
+      <div class="alert-title">Webhook URL Mismatch Detected!</div>
+      <div class="alert-message" id="alertMessage">
+        Your Cloudflare Tunnel URL has changed. Please update the webhook URL in WeChat Official Account backend.
+      </div>
+      <div class="alert-action">
+        <strong>New Webhook URL:</strong> 
+        <code id="alertWebhookUrl">-</code>
+        <button class="btn-copy" onclick="copyToClipboard(document.getElementById('alertWebhookUrl').textContent)" style="margin-left: 8px;">Copy</button>
+      </div>
+    </div>
+    <button class="alert-dismiss" onclick="dismissAlert()">×</button>
+  </div>
+
+  <!-- Old nav (hidden) -->
+  <nav class="nav" style="display: none;">
     <div class="nav-brand">WeChat Viral Admin</div>
     <div class="nav-actions">
       <span class="nav-user" id="userName">Loading...</span>
@@ -2071,17 +3550,18 @@
     </div>
   </nav>
 
-  <main class="main">
+  <!-- Old main (hidden) -->
+  <main class="main" style="display: none;">
     <header class="page-header">
       <h1 class="page-title">Dashboard</h1>
       <p class="page-subtitle">Monitor your WeChat viral marketing campaign</p>
     </header>
 
-    <!-- Stats -->
-    <div class="stats-grid">
+    <!-- Stats (duplicated for old layout compatibility) -->
+    <div class="stats-grid" style="display: none;">
       <div class="stat-card">
         <div class="stat-label">👥 Total Users</div>
-        <div class="stat-value" id="totalUsers">-</div>
+        <div class="stat-value">-</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">🎯 Participants</div>
@@ -2682,7 +4162,116 @@
 
     // Load user info
     const user = JSON.parse(localStorage.getItem('admin_user') || '{}');
-    document.getElementById('userName').textContent = user.name || user.email || 'Admin';
+    const userNameEl = document.getElementById('userName');
+    if (userNameEl) userNameEl.textContent = user.name || user.email || 'Admin';
+    
+    // Update sidebar user info
+    const sidebarUserNameEl = document.getElementById('sidebarUserName');
+    if (sidebarUserNameEl) sidebarUserNameEl.textContent = user.name || user.email || 'Admin';
+
+    // ============================================
+    // Panel Navigation System
+    // ============================================
+    
+    const panelInfo = {
+      'overview': { 
+        title: 'Overview', 
+        subtitle: 'Dashboard overview and key metrics',
+        onLoad: () => { loadDashboardStats(); loadInfluencers(); }
+      },
+      'campaigns-management': { 
+        title: 'Campaign Management', 
+        subtitle: 'Create and manage your campaigns',
+        actions: '<button class="btn-primary" onclick="showCreateCampaignModal()">+ New Campaign</button>',
+        onLoad: loadCampaignList
+      },
+      'campaigns-analytics': { 
+        title: 'Campaign Analytics', 
+        subtitle: 'Performance insights and metrics',
+        onLoad: () => { loadInfluencers(); loadCampaignAnalytics(); }
+      },
+      'campaigns-debug': { 
+        title: 'Campaign Debug', 
+        subtitle: 'Debug data and troubleshooting',
+        onLoad: loadCampaignSelectOptions
+      },
+      'events-live': { 
+        title: 'Live Logs', 
+        subtitle: 'Real-time event stream',
+        onLoad: initEventStream
+      },
+      'events-history': { 
+        title: 'Event History', 
+        subtitle: 'Browse and search past events',
+        onLoad: loadEvents
+      },
+      'settings-connection': { 
+        title: 'Connection Status', 
+        subtitle: 'Environment and service validation',
+        onLoad: runAllValidations
+      },
+      'settings-tunnel': { 
+        title: 'Tunnel Manager', 
+        subtitle: 'Cloudflare Tunnel configuration',
+        onLoad: validateLocalTunnel
+      },
+      'settings-debug': { 
+        title: 'Debug Settings', 
+        subtitle: 'Configure logging and monitoring',
+        onLoad: loadDebugSettings
+      },
+      'settings-test': { 
+        title: 'Test Webhook', 
+        subtitle: 'Simulate WeChat events for testing',
+        onLoad: null
+      }
+    };
+
+    let currentPanel = 'overview';
+
+    function switchPanel(panelId) {
+      // Update nav items
+      document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.panel === panelId) {
+          item.classList.add('active');
+        }
+      });
+
+      // Update panels
+      document.querySelectorAll('.content-panel').forEach(panel => {
+        panel.classList.remove('active');
+      });
+      const targetPanel = document.getElementById(`panel-${panelId}`);
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+
+      // Update header
+      const info = panelInfo[panelId] || { title: 'Dashboard', subtitle: '' };
+      document.getElementById('panelTitle').textContent = info.title;
+      document.getElementById('panelSubtitle').textContent = info.subtitle;
+      
+      // Update actions
+      const actionsEl = document.getElementById('panelActions');
+      actionsEl.innerHTML = info.actions || '';
+
+      // Call onLoad function if exists
+      if (info.onLoad && typeof info.onLoad === 'function') {
+        info.onLoad();
+      }
+
+      currentPanel = panelId;
+      
+      // Save to localStorage
+      localStorage.setItem('admin_current_panel', panelId);
+    }
+
+    // Restore last panel on load
+    const savedPanel = localStorage.getItem('admin_current_panel');
+    if (savedPanel && panelInfo[savedPanel]) {
+      setTimeout(() => switchPanel(savedPanel), 100);
+    }
 
     // ============================================
     // Environment Validation Functions
@@ -3128,6 +4717,44 @@
     // Store all events for filtering
     let allEvents = [];
 
+    async function loadEvents() {
+      const loadingEl = document.getElementById('eventsLoading');
+      const listEl = document.getElementById('eventsList');
+      const emptyEl = document.getElementById('emptyState');
+      
+      if (loadingEl) loadingEl.style.display = 'block';
+      if (listEl) listEl.innerHTML = '';
+      if (emptyEl) emptyEl.style.display = 'none';
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=100`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          allEvents = data.data?.events || [];
+          
+          if (loadingEl) loadingEl.style.display = 'none';
+          
+          if (allEvents.length === 0) {
+            if (emptyEl) emptyEl.style.display = 'block';
+          } else {
+            filterEvents();
+          }
+        } else {
+          if (loadingEl) loadingEl.textContent = 'Failed to load events';
+        }
+      } catch (error) {
+        console.error('Load events error:', error);
+        if (loadingEl) loadingEl.textContent = 'Error: ' + error.message;
+      }
+    }
+
+    function refreshEvents() {
+      loadEvents();
+    }
+
     function filterEvents() {
       const typeFilter = document.getElementById('eventTypeFilter').value;
       const searchText = document.getElementById('eventSearchInput').value.toLowerCase();
@@ -3283,8 +4910,10 @@
           allEvents = eventsData.data?.events || [];
           
           // Update count
-          document.getElementById('eventCount').textContent = `(${allEvents.length})`;
-          document.getElementById('eventsLoading').style.display = 'none';
+          const eventCountEl = document.getElementById('eventCount');
+          if (eventCountEl) eventCountEl.textContent = `(${allEvents.length})`;
+          const eventsLoadingEl = document.getElementById('eventsLoading');
+          if (eventsLoadingEl) eventsLoadingEl.style.display = 'none';
           
           // Render events (using filter function which handles rendering)
           filterEvents();
@@ -3709,6 +5338,10 @@
     // Real-time Debug Logs with SSE
     let eventSource = null;
     let logs = [];
+
+    function initEventStream() {
+      connectEventStream();
+    }
 
     function connectEventStream() {
       if (eventSource) eventSource.close();
@@ -4288,6 +5921,83 @@
     let allCampaigns = [];
     let editingCampaignId = null;
     let rewardCounter = 0;
+
+    async function loadCampaignSelectOptions() {
+      const select = document.getElementById('campaignSelect');
+      if (!select) return;
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/campaigns/admin/all`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          const campaigns = data.data?.campaigns || [];
+          
+          select.innerHTML = '<option value="">Select Campaign...</option>' + 
+            campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+      } catch (error) {
+        console.error('Load campaign options error:', error);
+      }
+    }
+
+    async function loadCampaignDebug() {
+      const campaignId = document.getElementById('campaignSelect').value;
+      const contentEl = document.getElementById('campaignDebugContent');
+      
+      if (!campaignId) {
+        contentEl.innerHTML = '<div class="empty-state">Select a campaign to view debug data</div>';
+        return;
+      }
+      
+      contentEl.innerHTML = '<div class="loading">Loading debug data...</div>';
+      
+      try {
+        // Load campaign details, participants, and helpers
+        const [campaignRes, eventsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/campaigns/${campaignId}`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+          }),
+          fetch(`${API_BASE_URL}/admin/debug/all-events?limit=50&campaign_id=${campaignId}`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+          })
+        ]);
+        
+        let html = '<div class="debug-sections">';
+        
+        if (campaignRes.ok) {
+          const campaign = await campaignRes.json();
+          html += `
+            <div class="debug-section">
+              <h4>Campaign Info</h4>
+              <pre>${JSON.stringify(campaign, null, 2)}</pre>
+            </div>
+          `;
+        }
+        
+        if (eventsRes.ok) {
+          const events = await eventsRes.json();
+          html += `
+            <div class="debug-section">
+              <h4>Recent Events (${events.events?.length || 0})</h4>
+              <pre>${JSON.stringify(events.events || [], null, 2)}</pre>
+            </div>
+          `;
+        }
+        
+        html += '</div>';
+        contentEl.innerHTML = html;
+      } catch (error) {
+        console.error('Load campaign debug error:', error);
+        contentEl.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+      }
+    }
+
+    function refreshCampaignDebug() {
+      loadCampaignDebug();
+    }
 
     async function loadCampaignList() {
       const loadingEl = document.getElementById('campaignListLoading');
