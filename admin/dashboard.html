@@ -4295,25 +4295,10 @@
     }
 
     async function checkWebhookMismatch() {
-      const tunnelUrl = document.getElementById('tunnelUrlInput').value.trim();
-      const lastWebhook = document.getElementById('lastWebhook').textContent;
-      
-      // If tunnel is configured but no OA events received
-      if (tunnelUrl && !tunnelUrl.includes('localhost')) {
-        if (lastWebhook.includes('No OA events') || lastWebhook === '-') {
-          const webhookUrl = `${tunnelUrl}/api/oa/webhook`;
-          showCriticalAlert(
-            webhookUrl,
-            'No webhook events received from WeChat Official Account. This usually means the webhook URL in WeChat backend is not configured or is outdated. Please update it with the URL below:'
-          );
-        }
-      } else if (!tunnelUrl || tunnelUrl.includes('localhost')) {
-        // No tunnel URL configured
-        showCriticalAlert(
-          'Not configured',
-          'Cloudflare Tunnel URL is not configured. Please enter your tunnel URL in the "Environment & Connection Status" section, then update WeChat OA backend with the webhook URL.'
-        );
-      }
+      // Disabled auto-popup warning - users can check Connection panel manually
+      // const tunnelUrl = document.getElementById('tunnelUrlInput').value.trim();
+      // const lastWebhook = document.getElementById('lastWebhook').textContent;
+      return;
     }
 
     async function validateTunnel() {
@@ -5456,22 +5441,19 @@
     function updateTunnelStatusUI(status) {
       if (!status) return;
       
-      const badge = document.getElementById('tunnelStatusBadge');
       const urlSection = document.getElementById('tunnelUrlSection');
       const urlValue = document.getElementById('tunnelUrlValue');
       const errorDiv = document.getElementById('tunnelError');
 
-      const statusValue = status.status || status.overall_status || 'disconnected';
-      if (badge) {
-        badge.className = `status-badge ${statusValue === 'connected' || statusValue === 'ready' ? 'connected' : 'disconnected'}`;
-        badge.textContent = statusValue === 'connected' || statusValue === 'ready' ? 'Connected' : 'Disconnected';
-      }
-
-      const tunnelUrl = status.url || (status.tunnel_url && status.tunnel_url.url);
+      const tunnelUrl = status.url || (status.tunnel_url && status.tunnel_url?.url);
       if (tunnelUrl) {
         const fullUrl = `${tunnelUrl}/api/oa/webhook`;
         if (urlValue) urlValue.value = fullUrl;
         if (urlSection) urlSection.style.display = 'block';
+        
+        // Also update the webhook URL in Connection panel
+        const webhookEl = document.getElementById('webhookUrl');
+        if (webhookEl) webhookEl.textContent = fullUrl;
       } else {
         if (urlSection) urlSection.style.display = 'none';
       }
@@ -5480,11 +5462,12 @@
     }
 
     async function updateTunnelUrl() {
-      const input = document.getElementById('tunnelUrlInput');
+      // Try both input fields (Connection panel and Tunnel panel)
+      const input = document.getElementById('tunnelUrlInputAlt') || document.getElementById('tunnelUrlInput');
       const url = input?.value.trim();
 
       if (!url) {
-        alert('Please enter a tunnel URL');
+        showTunnelError('Please enter a tunnel URL');
         return;
       }
 
@@ -5504,8 +5487,27 @@
             url: data.data.url,
             status: data.data.verified ? 'connected' : 'disconnected',
           });
-          input.value = '';
-          alert(data.data.message);
+          
+          // Clear input and show success
+          if (input) input.value = '';
+          
+          const errorDiv = document.getElementById('tunnelError');
+          if (errorDiv) {
+            errorDiv.textContent = '✅ ' + (data.data.message || 'Tunnel URL saved successfully');
+            errorDiv.style.display = 'block';
+            errorDiv.style.background = 'rgba(16, 185, 129, 0.1)';
+            errorDiv.style.borderColor = 'var(--success)';
+            errorDiv.style.color = 'var(--success)';
+            setTimeout(() => {
+              errorDiv.style.display = 'none';
+              errorDiv.style.background = '';
+              errorDiv.style.borderColor = '';
+              errorDiv.style.color = '';
+            }, 3000);
+          }
+          
+          // Refresh validation
+          validateLocalTunnel();
         } else {
           const error = await res.json().catch(() => ({}));
           showTunnelError(error.error || 'Failed to update tunnel URL');
@@ -5568,26 +5570,31 @@
           
           updateValidationStatus(result);
           
-          const badge = document.getElementById('tunnelStatusBadge');
           const instructions = document.getElementById('tunnelCommandInstructions');
+          const errorDiv = document.getElementById('tunnelError');
           
           if (result.overall_status === 'ready') {
-            badge.className = 'status-badge connected';
-            badge.textContent = 'Connected';
-            instructions.style.display = 'none';
+            if (instructions) instructions.style.display = 'none';
+            if (errorDiv) errorDiv.style.display = 'none';
             updateTunnelStatusUI({
-              url: result.tunnel_url.url,
+              url: result.tunnel_url?.url,
               status: 'connected',
             });
           } else {
-            badge.className = 'status-badge disconnected';
-            badge.textContent = 'Disconnected';
-            instructions.style.display = 'block';
-            document.getElementById('commandToRun').textContent = result.command.to_run;
-            document.getElementById('expectedOutput').textContent = result.command.expected_output.join('\n');
+            if (instructions) instructions.style.display = 'block';
+            
+            const commandEl = document.getElementById('commandToRun');
+            if (commandEl && result.command) {
+              commandEl.textContent = result.command.to_run || 'cloudflared tunnel --url http://localhost:3000';
+            }
+            
+            const expectedEl = document.getElementById('expectedOutput');
+            if (expectedEl && result.command?.expected_output) {
+              expectedEl.textContent = result.command.expected_output.join('\n');
+            }
             
             const stepsList = document.getElementById('stepsList');
-            if (stepsList) {
+            if (stepsList && result.command?.instructions) {
               stepsList.innerHTML = '';
               result.command.instructions.forEach(step => {
                 const li = document.createElement('li');
@@ -5596,6 +5603,8 @@
               });
             }
           }
+        } else {
+          showTunnelError('Failed to validate tunnel');
         }
       } catch (error) {
         showTunnelError('Error: ' + error.message);
