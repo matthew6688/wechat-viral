@@ -7,6 +7,7 @@ Page({
     loading: true,
     campaign: {},
     rewards: [],
+    rewardsWithStatus: [], // Rewards with claim status
     participant: {},
     helpers: [],
     sceneStr: '',
@@ -16,6 +17,7 @@ Page({
     maxHelpers: 8,
     nextReward: null,
     showDebug: false, // Set to true for debugging
+    claimedRewardIds: [], // IDs of claimed rewards
   },
 
   onLoad(options) {
@@ -117,8 +119,9 @@ Page({
           nextReward,
         });
 
-        // Load helpers
+        // Load helpers and claimable rewards
         await this.loadHelpers(campaignId);
+        await this.loadClaimableRewards(campaignId);
       }
     } catch (error) {
       console.error('Join campaign error:', error);
@@ -127,6 +130,130 @@ Page({
         icon: 'none',
       });
     }
+  },
+
+  async loadClaimableRewards(campaignId) {
+    try {
+      const claimableRes = await api.get(`/campaigns/${campaignId}/rewards/claimable`);
+      const claimableData = (claimableRes.data && claimableRes.data.data) ? claimableRes.data.data : claimableRes.data;
+      
+      if (claimableData && claimableData.rewards) {
+        // Also load claimed rewards
+        const claimsRes = await api.get(`/campaigns/${campaignId}/my-claims`);
+        const claimsData = (claimsRes.data && claimsRes.data.data) ? claimsRes.data.data : claimsRes.data;
+        const claims = (claimsData && claimsData.claims) ? claimsData.claims : [];
+        
+        // Create a map of claimed reward IDs
+        const claimedMap = {};
+        claims.forEach(claim => {
+          claimedMap[claim.reward_id] = claim;
+        });
+        
+        // Merge with claimable status
+        const rewardsWithStatus = claimableData.rewards.map(item => ({
+          reward: item.reward,
+          canClaim: item.canClaim && !claimedMap[item.reward.id],
+          claimed: !!claimedMap[item.reward.id],
+          claim: claimedMap[item.reward.id] || null,
+        }));
+        
+        this.setData({
+          rewardsWithStatus,
+          claimedRewardIds: claims.map(c => c.reward_id),
+        });
+      }
+    } catch (error) {
+      console.error('Load claimable rewards error:', error);
+    }
+  },
+
+  async claimReward(e) {
+    const rewardId = e.currentTarget.dataset.rewardId;
+    const campaignId = this.data.campaign.id;
+    
+    if (!rewardId || !campaignId) {
+      wx.showToast({ title: '参数错误', icon: 'none' });
+      return;
+    }
+
+    wx.showLoading({ title: '领取中...' });
+
+    try {
+      const claimRes = await api.post(`/campaigns/${campaignId}/rewards/${rewardId}/claim`);
+      const claimData = (claimRes.data && claimRes.data.data) ? claimRes.data.data : claimRes.data;
+      
+      wx.hideLoading();
+      
+      if (claimRes.data && claimRes.data.success) {
+        wx.showToast({ title: '领取成功！', icon: 'success' });
+        
+        // Refresh claimable rewards
+        await this.loadClaimableRewards(campaignId);
+        
+        // Show reward content
+        if (claimData && claimData.reward) {
+          this.showRewardContent(claimData.reward);
+        }
+      } else {
+        wx.showToast({ 
+          title: (claimRes.data && claimRes.data.error) ? claimRes.data.error : '领取失败', 
+          icon: 'none' 
+        });
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('Claim reward error:', error);
+      wx.showToast({ 
+        title: (error && error.message) ? error.message : '领取失败', 
+        icon: 'none' 
+      });
+    }
+  },
+
+  viewReward(e) {
+    const reward = e.currentTarget.dataset.reward;
+    const claim = e.currentTarget.dataset.claim;
+    
+    if (reward) {
+      this.showRewardContent(reward);
+    }
+  },
+
+  showRewardContent(reward) {
+    const content = reward.reward_content || {};
+    let message = `🎁 ${reward.reward_name}\n\n`;
+    
+    if (content.description) {
+      message += `${content.description}\n\n`;
+    }
+    
+    if (content.download_url) {
+      message += `📥 下载链接：\n${content.download_url}\n\n`;
+    }
+    
+    if (content.booking_url) {
+      message += `📅 预约链接：\n${content.booking_url}\n\n`;
+    }
+    
+    // Show modal with reward content
+    wx.showModal({
+      title: '奖品详情',
+      content: message,
+      showCancel: content.download_url || content.booking_url,
+      cancelText: '关闭',
+      confirmText: content.download_url ? '复制链接' : '确定',
+      success: (res) => {
+        if (res.confirm && (content.download_url || content.booking_url)) {
+          const url = content.download_url || content.booking_url;
+          wx.setClipboardData({
+            data: url,
+            success: () => {
+              wx.showToast({ title: '链接已复制', icon: 'success' });
+            },
+          });
+        }
+      },
+    });
   },
 
   async loadProgress(campaignId) {

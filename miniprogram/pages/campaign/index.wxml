@@ -87,25 +87,42 @@
       <text class="section-title">奖励阶梯</text>
       <view class="rewards-list">
         <view 
-          wx:for="{{rewards}}" 
-          wx:key="id" 
-          class="reward-item {{(participant.helper_count || 0) >= item.helpers_required ? 'unlocked' : 'locked'}}"
+          wx:for="{{rewardsWithStatus}}" 
+          wx:key="reward.id" 
+          class="reward-item {{item.canClaim || item.claimed ? 'unlocked' : 'locked'}} {{item.claimed ? 'claimed' : ''}}"
         >
           <view class="reward-tier">
-            <text class="tier-number">{{item.helpers_required}}</text>
+            <text class="tier-number">{{item.reward.helpers_required}}</text>
             <text class="tier-label">人助力</text>
           </view>
           <view class="reward-info">
-            <text class="reward-name">{{item.reward_name}}</text>
-            <text class="reward-desc">{{item.reward_description}}</text>
+            <text class="reward-name">{{item.reward.reward_name}}</text>
+            <text class="reward-desc">{{item.reward.reward_description}}</text>
           </view>
-          <view class="reward-status">
-            <view wx:if="{{(participant.helper_count || 0) >= item.helpers_required}}" class="status-unlocked">
-              <text class="status-icon">✓</text>
-              <text class="status-text">已解锁</text>
-            </view>
+          <view class="reward-action">
+            <!-- Already claimed -->
+            <button 
+              wx:if="{{item.claimed}}" 
+              class="claim-btn claimed"
+              data-reward="{{item.reward}}"
+              data-claim="{{item.claim}}"
+              bindtap="viewReward"
+            >
+              <text>查看奖品</text>
+            </button>
+            <!-- Can claim -->
+            <button 
+              wx:elif="{{item.canClaim}}" 
+              class="claim-btn claimable"
+              data-reward-id="{{item.reward.id}}"
+              bindtap="claimReward"
+            >
+              <text>领取</text>
+            </button>
+            <!-- Locked -->
             <view wx:else class="status-locked">
-              <text class="status-icon">🔒</text>
+              <text class="lock-icon">🔒</text>
+              <text class="lock-text">还差{{item.reward.helpers_required - (participant.helper_count || 0)}}人</text>
             </view>
           </view>
         </view>

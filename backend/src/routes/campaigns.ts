@@ -20,6 +20,10 @@ import {
   getCampaignStats,
   getCampaignDebugEvents,
   generateCampaignSceneStr,
+  canClaimReward,
+  claimReward,
+  getClaimedRewards,
+  getClaimableRewards,
 } from '../services/campaign-service';
 import { supabase } from '../config/supabase';
 import { logEvent } from '../services/event-logger';
@@ -211,6 +215,110 @@ router.get('/:id/qrcode-image', authenticate, async (req: AuthRequest, res) => {
   } catch (error: any) {
     console.error('Get campaign QR code image error:', error);
     res.status(500).json({ error: error.message || 'Failed to get QR code image' });
+  }
+});
+
+/**
+ * GET /api/campaigns/:id/rewards/claimable
+ * Get claimable rewards for current user
+ */
+router.get('/:id/rewards/claimable', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const campaignId = req.params.id;
+    const userId = req.userId!;
+
+    // Get participant
+    const participant = await getParticipantByUserId(campaignId, userId);
+    
+    if (!participant) {
+      return res.status(400).json({ error: '请先加入活动' });
+    }
+
+    // Get claimable rewards
+    const claimableRewards = await getClaimableRewards(campaignId, participant.id);
+
+    res.json({
+      success: true,
+      data: {
+        rewards: claimableRewards,
+        helperCount: participant.helper_count,
+      },
+    });
+  } catch (error: any) {
+    console.error('Get claimable rewards error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get claimable rewards' });
+  }
+});
+
+/**
+ * POST /api/campaigns/:id/rewards/:rewardId/claim
+ * Claim a reward
+ */
+router.post('/:id/rewards/:rewardId/claim', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { id: campaignId, rewardId } = req.params;
+    const userId = req.userId!;
+
+    // Get participant
+    const participant = await getParticipantByUserId(campaignId, userId);
+    
+    if (!participant) {
+      return res.status(400).json({ error: '请先加入活动' });
+    }
+
+    // Attempt to claim
+    const result = await claimReward(participant.id, rewardId, userId);
+
+    if (!result.success) {
+      return res.status(400).json({ 
+        success: false,
+        error: result.message,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: result.message,
+      data: {
+        claim: result.claim,
+        reward: result.reward,
+      },
+    });
+  } catch (error: any) {
+    console.error('Claim reward error:', error);
+    res.status(500).json({ error: error.message || 'Failed to claim reward' });
+  }
+});
+
+/**
+ * GET /api/campaigns/:id/my-claims
+ * Get current user's claimed rewards
+ */
+router.get('/:id/my-claims', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const campaignId = req.params.id;
+    const userId = req.userId!;
+
+    // Get participant
+    const participant = await getParticipantByUserId(campaignId, userId);
+    
+    if (!participant) {
+      return res.json({
+        success: true,
+        data: { claims: [] },
+      });
+    }
+
+    // Get claimed rewards
+    const claims = await getClaimedRewards(participant.id);
+
+    res.json({
+      success: true,
+      data: { claims },
+    });
+  } catch (error: any) {
+    console.error('Get my claims error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get claims' });
   }
 });
 

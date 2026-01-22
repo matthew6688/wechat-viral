@@ -264,6 +264,67 @@
   line-height: 1.4;
 }
 
+.reward-action {
+  margin-left: 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 140rpx;
+}
+
+/* Claim Button */
+.claim-btn {
+  padding: 16rpx 32rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  border: none;
+  min-width: 140rpx;
+}
+
+.claim-btn.claimable {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.claim-btn.claimed {
+  background-color: #f0fdf4;
+  color: #10b981;
+  border: 2rpx solid #10b981;
+}
+
+.claim-btn::after {
+  border: none;
+}
+
+/* Locked Status */
+.status-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.status-locked .lock-icon {
+  font-size: 36rpx;
+}
+
+.status-locked .lock-text {
+  font-size: 22rpx;
+  color: #9ca3af;
+}
+
+/* Claimed reward item style */
+.reward-item.claimed {
+  background-color: #f0fdf4;
+  border-color: #10b981;
+}
+
+.reward-item.claimed .tier-number {
+  color: #10b981;
+}
+
+/* Old styles kept for backwards compatibility */
 .reward-status {
   margin-left: 24rpx;
 }
@@ -283,17 +344,6 @@
 .status-unlocked .status-text {
   font-size: 24rpx;
   font-weight: 500;
-}
-
-.status-locked {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.status-locked .status-icon {
-  font-size: 40rpx;
-  color: #9ca3af;
 }
 
 /* Share Section */

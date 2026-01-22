@@ -660,3 +660,264 @@ export async function getCampaignDebugEvents(
 
   return data || [];
 }
+
+// ============================================
+// Reward Claiming
+// ============================================
+
+export interface RewardClaim {
+  id: string;
+  campaign_id: string;
+  participant_id: string;
+  reward_id: string;
+  user_id: string;
+  tier_level: number;
+  helper_count_at_claim: number;
+  reward_content: Record<string, any>;
+  claimed_at: string;
+}
+
+export interface ClaimRewardResult {
+  success: boolean;
+  message: string;
+  claim?: RewardClaim;
+  reward?: CampaignReward;
+}
+
+/**
+ * Check if a reward can be claimed
+ */
+export async function canClaimReward(
+  participantId: string,
+  rewardId: string
+): Promise<{ canClaim: boolean; reason?: string; helperCount?: number; helpersRequired?: number }> {
+  // Get participant
+  const { data: participantData } = await supabase
+    .from('campaign_participants')
+    .select('*')
+    .eq('id', participantId)
+    .single();
+
+  const participant = participantData as unknown as CampaignParticipant | null;
+
+  if (!participant) {
+    return { canClaim: false, reason: '参与记录不存在' };
+  }
+
+  // Get reward
+  const { data: rewardData } = await supabase
+    .from('campaign_rewards')
+    .select('*')
+    .eq('id', rewardId)
+    .single();
+
+  const reward = rewardData as unknown as CampaignReward | null;
+
+  if (!reward) {
+    return { canClaim: false, reason: '奖品不存在' };
+  }
+
+  // Check if already claimed
+  const { data: existingClaim } = await supabase
+    .from('campaign_reward_claims')
+    .select('id')
+    .eq('participant_id', participantId)
+    .eq('reward_id', rewardId)
+    .single();
+
+  if (existingClaim) {
+    return { canClaim: false, reason: '已经领取过该奖品' };
+  }
+
+  // Recalculate valid helper count (in case of unfollows)
+  const { count: validHelperCount } = await supabase
+    .from('campaign_helpers')
+    .select('*', { count: 'exact', head: true })
+    .eq('participant_id', participantId)
+    .eq('is_valid', true);
+
+  const helperCount = validHelperCount || 0;
+
+  // Check if enough helpers
+  if (helperCount < reward.helpers_required) {
+    const shortfall = reward.helpers_required - helperCount;
+    return { 
+      canClaim: false, 
+      reason: `还差 ${shortfall} 人助力才能领取`,
+      helperCount,
+      helpersRequired: reward.helpers_required,
+    };
+  }
+
+  // Check stock
+  if (reward.stock !== -1 && reward.claimed_count >= reward.stock) {
+    return { canClaim: false, reason: '奖品已被领完' };
+  }
+
+  return { 
+    canClaim: true, 
+    helperCount,
+    helpersRequired: reward.helpers_required,
+  };
+}
+
+/**
+ * Claim a reward
+ */
+export async function claimReward(
+  participantId: string,
+  rewardId: string,
+  userId: string
+): Promise<ClaimRewardResult> {
+  // Check if can claim
+  const checkResult = await canClaimReward(participantId, rewardId);
+  
+  if (!checkResult.canClaim) {
+    return {
+      success: false,
+      message: checkResult.reason || '无法领取',
+    };
+  }
+
+  // Get reward details
+  const { data: rewardData } = await supabase
+    .from('campaign_rewards')
+    .select('*')
+    .eq('id', rewardId)
+    .single();
+
+  const reward = rewardData as unknown as CampaignReward | null;
+
+  if (!reward) {
+    return { success: false, message: '奖品不存在' };
+  }
+
+  // Get participant for campaign_id
+  const { data: participantData } = await supabase
+    .from('campaign_participants')
+    .select('*')
+    .eq('id', participantId)
+    .single();
+
+  const participant = participantData as unknown as CampaignParticipant | null;
+
+  if (!participant) {
+    return { success: false, message: '参与记录不存在' };
+  }
+
+  // Create claim record
+  const { data: claimData, error: claimError } = await supabase
+    .from('campaign_reward_claims')
+    .insert({
+      campaign_id: participant.campaign_id,
+      participant_id: participantId,
+      reward_id: rewardId,
+      user_id: userId,
+      tier_level: reward.tier_level,
+      helper_count_at_claim: checkResult.helperCount || 0,
+      reward_content: reward.reward_content,
+    } as AnyRecord)
+    .select()
+    .single();
+
+  if (claimError) {
+    // Check if duplicate
+    if (claimError.code === '23505') {
+      return { success: false, message: '已经领取过该奖品' };
+    }
+    console.error('Claim reward error:', claimError);
+    return { success: false, message: `领取失败: ${claimError.message}` };
+  }
+
+  const claim = claimData as unknown as RewardClaim;
+
+  // Update reward claimed_count
+  await supabase
+    .from('campaign_rewards')
+    .update({
+      claimed_count: (reward.claimed_count || 0) + 1,
+    } as AnyRecord)
+    .eq('id', rewardId);
+
+  // Update participant highest_tier_claimed
+  if (reward.tier_level > participant.highest_tier_claimed) {
+    await supabase
+      .from('campaign_participants')
+      .update({
+        highest_tier_claimed: reward.tier_level,
+        updated_at: new Date().toISOString(),
+      } as AnyRecord)
+      .eq('id', participantId);
+  }
+
+  // Log event
+  await logEvent({
+    event_type: 'campaign_reward_claimed',
+    user_id: userId,
+    event_data: {
+      campaign_id: participant.campaign_id,
+      participant_id: participantId,
+      reward_id: rewardId,
+      tier_level: reward.tier_level,
+      reward_name: reward.reward_name,
+      helper_count_at_claim: checkResult.helperCount,
+    },
+  });
+
+  return {
+    success: true,
+    message: '领取成功',
+    claim,
+    reward,
+  };
+}
+
+/**
+ * Get claimed rewards for a participant
+ */
+export async function getClaimedRewards(participantId: string): Promise<RewardClaim[]> {
+  const { data, error } = await supabase
+    .from('campaign_reward_claims')
+    .select('*')
+    .eq('participant_id', participantId)
+    .order('claimed_at', { ascending: true });
+
+  if (error) {
+    console.error('Get claimed rewards error:', error);
+    return [];
+  }
+
+  return (data || []) as unknown as RewardClaim[];
+}
+
+/**
+ * Get claimable rewards for a participant (rewards they can claim based on helper count)
+ */
+export async function getClaimableRewards(
+  campaignId: string,
+  participantId: string
+): Promise<{ reward: CampaignReward; canClaim: boolean; claimed: boolean }[]> {
+  // Get all rewards for campaign
+  const rewards = await getCampaignRewards(campaignId);
+  
+  // Get participant's current helper count
+  const { data: participantData } = await supabase
+    .from('campaign_participants')
+    .select('helper_count')
+    .eq('id', participantId)
+    .single();
+
+  const participant = participantData as unknown as { helper_count: number } | null;
+  const helperCount = participant?.helper_count || 0;
+
+  // Get already claimed rewards
+  const claimedRewards = await getClaimedRewards(participantId);
+  const claimedRewardIds = new Set(claimedRewards.map(c => c.reward_id));
+
+  // Map rewards with claim status
+  return rewards.map(reward => ({
+    reward,
+    canClaim: helperCount >= reward.helpers_required && !claimedRewardIds.has(reward.id),
+    claimed: claimedRewardIds.has(reward.id),
+  }));
+}
