@@ -613,7 +613,7 @@ router.get('/validate/env-vars', async (req: AuthRequest, res) => {
     
     // Mask sensitive values
     const maskedVars: Record<string, string> = {};
-    result.configured_vars.forEach((varName) => {
+    result.configured_vars.forEach((varName: string) => {
       const value = process.env[varName];
       if (value) {
         if (varName.includes('SECRET') || varName.includes('KEY') || varName.includes('TOKEN')) {
@@ -720,7 +720,7 @@ router.post('/test/trigger-register', async (req: AuthRequest, res) => {
  */
 router.get('/tunnel/status', async (req: AuthRequest, res) => {
   try {
-    const { getTunnelStatus, getCloudflareTunnelUrlFromRequest } = require('../services/cloudflare-validator');
+    const { getTunnelStatus, getCloudflareTunnelUrlFromRequest, testTunnelConnection } = require('../services/cloudflare-validator');
     
     // Get stored status
     const storedStatus = await getTunnelStatus();
@@ -729,16 +729,25 @@ router.get('/tunnel/status', async (req: AuthRequest, res) => {
     const runtimeUrl = getCloudflareTunnelUrlFromRequest(req);
     
     // Prefer runtime URL if available, otherwise use stored
-    const url = runtimeUrl || storedStatus.url;
+    const tunnelUrl = runtimeUrl || storedStatus.url;
+    
+    let accessible = false;
+    if (tunnelUrl) {
+      try {
+        const testResult = await testTunnelConnection(tunnelUrl);
+        accessible = testResult.accessible;
+      } catch (e) {
+        accessible = false;
+      }
+    }
     
     res.json({
-      data: {
-        url,
-        verified: storedStatus.verified,
-        last_checked: storedStatus.last_checked,
-        status: storedStatus.status,
-        source: runtimeUrl ? 'runtime' : 'stored',
-      },
+      tunnelUrl,
+      accessible,
+      verified: storedStatus.verified,
+      last_checked: storedStatus.last_checked,
+      status: storedStatus.status,
+      source: runtimeUrl ? 'runtime' : 'stored',
     });
   } catch (error: any) {
     console.error('Get tunnel status error:', error);
@@ -868,6 +877,151 @@ router.post('/tunnel/validate-local', async (req: AuthRequest, res) => {
   } catch (error: any) {
     console.error('Validate local tunnel error:', error);
     res.status(500).json({ error: error.message || 'Failed to validate local tunnel' });
+  }
+});
+
+/**
+ * GET /api/admin/env/oa-status
+ * Get WeChat Official Account status
+ */
+router.get('/env/oa-status', async (req: AuthRequest, res) => {
+  try {
+    const OA_APPID = process.env.OA_APPID || '';
+    const OA_SECRET = process.env.OA_SECRET || '';
+    
+    let hasAccessToken = false;
+    let tokenError = null;
+    
+    // Try to get access token
+    if (OA_APPID && OA_SECRET) {
+      try {
+        const tokenUrl = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${OA_APPID}&secret=${OA_SECRET}`;
+        const tokenRes = await fetch(tokenUrl);
+        const tokenData = await tokenRes.json() as any;
+        
+        if (tokenData.access_token) {
+          hasAccessToken = true;
+        } else {
+          tokenError = tokenData.errmsg || 'Failed to get access token';
+        }
+      } catch (error: any) {
+        tokenError = error.message;
+      }
+    }
+    
+    res.json({
+      appId: OA_APPID ? `${OA_APPID.substring(0, 6)}...` : 'Not configured',
+      hasAccessToken,
+      tokenError,
+      configured: !!(OA_APPID && OA_SECRET),
+    });
+  } catch (error: any) {
+    console.error('Get OA status error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get OA status' });
+  }
+});
+
+/**
+ * GET /api/admin/env/db-status
+ * Get database connection status
+ */
+router.get('/env/db-status', async (req: AuthRequest, res) => {
+  try {
+    // Test database connection by counting tables
+    const { data, error } = await supabase
+      .from('users')
+      .select('id', { count: 'exact', head: true });
+    
+    if (error) {
+      throw error;
+    }
+    
+    // Get table count
+    const tables = [
+      'users', 'invites', 'oa_qrcodes', 'oa_scan_events', 'oa_follow_events',
+      'event_logs', 'campaigns', 'campaign_rewards', 'campaign_participants', 'campaign_helpers'
+    ];
+    
+    let existingTables = 0;
+    for (const table of tables) {
+      try {
+        const { error: tableError } = await supabase
+          .from(table)
+          .select('id', { count: 'exact', head: true });
+        
+        if (!tableError) {
+          existingTables++;
+        }
+      } catch (e) {
+        // Table doesn't exist
+      }
+    }
+    
+    res.json({
+      connected: true,
+      tableCount: existingTables,
+      totalExpected: tables.length,
+    });
+  } catch (error: any) {
+    console.error('Get DB status error:', error);
+    res.json({
+      connected: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/admin/test-webhook
+ * Test webhook endpoint accessibility
+ */
+router.post('/test-webhook', async (req: AuthRequest, res) => {
+  try {
+    const { webhookUrl } = req.body;
+    
+    if (!webhookUrl) {
+      return res.status(400).json({ error: 'Webhook URL is required' });
+    }
+    
+    // Test the webhook endpoint with a GET request (WeChat verification style)
+    const testParams = new URLSearchParams({
+      signature: 'test',
+      timestamp: Date.now().toString(),
+      nonce: 'test',
+      echostr: 'test_echo'
+    });
+    
+    const testUrl = `${webhookUrl}?${testParams.toString()}`;
+    
+    try {
+      const response = await fetch(testUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Admin-Dashboard-Test'
+        }
+      });
+      
+      const responseText = await response.text();
+      
+      res.json({
+        success: response.ok || response.status === 200,
+        status: response.status,
+        statusText: response.statusText,
+        response: responseText.substring(0, 200), // Limit response length
+        message: response.ok 
+          ? 'Webhook endpoint is accessible' 
+          : `Webhook returned status ${response.status}`,
+      });
+    } catch (fetchError: any) {
+      res.json({
+        success: false,
+        error: fetchError.message,
+        message: 'Could not reach webhook endpoint. Check if tunnel is running.',
+      });
+    }
+  } catch (error: any) {
+    console.error('Test webhook error:', error);
+    res.status(500).json({ error: error.message || 'Failed to test webhook' });
   }
 });
 

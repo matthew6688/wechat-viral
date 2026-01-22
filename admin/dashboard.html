@@ -1462,6 +1462,135 @@
       align-items: center;
     }
 
+    .reward-row .reward-url {
+      font-size: 12px;
+    }
+
+    /* Environment Validation Styles */
+    .env-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .env-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .env-card:hover {
+      border-color: var(--text-muted);
+    }
+
+    .env-card.success {
+      border-color: var(--success);
+      background: #f0fdf4;
+    }
+
+    .env-card.error {
+      border-color: var(--error);
+      background: #fef2f2;
+    }
+
+    .env-card.warning {
+      border-color: var(--warning);
+      background: #fffbeb;
+    }
+
+    .env-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .env-icon {
+      font-size: 20px;
+    }
+
+    .env-name {
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .env-status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #f3f4f6;
+    }
+
+    .env-status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .env-status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .env-status.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .env-details {
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .env-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .env-row:last-child {
+      border-bottom: none;
+    }
+
+    .env-label {
+      color: var(--text-secondary);
+      min-width: 100px;
+    }
+
+    .env-value {
+      flex: 1;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 11px;
+      word-break: break-all;
+    }
+
+    .btn-copy {
+      padding: 2px 6px;
+      font-size: 10px;
+      background: #f3f4f6;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+
+    .btn-copy:hover {
+      background: #e5e7eb;
+    }
+
+    .env-action {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .env-action button {
+      font-size: 12px;
+      padding: 6px 12px;
+    }
+
     .reward-row:last-child {
       border-bottom: none;
     }
@@ -1531,6 +1660,155 @@
         <div class="stat-value" id="totalInvites">-</div>
       </div>
     </div>
+
+    <!-- Environment Validation -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">
+          🔧 Environment & Connection Status
+        </div>
+        <button class="btn-primary" onclick="runAllValidations()" style="padding: 8px 16px; font-size: 13px;">
+          Run All Checks
+        </button>
+      </div>
+      <div class="section-content">
+        <div class="env-grid">
+          <!-- Cloudflare Tunnel -->
+          <div class="env-card" id="tunnelCard">
+            <div class="env-header">
+              <span class="env-icon">🌐</span>
+              <span class="env-name">Cloudflare Tunnel</span>
+              <span class="env-status" id="tunnelStatus">⏳ Checking...</span>
+            </div>
+            <div class="env-details" id="tunnelDetails">
+              <div class="env-row">
+                <span class="env-label">Current URL:</span>
+                <span class="env-value" id="tunnelUrl">-</span>
+                <button class="btn-copy" onclick="copyToClipboard(document.getElementById('tunnelUrl').textContent)">Copy</button>
+              </div>
+              <div class="env-row">
+                <span class="env-label">Webhook URL:</span>
+                <span class="env-value" id="webhookUrl">-</span>
+                <button class="btn-copy" onclick="copyToClipboard(document.getElementById('webhookUrl').textContent)">Copy</button>
+              </div>
+              <div class="env-row">
+                <span class="env-label">Status:</span>
+                <span class="env-value" id="tunnelStatusText">-</span>
+              </div>
+            </div>
+            <div class="env-action">
+              <button class="btn-secondary" onclick="validateTunnel()">Check Tunnel</button>
+            </div>
+          </div>
+
+          <!-- WeChat OA Config -->
+          <div class="env-card" id="oaCard">
+            <div class="env-header">
+              <span class="env-icon">📱</span>
+              <span class="env-name">WeChat Official Account</span>
+              <span class="env-status" id="oaStatus">⏳ Checking...</span>
+            </div>
+            <div class="env-details" id="oaDetails">
+              <div class="env-row">
+                <span class="env-label">OA AppID:</span>
+                <span class="env-value" id="oaAppId">-</span>
+              </div>
+              <div class="env-row">
+                <span class="env-label">Access Token:</span>
+                <span class="env-value" id="oaTokenStatus">-</span>
+              </div>
+              <div class="env-row">
+                <span class="env-label">Last Webhook:</span>
+                <span class="env-value" id="lastWebhook">-</span>
+              </div>
+            </div>
+            <div class="env-action">
+              <button class="btn-secondary" onclick="validateOA()">Check OA</button>
+            </div>
+          </div>
+
+          <!-- Database -->
+          <div class="env-card" id="dbCard">
+            <div class="env-header">
+              <span class="env-icon">🗄️</span>
+              <span class="env-name">Database (Supabase)</span>
+              <span class="env-status" id="dbStatus">⏳ Checking...</span>
+            </div>
+            <div class="env-details" id="dbDetails">
+              <div class="env-row">
+                <span class="env-label">Connection:</span>
+                <span class="env-value" id="dbConnection">-</span>
+              </div>
+              <div class="env-row">
+                <span class="env-label">Tables:</span>
+                <span class="env-value" id="dbTables">-</span>
+              </div>
+            </div>
+            <div class="env-action">
+              <button class="btn-secondary" onclick="validateDB()">Check DB</button>
+            </div>
+          </div>
+
+          <!-- Backend Server -->
+          <div class="env-card" id="backendCard">
+            <div class="env-header">
+              <span class="env-icon">⚙️</span>
+              <span class="env-name">Backend Server</span>
+              <span class="env-status" id="backendStatus">⏳ Checking...</span>
+            </div>
+            <div class="env-details" id="backendDetails">
+              <div class="env-row">
+                <span class="env-label">Local URL:</span>
+                <span class="env-value" id="backendUrl">http://localhost:3000</span>
+              </div>
+              <div class="env-row">
+                <span class="env-label">API Status:</span>
+                <span class="env-value" id="apiStatus">-</span>
+              </div>
+            </div>
+            <div class="env-action">
+              <button class="btn-secondary" onclick="validateBackend()">Check Backend</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions" style="margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px;">
+          <div style="font-weight: 600; margin-bottom: 12px;">⚡ Quick Actions</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button class="btn-secondary" onclick="copyWebhookUrl()" style="font-size: 12px;">
+              📋 Copy Webhook URL
+            </button>
+            <button class="btn-secondary" onclick="testWebhook()" style="font-size: 12px;">
+              🧪 Test Webhook
+            </button>
+            <button class="btn-secondary" onclick="showEnvInstructions()" style="font-size: 12px;">
+              📖 Setup Guide
+            </button>
+          </div>
+        </div>
+
+        <!-- Instructions Panel (hidden by default) -->
+        <div id="envInstructions" style="display: none; margin-top: 16px; padding: 16px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px;">
+          <div style="font-weight: 600; margin-bottom: 12px;">📖 微信公众号 Webhook 配置步骤</div>
+          <ol style="margin-left: 20px; line-height: 2;">
+            <li>登录微信公众平台 → 设置与开发 → 基本配置</li>
+            <li>在"服务器配置"中点击"修改配置"</li>
+            <li>填写以下信息：
+              <ul style="margin-left: 20px; margin-top: 8px;">
+                <li><strong>URL:</strong> <code id="instructionUrl" style="background: #fef3c7; padding: 2px 6px; border-radius: 4px;">-</code></li>
+                <li><strong>Token:</strong> 使用你在 .env 文件中设置的 OA_TOKEN</li>
+                <li><strong>EncodingAESKey:</strong> 使用你在 .env 文件中设置的 OA_ENCODING_AES_KEY</li>
+                <li><strong>消息加解密方式:</strong> 安全模式</li>
+              </ul>
+            </li>
+            <li>点击"提交"验证配置</li>
+            <li>验证成功后，点击"启用"</li>
+          </ol>
+          <button class="btn-secondary" onclick="hideEnvInstructions()" style="margin-top: 12px; font-size: 12px;">关闭</button>
+        </div>
+      </div>
+    </section>
 
     <!-- Debug Logs -->
     <section class="section">
@@ -1874,6 +2152,296 @@
     // Load user info
     const user = JSON.parse(localStorage.getItem('admin_user') || '{}');
     document.getElementById('userName').textContent = user.name || user.email || 'Admin';
+
+    // ============================================
+    // Environment Validation Functions
+    // ============================================
+    
+    let currentTunnelUrl = null;
+
+    async function runAllValidations() {
+      await Promise.all([
+        validateTunnel(),
+        validateOA(),
+        validateDB(),
+        validateBackend()
+      ]);
+    }
+
+    async function validateTunnel() {
+      const card = document.getElementById('tunnelCard');
+      const status = document.getElementById('tunnelStatus');
+      const urlEl = document.getElementById('tunnelUrl');
+      const webhookEl = document.getElementById('webhookUrl');
+      const statusText = document.getElementById('tunnelStatusText');
+      
+      status.textContent = '⏳ Checking...';
+      status.className = 'env-status';
+      card.className = 'env-card';
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/tunnel/status`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          
+          if (data.tunnelUrl) {
+            currentTunnelUrl = data.tunnelUrl;
+            urlEl.textContent = data.tunnelUrl;
+            webhookEl.textContent = `${data.tunnelUrl}/api/oa/webhook`;
+            document.getElementById('instructionUrl').textContent = `${data.tunnelUrl}/api/oa/webhook`;
+            
+            // Check if tunnel is actually accessible
+            if (data.accessible) {
+              status.textContent = '✅ Connected';
+              status.className = 'env-status success';
+              card.className = 'env-card success';
+              statusText.textContent = 'Tunnel is running and accessible';
+            } else {
+              status.textContent = '⚠️ URL Found';
+              status.className = 'env-status warning';
+              card.className = 'env-card warning';
+              statusText.textContent = 'Tunnel URL found but may not be accessible';
+            }
+          } else {
+            status.textContent = '❌ Not Running';
+            status.className = 'env-status error';
+            card.className = 'env-card error';
+            urlEl.textContent = 'Not detected';
+            webhookEl.textContent = '-';
+            statusText.textContent = 'Run: cloudflared tunnel --url http://localhost:3000';
+          }
+        } else {
+          throw new Error('Failed to check tunnel status');
+        }
+      } catch (error) {
+        status.textContent = '❌ Error';
+        status.className = 'env-status error';
+        card.className = 'env-card error';
+        statusText.textContent = error.message;
+      }
+    }
+
+    async function validateOA() {
+      const card = document.getElementById('oaCard');
+      const status = document.getElementById('oaStatus');
+      const appIdEl = document.getElementById('oaAppId');
+      const tokenStatusEl = document.getElementById('oaTokenStatus');
+      const lastWebhookEl = document.getElementById('lastWebhook');
+      
+      status.textContent = '⏳ Checking...';
+      status.className = 'env-status';
+      card.className = 'env-card';
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/env/oa-status`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          
+          appIdEl.textContent = data.appId || 'Not configured';
+          
+          if (data.hasAccessToken) {
+            tokenStatusEl.textContent = '✅ Valid';
+            status.textContent = '✅ Connected';
+            status.className = 'env-status success';
+            card.className = 'env-card success';
+          } else {
+            tokenStatusEl.textContent = '❌ Invalid or expired';
+            status.textContent = '⚠️ Check Config';
+            status.className = 'env-status warning';
+            card.className = 'env-card warning';
+          }
+          
+          // Check last webhook event
+          const eventsRes = await fetch(`${API_BASE_URL}/admin/debug/all-events?limit=1&type=oa_event_received`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
+          
+          if (eventsRes.ok) {
+            const eventsData = await eventsRes.json();
+            const events = eventsData.data?.events || [];
+            if (events.length > 0) {
+              const lastEvent = events[0];
+              const timeAgo = getTimeAgo(new Date(lastEvent.created_at));
+              lastWebhookEl.textContent = timeAgo;
+            } else {
+              lastWebhookEl.textContent = 'No events received yet';
+              if (data.hasAccessToken) {
+                status.textContent = '⚠️ No Events';
+                status.className = 'env-status warning';
+                card.className = 'env-card warning';
+              }
+            }
+          }
+        } else {
+          throw new Error('Failed to check OA status');
+        }
+      } catch (error) {
+        status.textContent = '❌ Error';
+        status.className = 'env-status error';
+        card.className = 'env-card error';
+        appIdEl.textContent = 'Error: ' + error.message;
+      }
+    }
+
+    async function validateDB() {
+      const card = document.getElementById('dbCard');
+      const status = document.getElementById('dbStatus');
+      const connectionEl = document.getElementById('dbConnection');
+      const tablesEl = document.getElementById('dbTables');
+      
+      status.textContent = '⏳ Checking...';
+      status.className = 'env-status';
+      card.className = 'env-card';
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/env/db-status`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          
+          if (data.connected) {
+            connectionEl.textContent = '✅ Connected';
+            tablesEl.textContent = `${data.tableCount || 0} tables`;
+            status.textContent = '✅ Connected';
+            status.className = 'env-status success';
+            card.className = 'env-card success';
+          } else {
+            connectionEl.textContent = '❌ Disconnected';
+            tablesEl.textContent = '-';
+            status.textContent = '❌ Error';
+            status.className = 'env-status error';
+            card.className = 'env-card error';
+          }
+        } else {
+          throw new Error('Failed to check DB status');
+        }
+      } catch (error) {
+        status.textContent = '❌ Error';
+        status.className = 'env-status error';
+        card.className = 'env-card error';
+        connectionEl.textContent = 'Error: ' + error.message;
+      }
+    }
+
+    async function validateBackend() {
+      const card = document.getElementById('backendCard');
+      const status = document.getElementById('backendStatus');
+      const apiStatusEl = document.getElementById('apiStatus');
+      
+      status.textContent = '⏳ Checking...';
+      status.className = 'env-status';
+      card.className = 'env-card';
+      
+      try {
+        const startTime = Date.now();
+        const res = await fetch(`${API_BASE_URL}/admin/debug/stats`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const latency = Date.now() - startTime;
+        
+        if (res.ok) {
+          apiStatusEl.textContent = `✅ Running (${latency}ms)`;
+          status.textContent = '✅ Running';
+          status.className = 'env-status success';
+          card.className = 'env-card success';
+        } else {
+          apiStatusEl.textContent = '❌ Error: ' + res.status;
+          status.textContent = '❌ Error';
+          status.className = 'env-status error';
+          card.className = 'env-card error';
+        }
+      } catch (error) {
+        status.textContent = '❌ Offline';
+        status.className = 'env-status error';
+        card.className = 'env-card error';
+        apiStatusEl.textContent = 'Server not reachable';
+      }
+    }
+
+    function copyToClipboard(text) {
+      if (!text || text === '-') {
+        alert('No value to copy');
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied: ' + text);
+      }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Copied: ' + text);
+      });
+    }
+
+    function copyWebhookUrl() {
+      const webhookUrl = document.getElementById('webhookUrl').textContent;
+      copyToClipboard(webhookUrl);
+    }
+
+    async function testWebhook() {
+      const webhookUrl = document.getElementById('webhookUrl').textContent;
+      if (!webhookUrl || webhookUrl === '-') {
+        alert('Webhook URL not available. Please check if Cloudflare Tunnel is running.');
+        return;
+      }
+      
+      try {
+        alert('Testing webhook endpoint...\n\nURL: ' + webhookUrl + '\n\nThis will send a test request to verify the endpoint is reachable.');
+        
+        const res = await fetch(`${API_BASE_URL}/admin/test-webhook`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ webhookUrl })
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          alert('Webhook test result:\n\n' + (data.success ? '✅ Success!' : '❌ Failed: ' + data.error));
+        } else {
+          alert('Failed to test webhook');
+        }
+      } catch (error) {
+        alert('Error testing webhook: ' + error.message);
+      }
+    }
+
+    function showEnvInstructions() {
+      document.getElementById('envInstructions').style.display = 'block';
+    }
+
+    function hideEnvInstructions() {
+      document.getElementById('envInstructions').style.display = 'none';
+    }
+
+    function getTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      if (seconds < 60) return `${seconds}s ago`;
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      return `${days}d ago`;
+    }
+
+    // ============================================
+    // Dashboard Functions
+    // ============================================
 
     // Load dashboard data
     async function loadDashboard() {
@@ -2731,9 +3299,9 @@
       document.getElementById('campaignEndTime').value = formatDateTimeLocal(endDate);
       
       // Add default rewards
-      addRewardRow(0, '基础资源包', '免费获取入门指南');
-      addRewardRow(3, '进阶资源包', '邀请3位好友解锁');
-      addRewardRow(8, '专属咨询', '邀请8位好友获得1对1咨询');
+      addRewardRow(0, '基础资源包', '', 'https://example.com/free-guide.pdf');
+      addRewardRow(3, '进阶资源包', '', 'https://example.com/advanced-guide.pdf');
+      addRewardRow(8, '专属咨询', '', 'https://calendly.com/your-link');
       
       document.getElementById('campaignModal').classList.add('active');
     }
@@ -2751,7 +3319,7 @@
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 
-    function addRewardRow(helpersRequired = 0, name = '', description = '') {
+    function addRewardRow(helpersRequired = 0, name = '', description = '', downloadUrl = '') {
       const container = document.getElementById('rewardsListEditor');
       const rowId = `reward-${rewardCounter++}`;
       
@@ -2759,9 +3327,9 @@
       row.className = 'reward-row';
       row.id = rowId;
       row.innerHTML = `
-        <input type="number" placeholder="人数" value="${helpersRequired}" min="0" class="reward-helpers">
+        <input type="number" placeholder="人数" value="${helpersRequired}" min="0" class="reward-helpers" style="width: 60px;">
         <input type="text" placeholder="奖品名称" value="${name}" class="reward-name">
-        <input type="text" placeholder="奖品描述" value="${description}" class="reward-desc">
+        <input type="text" placeholder="下载/预约链接" value="${downloadUrl}" class="reward-url">
         <button type="button" class="remove-reward" onclick="removeRewardRow('${rowId}')">&times;</button>
       `;
       
@@ -2790,16 +3358,16 @@
       rewardRows.forEach((row, index) => {
         const helpers = parseInt(row.querySelector('.reward-helpers').value) || 0;
         const rewardName = row.querySelector('.reward-name').value.trim();
-        const rewardDesc = row.querySelector('.reward-desc').value.trim();
+        const rewardUrl = row.querySelector('.reward-url')?.value.trim() || '';
         
         if (rewardName) {
           rewards.push({
             tier_level: index,
             helpers_required: helpers,
             reward_name: rewardName,
-            reward_description: rewardDesc,
+            reward_description: '',
             reward_type: 'digital',
-            reward_content: {},
+            reward_content: rewardUrl ? { download_url: rewardUrl } : {},
           });
         }
       });
@@ -2870,7 +3438,8 @@
           const rewards = data.data?.rewards || [];
           
           rewards.forEach(reward => {
-            addRewardRow(reward.helpers_required, reward.reward_name, reward.reward_description);
+            const downloadUrl = reward.reward_content?.download_url || reward.reward_content?.booking_url || '';
+            addRewardRow(reward.helpers_required, reward.reward_name, reward.reward_description, downloadUrl);
           });
         }
       } catch (error) {
