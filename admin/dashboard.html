@@ -332,9 +332,14 @@
           
           const events = eventsData.data?.events || [];
           
+          console.log('Loaded events:', events.length);
+          
           if (events.length === 0) {
             document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('eventsLoading').style.display = 'none';
           } else {
+            document.getElementById('emptyState').style.display = 'none';
+            
             // Map event types to display names
             const eventTypeNames = {
               'login': '登录',
@@ -363,14 +368,24 @@
               
               let detailsHtml = '';
               if (event.event_data) {
-                if (event.event_data.scene_str) {
-                  detailsHtml += `<div class="event-details">场景: ${event.event_data.scene_str}</div>`;
+                // Parse event_data if it's a string
+                let eventData = event.event_data;
+                if (typeof eventData === 'string') {
+                  try {
+                    eventData = JSON.parse(eventData);
+                  } catch (e) {
+                    // Keep as string if not valid JSON
+                  }
                 }
-                if (event.event_data.referral_code) {
-                  detailsHtml += `<div class="event-details">邀请码: ${event.event_data.referral_code}</div>`;
+                
+                if (eventData.scene_str) {
+                  detailsHtml += `<div class="event-details">场景: ${eventData.scene_str}</div>`;
                 }
-                if (event.event_data.reward_name) {
-                  detailsHtml += `<div class="event-details">奖励: ${event.event_data.reward_name} (${event.event_data.points_used}积分)</div>`;
+                if (eventData.referral_code) {
+                  detailsHtml += `<div class="event-details">邀请码: ${eventData.referral_code}</div>`;
+                }
+                if (eventData.reward_name) {
+                  detailsHtml += `<div class="event-details">奖励: ${eventData.reward_name} (${eventData.points_used}积分)</div>`;
                 }
                 if (event.related_user) {
                   detailsHtml += `<div class="event-details">关联用户: ${event.related_user.name || event.related_user.phone || 'N/A'}</div>`;
@@ -387,9 +402,19 @@
               `;
               eventsList.appendChild(div);
             });
+            
+            document.getElementById('eventsLoading').style.display = 'none';
           }
+        } else {
+          const errorData = await eventsRes.json().catch(() => ({}));
+          console.error('Failed to load events:', errorData);
+          document.getElementById('eventsLoading').textContent = `Failed to load events: ${errorData.error || 'Unknown error'}`;
           
-          document.getElementById('eventsLoading').style.display = 'none';
+          // Show empty state if table doesn't exist
+          if (errorData.error && errorData.error.includes('does not exist')) {
+            document.getElementById('emptyState').textContent = 'Event logs table not found. Please run migration 007_create_event_logs.sql';
+            document.getElementById('emptyState').style.display = 'block';
+          }
         }
       } catch (error) {
         console.error('Error loading dashboard:', error);

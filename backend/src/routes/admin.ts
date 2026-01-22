@@ -236,6 +236,17 @@ router.get('/debug/all-events', async (req: AuthRequest, res) => {
     const { data: events, error } = await query;
 
     if (error) {
+      // If table doesn't exist, return empty array with helpful message
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        console.warn('event_logs table does not exist. Please run migration 007_create_event_logs.sql');
+        return res.json({
+          data: {
+            events: [],
+            total: 0,
+            message: 'Event logs table not found. Please run migration 007_create_event_logs.sql',
+          },
+        });
+      }
       throw error;
     }
 
