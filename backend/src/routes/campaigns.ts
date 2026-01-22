@@ -550,6 +550,92 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
 });
 
 /**
+ * PUT /api/campaigns/admin/:id
+ * Update campaign details (admin only)
+ */
+router.put('/admin/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const campaignId = req.params.id;
+    const {
+      name,
+      description,
+      cover_image_url,
+      start_time,
+      end_time,
+      rewards = [],
+    } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: 'Campaign name is required' });
+    }
+
+    // Update campaign
+    const { data: campaignData, error } = await supabase
+      .from('campaigns')
+      .update({
+        name,
+        description,
+        cover_image_url,
+        start_time,
+        end_time,
+        updated_at: new Date().toISOString(),
+      } as Record<string, any>)
+      .eq('id', campaignId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Update rewards if provided
+    if (rewards.length > 0) {
+      // Delete existing rewards
+      await supabase
+        .from('campaign_rewards')
+        .delete()
+        .eq('campaign_id', campaignId);
+
+      // Insert new rewards
+      const rewardsToInsert = rewards.map((reward: any, index: number) => ({
+        campaign_id: campaignId,
+        tier_level: reward.tier_level ?? index,
+        helpers_required: reward.helpers_required ?? 0,
+        reward_name: reward.reward_name || `奖品${index + 1}`,
+        reward_description: reward.reward_description || '',
+        reward_type: reward.reward_type || 'digital',
+        reward_content: reward.reward_content || {},
+        stock: reward.stock ?? -1,
+      }));
+
+      const { error: rewardsError } = await supabase
+        .from('campaign_rewards')
+        .insert(rewardsToInsert as Record<string, any>[]);
+
+      if (rewardsError) {
+        console.error('Update rewards error:', rewardsError);
+      }
+    }
+
+    // Log event
+    await logEvent({
+      event_type: 'campaign_updated',
+      user_id: req.userId!,
+      event_data: {
+        campaign_id: campaignId,
+        campaign_name: name,
+      },
+    });
+
+    res.json({
+      success: true,
+      data: { campaign: campaignData },
+    });
+  } catch (error: any) {
+    console.error('Update campaign error:', error);
+    res.status(500).json({ error: error.message || 'Failed to update campaign' });
+  }
+});
+
+/**
  * PUT /api/campaigns/:id/status
  * Update campaign status (admin only)
  */
