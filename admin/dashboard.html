@@ -1544,22 +1544,182 @@
       color: var(--error);
     }
 
-    /* Tunnel Manager */
-    .tunnel-grid {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 24px;
+    /* Tunnel Manager - Redesigned */
+    .tunnel-explainer {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .explainer-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .explainer-icon {
+      font-size: 24px;
+    }
+
+    .explainer-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .explainer-intro {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .explainer-intro code {
+      background: var(--bg-secondary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .explainer-diagram {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .diagram-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .diagram-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      min-width: 100px;
+    }
+
+    .diagram-node.highlight {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--accent);
+    }
+
+    .node-icon {
+      font-size: 24px;
+    }
+
+    .node-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .diagram-arrow {
+      font-size: 20px;
+      color: var(--text-muted);
+    }
+
+    .explainer-details {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .detail-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+    }
+
+    .detail-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .detail-item strong {
+      display: block;
+      font-size: 13px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .detail-item p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .detail-item code {
+      background: var(--bg-secondary);
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+
+    .tunnel-section {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .tunnel-section h4 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-header-row h4 {
+      margin: 0;
+    }
+
+    .section-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .section-desc code {
+      background: var(--bg-secondary);
+      padding: 1px 4px;
+      border-radius: 3px;
     }
 
     .tunnel-status-cards {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .status-card {
-      background: var(--bg-primary);
+      background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 16px;
@@ -1590,10 +1750,311 @@
     }
 
     .status-card-check {
-      color: var(--success);
-      font-size: 16px;
+      width: 20px;
+      height: 20px;
+      background: var(--success);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
     }
 
+    .current-tunnel-url {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .url-display-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .url-display-row:not(:last-child) {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .url-display-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .label-icon {
+      font-size: 14px;
+    }
+
+    .url-display-value {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .url-display-value code {
+      font-size: 12px;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      max-width: 350px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-copy-small {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      opacity: 0.6;
+      transition: opacity 0.15s;
+    }
+
+    .btn-copy-small:hover {
+      opacity: 1;
+    }
+
+    .tunnel-url-input-group {
+      display: flex;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .url-prefix {
+      padding: 10px 12px;
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      font-size: 14px;
+      border-right: 1px solid var(--border-color);
+    }
+
+    .tunnel-url-input {
+      flex: 1;
+      padding: 10px 12px;
+      border: none;
+      font-size: 13px;
+      font-family: monospace;
+      background: var(--bg-primary);
+    }
+
+    .tunnel-url-input:focus {
+      outline: none;
+    }
+
+    .btn-primary-small {
+      padding: 10px 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .btn-primary-small:hover {
+      opacity: 0.9;
+    }
+
+    .tunnel-error {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      color: var(--error);
+      font-size: 13px;
+    }
+
+    .tunnel-instructions {
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .instructions-header {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #b45309;
+    }
+
+    .command-section {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .command-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .command-code-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .command-code {
+      flex: 1;
+      font-family: monospace;
+      font-size: 13px;
+      background: var(--bg-secondary);
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    .btn-copy-command {
+      padding: 8px 12px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .quick-ref-section {
+      background: var(--bg-primary);
+    }
+
+    .quick-ref-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .quick-ref-header-row h4 {
+      margin: 0;
+    }
+
+    .toggle-icon {
+      font-size: 12px;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+
+    .quick-ref-content {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .quick-ref-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .quick-ref-item {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .quick-ref-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .quick-ref-code-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quick-ref-code-row code {
+      flex: 1;
+      font-size: 11px;
+      background: var(--bg-primary);
+      padding: 6px 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-copy-tiny {
+      padding: 4px 8px;
+      background: var(--text-muted);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+
+    .btn-copy-tiny:hover {
+      opacity: 1;
+    }
+
+    .btn-validate {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-validate:hover {
+      opacity: 0.9;
+    }
+
+    .btn-validate:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-icon {
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .tunnel-status-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-ref-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .diagram-flow {
+        flex-direction: column;
+      }
+
+      .diagram-arrow {
+        transform: rotate(90deg);
+      }
+    }
+
+    /* Legacy styles kept for compatibility */
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -1625,35 +2086,6 @@
       display: block;
     }
 
-    .tunnel-url-input-group {
-      display: flex;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .url-prefix {
-      padding: 10px 12px;
-      background: var(--bg-primary);
-      color: var(--text-muted);
-      font-size: 12px;
-      font-family: monospace;
-      border-right: 1px solid var(--border-color);
-    }
-
-    .tunnel-url-input {
-      flex: 1;
-      padding: 10px 12px;
-      border: none;
-      font-size: 13px;
-      font-family: monospace;
-      background: var(--bg-secondary);
-    }
-
-    .tunnel-url-input:focus {
-      outline: none;
-    }
-
     .btn-copy {
       padding: 10px 16px;
       background: var(--accent);
@@ -1681,7 +2113,7 @@
       margin-bottom: 12px;
     }
 
-    .btn-validate {
+    .btn-validate-old {
       padding: 10px 20px;
       background: var(--accent);
       color: white;
@@ -3338,73 +3770,188 @@
         <!-- SETTINGS TUNNEL PANEL -->
         <!-- ============================================ -->
         <div class="content-panel" id="panel-settings-tunnel">
-          <div class="tunnel-grid">
-            <div>
+          <!-- Why Tunnel Section -->
+          <div class="tunnel-explainer">
+            <div class="explainer-header">
+              <span class="explainer-icon">🔗</span>
+              <h3>Why Do You Need a Tunnel?</h3>
+            </div>
+            <div class="explainer-content">
+              <p class="explainer-intro">
+                <strong>WeChat Official Account</strong> needs to send real-time notifications (like user follows, unfollows, and QR scans) to your backend server. However, your local development server (<code>localhost:3000</code>) is not accessible from the internet.
+              </p>
+              
+              <div class="explainer-diagram">
+                <div class="diagram-flow">
+                  <div class="diagram-node">
+                    <span class="node-icon">👤</span>
+                    <span class="node-label">User scans QR</span>
+                  </div>
+                  <div class="diagram-arrow">→</div>
+                  <div class="diagram-node">
+                    <span class="node-icon">💬</span>
+                    <span class="node-label">WeChat Server</span>
+                  </div>
+                  <div class="diagram-arrow">→</div>
+                  <div class="diagram-node highlight">
+                    <span class="node-icon">🚇</span>
+                    <span class="node-label">Cloudflare Tunnel</span>
+                  </div>
+                  <div class="diagram-arrow">→</div>
+                  <div class="diagram-node">
+                    <span class="node-icon">💻</span>
+                    <span class="node-label">Your localhost:3000</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="explainer-details">
+                <div class="detail-item">
+                  <span class="detail-icon">✅</span>
+                  <div>
+                    <strong>What Cloudflare Tunnel does:</strong>
+                    <p>Creates a secure, public URL (like <code>https://abc-xyz.trycloudflare.com</code>) that forwards all requests to your local server. No need to deploy to production for testing!</p>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon">⚙️</span>
+                  <div>
+                    <strong>How it works:</strong>
+                    <p>When WeChat sends a webhook to your tunnel URL, Cloudflare securely routes it through their network to your local machine. Your backend receives the event and can process it immediately.</p>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon">🔄</span>
+                  <div>
+                    <strong>Important:</strong>
+                    <p>The tunnel URL changes each time you restart <code>cloudflared</code>. You must update the webhook URL in WeChat OA backend whenever this happens.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Status Section -->
+          <div class="tunnel-section">
+            <div class="section-header-row">
+              <h4>Connection Status</h4>
               <button class="btn-validate" onclick="validateLocalTunnel()" id="validateBtn">
-                Validate Connection
+                <span class="btn-icon">🔄</span> Validate Connection
               </button>
-
-              <div class="tunnel-status-cards" id="tunnelStatusCards">
-                <div class="status-card">
-                  <div class="status-card-icon">📦</div>
-                  <div class="status-card-content">
-                    <div class="status-card-label">Local Server</div>
-                    <div class="status-card-value" id="localServerCard">Port 3000</div>
-                  </div>
-                  <div class="status-card-check" id="localServerCheck">✓</div>
-                </div>
-                <div class="status-card">
-                  <div class="status-card-icon">⚡</div>
-                  <div class="status-card-content">
-                    <div class="status-card-label">Process PID</div>
-                    <div class="status-card-value" id="processPidCard">-</div>
-                  </div>
-                  <div class="status-card-check" id="processPidCheck" style="display: none;">✓</div>
-                </div>
-                <div class="status-card">
-                  <div class="status-card-icon">🌐</div>
-                  <div class="status-card-content">
-                    <div class="status-card-label">Latency</div>
-                    <div class="status-card-value" id="latencyCard">-</div>
-                  </div>
-                  <div class="status-card-check" id="latencyCheck" style="display: none;">✓</div>
-                </div>
-              </div>
-
-              <div class="tunnel-update-section" style="margin-top: 24px;">
-                <label class="tunnel-url-label">Update Tunnel URL</label>
-                <p class="tunnel-update-desc">Paste the URL from cloudflared output</p>
-                <div class="tunnel-url-input-group">
-                  <span class="url-prefix">🌐</span>
-                  <input type="text" class="tunnel-url-input" id="tunnelUrlInputAlt" placeholder="https://xxx.trycloudflare.com">
-                  <button class="btn-copy" onclick="updateTunnelUrl()">Save & Verify</button>
-                </div>
-              </div>
-
-              <div class="tunnel-error" id="tunnelError" style="display: none;"></div>
             </div>
 
-            <div class="quick-ref collapsed" id="quickRefSection">
-              <div class="quick-ref-header" onclick="toggleQuickRef()">
-                <div class="quick-ref-title">Quick Reference</div>
-                <span class="quick-ref-toggle">▼</span>
+            <div class="tunnel-status-cards" id="tunnelStatusCards">
+              <div class="status-card">
+                <div class="status-card-icon">📦</div>
+                <div class="status-card-content">
+                  <div class="status-card-label">LOCAL SERVER</div>
+                  <div class="status-card-value" id="localServerCard">Checking...</div>
+                </div>
+                <div class="status-card-check" id="localServerCheck" style="display: none;">✓</div>
               </div>
-              <div class="quick-ref-content">
+              <div class="status-card">
+                <div class="status-card-icon">⚡</div>
+                <div class="status-card-content">
+                  <div class="status-card-label">PROCESS PID</div>
+                  <div class="status-card-value" id="processPidCard">Checking...</div>
+                </div>
+                <div class="status-card-check" id="processPidCheck" style="display: none;">✓</div>
+              </div>
+              <div class="status-card">
+                <div class="status-card-icon">🌐</div>
+                <div class="status-card-content">
+                  <div class="status-card-label">LATENCY</div>
+                  <div class="status-card-value" id="latencyCard">Checking...</div>
+                </div>
+                <div class="status-card-check" id="latencyCheck" style="display: none;">✓</div>
+              </div>
+            </div>
+
+            <!-- Current Tunnel URL Display -->
+            <div class="current-tunnel-url" id="currentTunnelUrlSection">
+              <div class="url-display-row">
+                <div class="url-display-label">
+                  <span class="label-icon">🔗</span>
+                  <span>Current Tunnel URL</span>
+                </div>
+                <div class="url-display-value">
+                  <code id="currentTunnelUrlDisplay">Not configured</code>
+                  <button class="btn-copy-small" onclick="copyCurrentTunnelUrl()" title="Copy URL">📋</button>
+                </div>
+              </div>
+              <div class="url-display-row">
+                <div class="url-display-label">
+                  <span class="label-icon">📡</span>
+                  <span>WeChat Webhook URL</span>
+                </div>
+                <div class="url-display-value">
+                  <code id="currentWebhookUrlDisplay">Not configured</code>
+                  <button class="btn-copy-small" onclick="copyCurrentWebhookUrl()" title="Copy Webhook URL">📋</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tunnel-error" id="tunnelError" style="display: none;"></div>
+          </div>
+
+          <!-- Update Tunnel URL Section -->
+          <div class="tunnel-section">
+            <h4>Update Tunnel URL</h4>
+            <p class="section-desc">Paste the URL from <code>cloudflared</code> output when you start a new tunnel session.</p>
+            <div class="tunnel-url-input-group">
+              <span class="url-prefix">🌐</span>
+              <input type="text" class="tunnel-url-input" id="tunnelUrlInputAlt" placeholder="https://xxx.trycloudflare.com">
+              <button class="btn-primary-small" onclick="updateTunnelUrl()">Save & Verify</button>
+            </div>
+          </div>
+
+          <!-- Not Connected Instructions -->
+          <div class="tunnel-instructions" id="tunnelCommandInstructions" style="display: none;">
+            <div class="instructions-header">⚠️ Tunnel Not Connected</div>
+            <div class="command-section">
+              <div class="command-label">Run this command in your terminal:</div>
+              <div class="command-code-container">
+                <code class="command-code" id="commandToRun">cloudflared tunnel --url http://localhost:3000</code>
+                <button class="btn-copy-command" onclick="copyCommand()">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Reference Section -->
+          <div class="tunnel-section quick-ref-section">
+            <div class="quick-ref-header-row" onclick="toggleQuickRef()">
+              <h4>Quick Reference Commands</h4>
+              <span class="toggle-icon" id="quickRefToggle">▼</span>
+            </div>
+            <div class="quick-ref-content" id="quickRefContent" style="display: none;">
+              <div class="quick-ref-grid">
                 <div class="quick-ref-item">
                   <div class="quick-ref-label">Install cloudflared</div>
-                  <code class="quick-ref-code">brew install cloudflare/cloudflare/cloudflared</code>
+                  <div class="quick-ref-code-row">
+                    <code>brew install cloudflare/cloudflare/cloudflared</code>
+                    <button class="btn-copy-tiny" onclick="copyToClipboard('brew install cloudflare/cloudflare/cloudflared')">Copy</button>
+                  </div>
                 </div>
                 <div class="quick-ref-item">
                   <div class="quick-ref-label">Start Tunnel</div>
-                  <code class="quick-ref-code">cloudflared tunnel --url http://localhost:3000</code>
+                  <div class="quick-ref-code-row">
+                    <code>cloudflared tunnel --url http://localhost:3000</code>
+                    <button class="btn-copy-tiny" onclick="copyToClipboard('cloudflared tunnel --url http://localhost:3000')">Copy</button>
+                  </div>
                 </div>
                 <div class="quick-ref-item">
                   <div class="quick-ref-label">Check Status</div>
-                  <code class="quick-ref-code">pgrep -fl cloudflared</code>
+                  <div class="quick-ref-code-row">
+                    <code>pgrep -fl cloudflared</code>
+                    <button class="btn-copy-tiny" onclick="copyToClipboard('pgrep -fl cloudflared')">Copy</button>
+                  </div>
                 </div>
                 <div class="quick-ref-item">
                   <div class="quick-ref-label">Stop Tunnel</div>
-                  <code class="quick-ref-code">pkill -f cloudflared</code>
+                  <div class="quick-ref-code-row">
+                    <code>pkill -f cloudflared</code>
+                    <button class="btn-copy-tiny" onclick="copyToClipboard('pkill -f cloudflared')">Copy</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3950,93 +4497,188 @@
 
         <!-- Tunnel Tab -->
         <div class="main-tab-panel hidden" id="settingsTunnelPanel">
-          <div class="tunnel-grid">
-            <div>
-              <button class="btn-validate" onclick="validateLocalTunnel()" id="validateBtn">
-                Validate Connection
-              </button>
-
-              <div class="tunnel-status-cards" id="tunnelStatusCards">
-                <div class="status-card">
-                  <div class="status-card-icon">📦</div>
-                  <div class="status-card-content">
-                    <div class="status-card-label">Local Server</div>
-                    <div class="status-card-value" id="localServerCard">Port 3000</div>
+          <!-- Why Tunnel Section -->
+          <div class="tunnel-explainer">
+            <div class="explainer-header">
+              <span class="explainer-icon">🔗</span>
+              <h3>Why Do You Need a Tunnel?</h3>
+            </div>
+            <div class="explainer-content">
+              <p class="explainer-intro">
+                <strong>WeChat Official Account</strong> needs to send real-time notifications (like user follows, unfollows, and QR scans) to your backend server. However, your local development server (<code>localhost:3000</code>) is not accessible from the internet.
+              </p>
+              
+              <div class="explainer-diagram">
+                <div class="diagram-flow">
+                  <div class="diagram-node">
+                    <span class="node-icon">👤</span>
+                    <span class="node-label">User scans QR</span>
                   </div>
-                  <div class="status-card-check" id="localServerCheck">✓</div>
-                </div>
-                <div class="status-card">
-                  <div class="status-card-icon">⚡</div>
-                  <div class="status-card-content">
-                    <div class="status-card-label">Process PID</div>
-                    <div class="status-card-value" id="processPidCard">-</div>
+                  <div class="diagram-arrow">→</div>
+                  <div class="diagram-node">
+                    <span class="node-icon">💬</span>
+                    <span class="node-label">WeChat Server</span>
                   </div>
-                  <div class="status-card-check" id="processPidCheck" style="display: none;">✓</div>
-                </div>
-                <div class="status-card">
-                  <div class="status-card-icon">🌐</div>
-                  <div class="status-card-content">
-                    <div class="status-card-label">Latency</div>
-                    <div class="status-card-value" id="latencyCard">-</div>
+                  <div class="diagram-arrow">→</div>
+                  <div class="diagram-node highlight">
+                    <span class="node-icon">🚇</span>
+                    <span class="node-label">Cloudflare Tunnel</span>
                   </div>
-                  <div class="status-card-check" id="latencyCheck" style="display: none;">✓</div>
+                  <div class="diagram-arrow">→</div>
+                  <div class="diagram-node">
+                    <span class="node-icon">💻</span>
+                    <span class="node-label">Your localhost:3000</span>
+                  </div>
                 </div>
               </div>
 
-              <div class="tunnel-url-group" id="tunnelUrlSection" style="display: none;">
-                <label class="tunnel-url-label">Current Callback URL</label>
-                <div class="tunnel-url-input-group">
-                  <span class="url-prefix">GET</span>
-                  <input type="text" class="tunnel-url-input" id="tunnelUrlValue" readonly>
-                  <button class="btn-copy" onclick="copyTunnelUrl()">Copy</button>
+              <div class="explainer-details">
+                <div class="detail-item">
+                  <span class="detail-icon">✅</span>
+                  <div>
+                    <strong>What Cloudflare Tunnel does:</strong>
+                    <p>Creates a secure, public URL (like <code>https://abc-xyz.trycloudflare.com</code>) that forwards all requests to your local server. No need to deploy to production for testing!</p>
+                  </div>
                 </div>
-              </div>
-
-              <div class="tunnel-update-section">
-                <label class="tunnel-url-label">Update Tunnel URL</label>
-                <p class="tunnel-update-desc">Paste the URL from cloudflared output</p>
-                <div class="tunnel-url-input-group">
-                  <span class="url-prefix">🌐</span>
-                  <input type="text" class="tunnel-url-input" id="tunnelUrlInputAlt" placeholder="https://xxx.trycloudflare.com">
-                  <button class="btn-copy" onclick="updateTunnelUrl()">Save & Verify</button>
+                <div class="detail-item">
+                  <span class="detail-icon">⚙️</span>
+                  <div>
+                    <strong>How it works:</strong>
+                    <p>When WeChat sends a webhook to your tunnel URL, Cloudflare securely routes it through their network to your local machine. Your backend receives the event and can process it immediately.</p>
+                  </div>
                 </div>
-              </div>
-
-              <div class="tunnel-error" id="tunnelError" style="display: none;"></div>
-
-              <div class="tunnel-instructions" id="tunnelCommandInstructions" style="display: none;">
-                <div class="instructions-header">⚠️ Tunnel Not Connected</div>
-                <div class="command-section">
-                  <div class="command-label">Run this command in your terminal:</div>
-                  <div class="command-code-container">
-                    <code class="command-code" id="commandToRun">cloudflared tunnel --url http://localhost:3000</code>
-                    <button class="btn-copy-command" onclick="copyCommand()">Copy</button>
+                <div class="detail-item">
+                  <span class="detail-icon">🔄</span>
+                  <div>
+                    <strong>Important:</strong>
+                    <p>The tunnel URL changes each time you restart <code>cloudflared</code>. You must update the webhook URL in WeChat OA backend whenever this happens.</p>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="quick-ref collapsed" id="quickRefSection">
-              <div class="quick-ref-header" onclick="toggleQuickRef()">
-                <div class="quick-ref-title">Quick Reference</div>
-                <span class="quick-ref-toggle">▼</span>
+          <!-- Current Status Section -->
+          <div class="tunnel-section">
+            <div class="section-header-row">
+              <h4>Connection Status</h4>
+              <button class="btn-validate" onclick="validateLocalTunnel()" id="validateBtn">
+                <span class="btn-icon">🔄</span> Validate Connection
+              </button>
+            </div>
+
+            <div class="tunnel-status-cards" id="tunnelStatusCards">
+              <div class="status-card">
+                <div class="status-card-icon">📦</div>
+                <div class="status-card-content">
+                  <div class="status-card-label">LOCAL SERVER</div>
+                  <div class="status-card-value" id="localServerCard">Checking...</div>
+                </div>
+                <div class="status-card-check" id="localServerCheck" style="display: none;">✓</div>
               </div>
-              <div class="quick-ref-content">
+              <div class="status-card">
+                <div class="status-card-icon">⚡</div>
+                <div class="status-card-content">
+                  <div class="status-card-label">PROCESS PID</div>
+                  <div class="status-card-value" id="processPidCard">Checking...</div>
+                </div>
+                <div class="status-card-check" id="processPidCheck" style="display: none;">✓</div>
+              </div>
+              <div class="status-card">
+                <div class="status-card-icon">🌐</div>
+                <div class="status-card-content">
+                  <div class="status-card-label">LATENCY</div>
+                  <div class="status-card-value" id="latencyCard">Checking...</div>
+                </div>
+                <div class="status-card-check" id="latencyCheck" style="display: none;">✓</div>
+              </div>
+            </div>
+
+            <!-- Current Tunnel URL Display -->
+            <div class="current-tunnel-url" id="currentTunnelUrlSection">
+              <div class="url-display-row">
+                <div class="url-display-label">
+                  <span class="label-icon">🔗</span>
+                  <span>Current Tunnel URL</span>
+                </div>
+                <div class="url-display-value">
+                  <code id="currentTunnelUrlDisplay">Not configured</code>
+                  <button class="btn-copy-small" onclick="copyCurrentTunnelUrl()" title="Copy URL">📋</button>
+                </div>
+              </div>
+              <div class="url-display-row">
+                <div class="url-display-label">
+                  <span class="label-icon">📡</span>
+                  <span>WeChat Webhook URL</span>
+                </div>
+                <div class="url-display-value">
+                  <code id="currentWebhookUrlDisplay">Not configured</code>
+                  <button class="btn-copy-small" onclick="copyCurrentWebhookUrl()" title="Copy Webhook URL">📋</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tunnel-error" id="tunnelError" style="display: none;"></div>
+          </div>
+
+          <!-- Update Tunnel URL Section -->
+          <div class="tunnel-section">
+            <h4>Update Tunnel URL</h4>
+            <p class="section-desc">Paste the URL from <code>cloudflared</code> output when you start a new tunnel session.</p>
+            <div class="tunnel-url-input-group">
+              <span class="url-prefix">🌐</span>
+              <input type="text" class="tunnel-url-input" id="tunnelUrlInputAlt" placeholder="https://xxx.trycloudflare.com">
+              <button class="btn-primary-small" onclick="updateTunnelUrl()">Save & Verify</button>
+            </div>
+          </div>
+
+          <!-- Not Connected Instructions -->
+          <div class="tunnel-instructions" id="tunnelCommandInstructions" style="display: none;">
+            <div class="instructions-header">⚠️ Tunnel Not Connected</div>
+            <div class="command-section">
+              <div class="command-label">Run this command in your terminal:</div>
+              <div class="command-code-container">
+                <code class="command-code" id="commandToRun">cloudflared tunnel --url http://localhost:3000</code>
+                <button class="btn-copy-command" onclick="copyCommand()">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Reference Section -->
+          <div class="tunnel-section quick-ref-section">
+            <div class="quick-ref-header-row" onclick="toggleQuickRef()">
+              <h4>Quick Reference Commands</h4>
+              <span class="toggle-icon" id="quickRefToggle">▼</span>
+            </div>
+            <div class="quick-ref-content" id="quickRefContent" style="display: none;">
+              <div class="quick-ref-grid">
                 <div class="quick-ref-item">
                   <div class="quick-ref-label">Install cloudflared</div>
-                  <code class="quick-ref-code">brew install cloudflare/cloudflare/cloudflared</code>
+                  <div class="quick-ref-code-row">
+                    <code>brew install cloudflare/cloudflare/cloudflared</code>
+                    <button class="btn-copy-tiny" onclick="copyToClipboard('brew install cloudflare/cloudflare/cloudflared')">Copy</button>
+                  </div>
                 </div>
                 <div class="quick-ref-item">
                   <div class="quick-ref-label">Start Tunnel</div>
-                  <code class="quick-ref-code">cloudflared tunnel --url http://localhost:3000</code>
+                  <div class="quick-ref-code-row">
+                    <code>cloudflared tunnel --url http://localhost:3000</code>
+                    <button class="btn-copy-tiny" onclick="copyToClipboard('cloudflared tunnel --url http://localhost:3000')">Copy</button>
+                  </div>
                 </div>
                 <div class="quick-ref-item">
                   <div class="quick-ref-label">Check Status</div>
-                  <code class="quick-ref-code">pgrep -fl cloudflared</code>
+                  <div class="quick-ref-code-row">
+                    <code>pgrep -fl cloudflared</code>
+                    <button class="btn-copy-tiny" onclick="copyToClipboard('pgrep -fl cloudflared')">Copy</button>
+                  </div>
                 </div>
                 <div class="quick-ref-item">
                   <div class="quick-ref-label">Stop Tunnel</div>
-                  <code class="quick-ref-code">pkill -f cloudflared</code>
+                  <div class="quick-ref-code-row">
+                    <code>pkill -f cloudflared</code>
+                    <button class="btn-copy-tiny" onclick="copyToClipboard('pkill -f cloudflared')">Copy</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -4995,6 +5637,7 @@
           break;
         case 'tunnel':
           document.getElementById('settingsTunnelPanel').classList.remove('hidden');
+          validateLocalTunnel(); // Auto-validate on panel load
           break;
         case 'debug':
           document.getElementById('settingsDebugPanel').classList.remove('hidden');
@@ -5537,6 +6180,56 @@
       }
     }
 
+    function copyCurrentTunnelUrl() {
+      const urlEl = document.getElementById('currentTunnelUrlDisplay');
+      const url = urlEl?.textContent;
+      if (url && url !== 'Not configured') {
+        copyToClipboard(url);
+      }
+    }
+
+    function copyCurrentWebhookUrl() {
+      const urlEl = document.getElementById('currentWebhookUrlDisplay');
+      const url = urlEl?.textContent;
+      if (url && url !== 'Not configured') {
+        copyToClipboard(url);
+      }
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Show brief feedback
+        const toast = document.createElement('div');
+        toast.textContent = '✓ Copied!';
+        toast.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background: var(--success);
+          color: white;
+          padding: 8px 16px;
+          border-radius: 6px;
+          font-size: 13px;
+          z-index: 9999;
+          animation: fadeIn 0.2s ease;
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 1500);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+      });
+    }
+
+    function toggleQuickRef() {
+      const content = document.getElementById('quickRefContent');
+      const toggle = document.getElementById('quickRefToggle');
+      if (content && toggle) {
+        const isHidden = content.style.display === 'none';
+        content.style.display = isHidden ? 'block' : 'none';
+        toggle.textContent = isHidden ? '▲' : '▼';
+      }
+    }
+
     function copyCommand() {
       const command = document.getElementById('commandToRun')?.textContent;
       if (command) {
@@ -5550,10 +6243,18 @@
 
     async function validateLocalTunnel() {
       const btn = document.getElementById('validateBtn');
-      if (!btn) return;
-      
-      btn.disabled = true;
-      btn.textContent = 'Validating...';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="btn-icon">⏳</span> Validating...';
+      }
+
+      // Update status cards to "Checking..."
+      const localServerCard = document.getElementById('localServerCard');
+      const processPidCard = document.getElementById('processPidCard');
+      const latencyCard = document.getElementById('latencyCard');
+      if (localServerCard) localServerCard.textContent = 'Checking...';
+      if (processPidCard) processPidCard.textContent = 'Checking...';
+      if (latencyCard) latencyCard.textContent = 'Checking...';
 
       try {
         const res = await fetch(`${API_BASE_URL}/admin/tunnel/validate-local`, {
@@ -5572,6 +6273,21 @@
           
           const instructions = document.getElementById('tunnelCommandInstructions');
           const errorDiv = document.getElementById('tunnelError');
+          
+          // Update current URL displays
+          const tunnelUrlDisplay = document.getElementById('currentTunnelUrlDisplay');
+          const webhookUrlDisplay = document.getElementById('currentWebhookUrlDisplay');
+          
+          if (result.tunnel_url?.url) {
+            const tunnelUrl = result.tunnel_url.url;
+            const webhookUrl = `${tunnelUrl}/api/oa/webhook`;
+            
+            if (tunnelUrlDisplay) tunnelUrlDisplay.textContent = tunnelUrl;
+            if (webhookUrlDisplay) webhookUrlDisplay.textContent = webhookUrl;
+          } else {
+            if (tunnelUrlDisplay) tunnelUrlDisplay.textContent = 'Not configured';
+            if (webhookUrlDisplay) webhookUrlDisplay.textContent = 'Not configured';
+          }
           
           if (result.overall_status === 'ready') {
             if (instructions) instructions.style.display = 'none';
@@ -5609,8 +6325,10 @@
       } catch (error) {
         showTunnelError('Error: ' + error.message);
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'Validate Connection';
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span class="btn-icon">🔄</span> Validate Connection';
+        }
       }
     }
 
