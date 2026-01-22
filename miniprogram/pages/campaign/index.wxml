@@ -88,7 +88,7 @@
       <view class="rewards-list">
         <view 
           wx:for="{{rewardsWithStatus}}" 
-          wx:key="reward.id" 
+          wx:key="index" 
           class="reward-item {{item.canClaim || item.claimed ? 'unlocked' : 'locked'}} {{item.claimed ? 'claimed' : ''}}"
         >
           <view class="reward-tier">
