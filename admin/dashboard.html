@@ -122,6 +122,230 @@
       padding: 20px 24px;
     }
 
+    .stat-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Analytics Section */
+    .analytics-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .analytics-tab {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .analytics-tab:hover {
+      background: var(--bg-secondary);
+    }
+
+    .analytics-tab.active {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    .analytics-panel {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .analytics-panel.hidden {
+      display: none;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .panel-header h4 {
+      margin: 0;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .data-table th {
+      background: var(--bg-primary);
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--bg-hover);
+    }
+
+    .data-table .loading {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 20px;
+    }
+
+    /* Source Cards */
+    .source-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .source-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .source-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .source-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .source-percentage {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent-color);
+    }
+
+    .source-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .source-stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .source-stat-label {
+      color: var(--text-muted);
+    }
+
+    .source-stat-value {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    /* Trends */
+    .trends-chart {
+      height: 200px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-end;
+      padding: 16px;
+      gap: 4px;
+    }
+
+    .trend-bar {
+      flex: 1;
+      background: var(--accent-color);
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      position: relative;
+      transition: height 0.3s;
+    }
+
+    .trend-bar:hover {
+      opacity: 0.8;
+    }
+
+    .trend-bar .tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      display: none;
+    }
+
+    .trend-bar:hover .tooltip {
+      display: block;
+    }
+
+    .trends-table {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    /* Badge styles */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+
+    .badge-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
+
+    .badge-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    .badge-info {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+
     .stat-label {
       font-size: 12px;
       color: var(--text-muted);
@@ -1816,20 +2040,30 @@
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">Total Users</div>
+        <div class="stat-label">👥 Total Users</div>
         <div class="stat-value" id="totalUsers">-</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">QR Scans</div>
-        <div class="stat-value" id="totalScans">-</div>
+        <div class="stat-label">🎯 Participants</div>
+        <div class="stat-value" id="totalParticipants">-</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">OA Follows</div>
-        <div class="stat-value" id="totalFollows">-</div>
+        <div class="stat-label">🤝 Total Helpers</div>
+        <div class="stat-value" id="totalHelpers">-</div>
+        <div class="stat-sub" id="validHelpers">- valid</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Referrals</div>
-        <div class="stat-value" id="totalInvites">-</div>
+        <div class="stat-label">📈 Retention</div>
+        <div class="stat-value" id="retentionRate">-</div>
+        <div class="stat-sub" id="unfollows">- unfollows</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">🎁 Rewards Claimed</div>
+        <div class="stat-value" id="rewardsClaimed">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">📊 Avg Helpers/User</div>
+        <div class="stat-value" id="avgHelpers">-</div>
       </div>
     </div>
 
@@ -2026,6 +2260,111 @@
         <div class="debug-logs" id="debugLogsContainer">
           <div class="debug-log-entry" id="debugLogsPlaceholder">
             <div class="log-time">Connecting to event stream...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Analytics Section -->
+    <section class="section" id="analyticsSection">
+      <div class="section-header">
+        <div class="section-title">📊 Analytics & Insights</div>
+      </div>
+      <div class="section-content">
+        <!-- Analytics Tabs -->
+        <div class="analytics-tabs">
+          <button class="analytics-tab active" onclick="switchAnalyticsTab('influencers')">🏆 Top Influencers</button>
+          <button class="analytics-tab" onclick="switchAnalyticsTab('campaigns')">📈 Campaign Comparison</button>
+          <button class="analytics-tab" onclick="switchAnalyticsTab('sources')">🎯 Source Analysis</button>
+          <button class="analytics-tab" onclick="switchAnalyticsTab('trends')">📅 Daily Trends</button>
+        </div>
+
+        <!-- Influencers Tab -->
+        <div class="analytics-panel" id="influencersPanel">
+          <div class="panel-header">
+            <h4>Top Influencers - Who brings the most followers?</h4>
+            <button class="btn btn-sm" onclick="loadInfluencers()">🔄 Refresh</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="influencersTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>User</th>
+                  <th>Campaign</th>
+                  <th>Helpers</th>
+                  <th>Valid</th>
+                  <th>Retention</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody id="influencersBody">
+                <tr><td colspan="7" class="loading">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Campaigns Tab -->
+        <div class="analytics-panel hidden" id="campaignsPanel">
+          <div class="panel-header">
+            <h4>Campaign Performance Comparison</h4>
+            <button class="btn btn-sm" onclick="loadCampaignAnalytics()">🔄 Refresh</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="campaignsAnalyticsTable">
+              <thead>
+                <tr>
+                  <th>Campaign</th>
+                  <th>Status</th>
+                  <th>Participants</th>
+                  <th>Helpers</th>
+                  <th>Unfollows</th>
+                  <th>Retention</th>
+                  <th>Avg/User</th>
+                  <th>Rewards</th>
+                </tr>
+              </thead>
+              <tbody id="campaignsAnalyticsBody">
+                <tr><td colspan="8" class="loading">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sources Tab -->
+        <div class="analytics-panel hidden" id="sourcesPanel">
+          <div class="panel-header">
+            <h4>Traffic Source Breakdown</h4>
+            <button class="btn btn-sm" onclick="loadSourceAnalytics()">🔄 Refresh</button>
+          </div>
+          <div class="source-cards" id="sourceCards">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Trends Tab -->
+        <div class="analytics-panel hidden" id="trendsPanel">
+          <div class="panel-header">
+            <h4>Daily Trends (Last 30 Days)</h4>
+            <button class="btn btn-sm" onclick="loadDailyTrends()">🔄 Refresh</button>
+          </div>
+          <div class="trends-chart" id="trendsChart">
+            <div class="loading">Loading...</div>
+          </div>
+          <div class="trends-table">
+            <table class="data-table" id="trendsTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>New Helpers</th>
+                  <th>Valid</th>
+                  <th>Unfollows</th>
+                </tr>
+              </thead>
+              <tbody id="trendsBody">
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -2952,9 +3291,13 @@
         if (statsRes.ok) {
           const stats = await statsRes.json();
           document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
-          document.getElementById('totalScans').textContent = stats.totalScans || 0;
-          document.getElementById('totalFollows').textContent = stats.totalFollows || 0;
-          document.getElementById('totalInvites').textContent = stats.totalInvites || 0;
+          document.getElementById('totalParticipants').textContent = stats.totalParticipants || 0;
+          document.getElementById('totalHelpers').textContent = stats.totalHelpers || 0;
+          document.getElementById('validHelpers').textContent = `${stats.validHelpers || 0} valid`;
+          document.getElementById('retentionRate').textContent = stats.retentionRate || '0%';
+          document.getElementById('unfollows').textContent = `${stats.unfollows || 0} unfollows`;
+          document.getElementById('rewardsClaimed').textContent = stats.rewardsClaimed || 0;
+          document.getElementById('avgHelpers').textContent = stats.avgHelpersPerParticipant || '0.0';
         }
 
         // Load events
@@ -2975,6 +3318,9 @@
         } else {
           document.getElementById('eventsLoading').textContent = 'Failed to load events';
         }
+
+        // Load analytics (influencers tab by default)
+        loadInfluencers();
       } catch (error) {
         console.error('Error loading dashboard:', error);
       }
@@ -2991,6 +3337,234 @@
       const section = document.getElementById(sectionId);
       if (section) {
         section.classList.toggle('collapsed');
+      }
+    }
+
+    // ============================================
+    // Analytics Functions
+    // ============================================
+
+    function switchAnalyticsTab(tab) {
+      // Update tab buttons
+      document.querySelectorAll('.analytics-tab').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.toLowerCase().includes(tab)) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Show/hide panels
+      document.querySelectorAll('.analytics-panel').forEach(panel => {
+        panel.classList.add('hidden');
+      });
+
+      const panelId = tab + 'Panel';
+      const panel = document.getElementById(panelId);
+      if (panel) {
+        panel.classList.remove('hidden');
+      }
+
+      // Load data for the tab
+      switch (tab) {
+        case 'influencers':
+          loadInfluencers();
+          break;
+        case 'campaigns':
+          loadCampaignAnalytics();
+          break;
+        case 'sources':
+          loadSourceAnalytics();
+          break;
+        case 'trends':
+          loadDailyTrends();
+          break;
+      }
+    }
+
+    async function loadInfluencers() {
+      const tbody = document.getElementById('influencersBody');
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading...</td></tr>';
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/analytics/influencers?limit=20`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error('Failed to load');
+
+        const data = await res.json();
+        const influencers = data.data?.influencers || [];
+
+        if (influencers.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="loading">No data yet</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = influencers.map((inf, idx) => `
+          <tr>
+            <td><strong>${idx + 1}</strong></td>
+            <td>
+              <div>${inf.user_name || 'Unknown'}</div>
+              <div style="font-size: 11px; color: var(--text-muted);">${inf.user_phone || ''}</div>
+            </td>
+            <td>${inf.campaign_name}</td>
+            <td><strong>${inf.helper_count}</strong></td>
+            <td><span class="badge badge-success">${inf.valid_helpers}</span></td>
+            <td>
+              <span class="badge ${parseFloat(inf.retention_rate) >= 80 ? 'badge-success' : parseFloat(inf.retention_rate) >= 50 ? 'badge-warning' : 'badge-danger'}">
+                ${inf.retention_rate}
+              </span>
+            </td>
+            <td>${new Date(inf.joined_at).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Load influencers error:', error);
+        tbody.innerHTML = '<tr><td colspan="7" class="loading">Error loading data</td></tr>';
+      }
+    }
+
+    async function loadCampaignAnalytics() {
+      const tbody = document.getElementById('campaignsAnalyticsBody');
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">Loading...</td></tr>';
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/analytics/campaigns`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error('Failed to load');
+
+        const data = await res.json();
+        const campaigns = data.data?.campaigns || [];
+
+        if (campaigns.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="loading">No campaigns yet</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = campaigns.map(c => `
+          <tr>
+            <td><strong>${c.name}</strong></td>
+            <td>
+              <span class="badge ${c.status === 'active' ? 'badge-success' : c.status === 'draft' ? 'badge-info' : 'badge-warning'}">
+                ${c.status}
+              </span>
+            </td>
+            <td>${c.participants}</td>
+            <td><strong>${c.total_helpers}</strong></td>
+            <td><span class="badge badge-danger">${c.unfollows}</span></td>
+            <td>
+              <span class="badge ${parseFloat(c.retention_rate) >= 80 ? 'badge-success' : parseFloat(c.retention_rate) >= 50 ? 'badge-warning' : 'badge-danger'}">
+                ${c.retention_rate}
+              </span>
+            </td>
+            <td>${c.avg_helpers_per_participant}</td>
+            <td>${c.rewards_claimed}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Load campaign analytics error:', error);
+        tbody.innerHTML = '<tr><td colspan="8" class="loading">Error loading data</td></tr>';
+      }
+    }
+
+    async function loadSourceAnalytics() {
+      const container = document.getElementById('sourceCards');
+      container.innerHTML = '<div class="loading">Loading...</div>';
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/analytics/source`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error('Failed to load');
+
+        const data = await res.json();
+        const sources = data.data?.sources || [];
+
+        if (sources.length === 0) {
+          container.innerHTML = '<div class="loading">No source data yet</div>';
+          return;
+        }
+
+        container.innerHTML = sources.map(s => `
+          <div class="source-card">
+            <div class="source-card-header">
+              <span class="source-name">${s.channel_name}</span>
+              <span class="source-percentage">${s.percentage}</span>
+            </div>
+            <div class="source-stats">
+              <div class="source-stat-item">
+                <span class="source-stat-label">Total</span>
+                <span class="source-stat-value">${s.total}</span>
+              </div>
+              <div class="source-stat-item">
+                <span class="source-stat-label">Valid</span>
+                <span class="source-stat-value">${s.valid}</span>
+              </div>
+              <div class="source-stat-item">
+                <span class="source-stat-label">Retention</span>
+                <span class="source-stat-value">${s.retention_rate}</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Load source analytics error:', error);
+        container.innerHTML = '<div class="loading">Error loading data</div>';
+      }
+    }
+
+    async function loadDailyTrends() {
+      const chartContainer = document.getElementById('trendsChart');
+      const tbody = document.getElementById('trendsBody');
+      chartContainer.innerHTML = '<div class="loading">Loading...</div>';
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/analytics/daily?days=30`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error('Failed to load');
+
+        const data = await res.json();
+        const daily = data.data?.daily || [];
+
+        if (daily.length === 0) {
+          chartContainer.innerHTML = '<div class="loading">No trend data yet</div>';
+          return;
+        }
+
+        // Find max for scaling
+        const maxHelpers = Math.max(...daily.map(d => d.new_helpers), 1);
+
+        // Render chart bars
+        chartContainer.innerHTML = daily.map(d => {
+          const height = (d.new_helpers / maxHelpers) * 150;
+          return `
+            <div class="trend-bar" style="height: ${Math.max(height, 4)}px;">
+              <div class="tooltip">
+                ${d.date}<br>
+                +${d.new_helpers} helpers
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Render table (last 7 days)
+        const recentDays = daily.slice(-7).reverse();
+        tbody.innerHTML = recentDays.map(d => `
+          <tr>
+            <td>${d.date}</td>
+            <td><strong>+${d.new_helpers}</strong></td>
+            <td><span class="badge badge-success">${d.valid_helpers}</span></td>
+            <td><span class="badge badge-danger">${d.unfollows}</span></td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Load daily trends error:', error);
+        chartContainer.innerHTML = '<div class="loading">Error loading data</div>';
       }
     }
 

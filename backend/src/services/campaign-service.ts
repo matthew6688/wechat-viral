@@ -297,13 +297,16 @@ export async function getParticipantByUserId(
 /**
  * Record a help action
  * Returns: { success: boolean, isNew: boolean, message: string }
+ * 
+ * @param sourceChannel - Source of the helper: wechat_scan, wechat_article, wechat_menu, moments, group_chat, private_chat
  */
 export async function recordHelper(
   campaignId: string,
   participantId: string,
   helperOpenid: string,
   helperUnionid?: string,
-  helperUserId?: string
+  helperUserId?: string,
+  sourceChannel?: string
 ): Promise<{ success: boolean; isNew: boolean; message: string; helperCount?: number }> {
   // Check if already helped
   const { data: existingHelperData } = await supabase
@@ -354,6 +357,7 @@ export async function recordHelper(
     helper_unionid: helperUnionid || null,
     helper_user_id: helperUserId || null,
     is_valid: true,
+    source_channel: sourceChannel || 'wechat_scan',
   } as AnyRecord);
 
   if (error) {

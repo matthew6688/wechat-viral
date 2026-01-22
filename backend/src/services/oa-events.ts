@@ -431,13 +431,14 @@ async function handleCampaignSubscribe(
 
   const inviterName = inviterUser?.wechat_nickname || inviterUser?.name || '好友';
 
-  // Record the help action
+  // Record the help action (source: wechat_scan for subscribe events)
   const helpResult = await recordHelper(
     campaignId,
     participant.id,
     openid,
     userInfo.unionid,
-    userId
+    userId,
+    'wechat_scan' // Source channel for subscribe via QR scan
   );
 
   console.log('Help Result:', helpResult);
@@ -463,6 +464,7 @@ async function handleCampaignSubscribe(
       help_message: helpResult.message,
       new_helper_count: helpResult.helperCount,
       scene_str: sceneStr,
+      source_channel: 'wechat_scan',
     },
   });
 
@@ -714,13 +716,14 @@ async function handleCampaignScan(
     </xml>`;
   }
 
-  // Record the help action (for already following users)
+  // Record the help action (for already following users - SCAN event)
   const helpResult = await recordHelper(
     campaignId,
     participant.id,
     openid,
     userInfo.unionid,
-    userId
+    userId,
+    'wechat_scan' // Source channel for SCAN events
   );
 
   console.log('Help Result:', helpResult);
@@ -736,6 +739,7 @@ async function handleCampaignScan(
       participant_id: participant.id,
       referral_code: referralCode,
       helper_openid: openid,
+      source_channel: 'wechat_scan',
       helper_unionid: userInfo.unionid,
       scan_type: 'SCAN', // Already following
       is_new_help: helpResult.isNew,
