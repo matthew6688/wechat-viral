@@ -387,6 +387,33 @@ router.put('/settings/activity', async (req: AuthRequest, res) => {
 });
 
 /**
+ * GET /api/admin/settings/debug/:key
+ * Get a specific debug setting
+ * NOTE: This must come BEFORE /settings/debug to avoid route conflicts
+ */
+router.get('/settings/debug/:key', async (req: AuthRequest, res) => {
+  try {
+    const { key } = req.params;
+    const { getDebugSetting } = require('../services/debug-settings');
+    const value = await getDebugSetting(key);
+
+    if (value === null) {
+      return res.status(404).json({ error: 'Setting not found' });
+    }
+
+    res.json({
+      data: {
+        key,
+        value,
+      },
+    });
+  } catch (error: any) {
+    console.error('Get debug setting error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get debug setting' });
+  }
+});
+
+/**
  * GET /api/admin/settings/debug
  * Get debug settings
  */
@@ -430,12 +457,6 @@ router.put('/settings/debug', async (req: AuthRequest, res) => {
     res.status(500).json({ error: error.message || 'Failed to update debug settings' });
   }
 });
-
-/**
- * GET /api/admin/settings/debug/:key
- * Get a specific debug setting
- */
-router.get('/settings/debug/:key', async (req: AuthRequest, res) => {
   try {
     const { key } = req.params;
     const { getDebugSetting } = require('../services/debug-settings');
