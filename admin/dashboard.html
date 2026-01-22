@@ -1210,6 +1210,291 @@
         grid-template-columns: repeat(2, 1fr);
       }
     }
+
+    /* Campaign Management Styles */
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .campaign-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .campaign-table th,
+    .campaign-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .campaign-table th {
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    .campaign-table tr:hover {
+      background: var(--bg-primary);
+    }
+
+    .campaign-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .campaign-status.active {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .campaign-status.draft {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .campaign-status.paused {
+      background: rgba(107, 114, 128, 0.1);
+      color: var(--text-muted);
+    }
+
+    .campaign-status.ended {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    .campaign-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .campaign-actions button {
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .campaign-actions button:hover {
+      border-color: var(--text-primary);
+    }
+
+    .campaign-actions button.danger {
+      color: var(--error);
+      border-color: var(--error);
+    }
+
+    .campaign-actions button.danger:hover {
+      background: var(--error);
+      color: #fff;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.15s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .form-group textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .modal-footer button {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .modal-footer .btn-cancel {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .modal-footer .btn-submit {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+    }
+
+    /* Rewards Editor */
+    .rewards-editor {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .rewards-list-editor {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .reward-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 1fr auto;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      align-items: center;
+    }
+
+    .reward-row:last-child {
+      border-bottom: none;
+    }
+
+    .reward-row input {
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+
+    .reward-row .remove-reward {
+      background: none;
+      border: none;
+      color: var(--error);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px;
+    }
+
+    .add-reward-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--bg-primary);
+      border: none;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s;
+    }
+
+    .add-reward-btn:hover {
+      background: var(--border-color);
+    }
   </style>
 </head>
 <body>
@@ -1280,21 +1565,53 @@
       </div>
     </section>
 
-    <!-- Campaign Fission Debug -->
+    <!-- Campaign Management -->
     <section class="section">
       <div class="section-header">
         <div class="section-title">
-          🎯 Campaign Fission Debug
+          🎯 Campaign Management
+        </div>
+        <button class="btn-primary" onclick="showCreateCampaignModal()" style="padding: 8px 16px; font-size: 13px;">
+          + 创建活动
+        </button>
+      </div>
+      <div class="section-content">
+        <div class="loading" id="campaignListLoading">Loading campaigns...</div>
+        <div id="campaignListContent" style="display: none;">
+          <table class="campaign-table">
+            <thead>
+              <tr>
+                <th>活动名称</th>
+                <th>状态</th>
+                <th>参与人数</th>
+                <th>助力人数</th>
+                <th>结束时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="campaignTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Campaign Fission Debug -->
+    <section class="section section-collapsible collapsed" id="campaignDebugSection">
+      <div class="section-header" onclick="toggleSection('campaignDebugSection')">
+        <div class="section-title">
+          🔍 Campaign Debug
           <span class="live-badge">MVP</span>
         </div>
-        <div style="display: flex; gap: 8px;">
-          <select id="campaignSelect" onchange="loadCampaignDebug()" style="padding: 6px 12px; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-content">
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <select id="campaignSelect" onchange="loadCampaignDebug()" style="padding: 6px 12px; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; flex: 1;">
             <option value="">Select Campaign...</option>
           </select>
           <button class="btn-secondary" onclick="refreshCampaignDebug()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
         </div>
-      </div>
-      <div class="section-content">
         <div id="campaignDebugContent">
           <div class="empty-state">Select a campaign to view debug data</div>
         </div>
@@ -2340,6 +2657,256 @@
     }
 
     // ============================================
+    // Campaign Management Functions
+    // ============================================
+
+    let allCampaigns = [];
+    let editingCampaignId = null;
+    let rewardCounter = 0;
+
+    async function loadCampaignList() {
+      const loadingEl = document.getElementById('campaignListLoading');
+      const contentEl = document.getElementById('campaignListContent');
+      const tableBody = document.getElementById('campaignTableBody');
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/campaigns/admin/all`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          allCampaigns = data.data?.campaigns || [];
+          
+          // Render table
+          tableBody.innerHTML = allCampaigns.map(campaign => {
+            const endDate = new Date(campaign.end_time);
+            const endDateStr = endDate.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+            
+            return `
+              <tr>
+                <td><strong>${campaign.name}</strong></td>
+                <td><span class="campaign-status ${campaign.status}">${getStatusText(campaign.status)}</span></td>
+                <td>-</td>
+                <td>-</td>
+                <td>${endDateStr}</td>
+                <td class="campaign-actions">
+                  <button onclick="editCampaign('${campaign.id}')">编辑</button>
+                  <button onclick="toggleCampaignStatus('${campaign.id}', '${campaign.status}')">${campaign.status === 'active' ? '暂停' : '激活'}</button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+          
+          loadingEl.style.display = 'none';
+          contentEl.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Load campaign list error:', error);
+        loadingEl.textContent = 'Failed to load campaigns';
+      }
+    }
+
+    function getStatusText(status) {
+      const statusMap = {
+        'active': '进行中',
+        'draft': '草稿',
+        'paused': '已暂停',
+        'ended': '已结束',
+      };
+      return statusMap[status] || status;
+    }
+
+    function showCreateCampaignModal() {
+      editingCampaignId = null;
+      document.getElementById('campaignModalTitle').textContent = '创建活动';
+      document.getElementById('campaignForm').reset();
+      document.getElementById('rewardsListEditor').innerHTML = '';
+      rewardCounter = 0;
+      
+      // Set default dates
+      const now = new Date();
+      const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      document.getElementById('campaignStartTime').value = formatDateTimeLocal(now);
+      document.getElementById('campaignEndTime').value = formatDateTimeLocal(endDate);
+      
+      // Add default rewards
+      addRewardRow(0, '基础资源包', '免费获取入门指南');
+      addRewardRow(3, '进阶资源包', '邀请3位好友解锁');
+      addRewardRow(8, '专属咨询', '邀请8位好友获得1对1咨询');
+      
+      document.getElementById('campaignModal').classList.add('active');
+    }
+
+    function closeCampaignModal() {
+      document.getElementById('campaignModal').classList.remove('active');
+    }
+
+    function formatDateTimeLocal(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function addRewardRow(helpersRequired = 0, name = '', description = '') {
+      const container = document.getElementById('rewardsListEditor');
+      const rowId = `reward-${rewardCounter++}`;
+      
+      const row = document.createElement('div');
+      row.className = 'reward-row';
+      row.id = rowId;
+      row.innerHTML = `
+        <input type="number" placeholder="人数" value="${helpersRequired}" min="0" class="reward-helpers">
+        <input type="text" placeholder="奖品名称" value="${name}" class="reward-name">
+        <input type="text" placeholder="奖品描述" value="${description}" class="reward-desc">
+        <button type="button" class="remove-reward" onclick="removeRewardRow('${rowId}')">&times;</button>
+      `;
+      
+      container.appendChild(row);
+    }
+
+    function removeRewardRow(rowId) {
+      const row = document.getElementById(rowId);
+      if (row) {
+        row.remove();
+      }
+    }
+
+    async function saveCampaign() {
+      const form = document.getElementById('campaignForm');
+      const name = document.getElementById('campaignName').value.trim();
+      
+      if (!name) {
+        alert('请输入活动名称');
+        return;
+      }
+      
+      // Collect rewards
+      const rewardRows = document.querySelectorAll('.reward-row');
+      const rewards = [];
+      rewardRows.forEach((row, index) => {
+        const helpers = parseInt(row.querySelector('.reward-helpers').value) || 0;
+        const rewardName = row.querySelector('.reward-name').value.trim();
+        const rewardDesc = row.querySelector('.reward-desc').value.trim();
+        
+        if (rewardName) {
+          rewards.push({
+            tier_level: index,
+            helpers_required: helpers,
+            reward_name: rewardName,
+            reward_description: rewardDesc,
+            reward_type: 'digital',
+            reward_content: {},
+          });
+        }
+      });
+      
+      const campaignData = {
+        name,
+        description: document.getElementById('campaignDescription').value.trim(),
+        cover_image_url: document.getElementById('campaignCover').value.trim() || null,
+        start_time: document.getElementById('campaignStartTime').value ? new Date(document.getElementById('campaignStartTime').value).toISOString() : null,
+        end_time: document.getElementById('campaignEndTime').value ? new Date(document.getElementById('campaignEndTime').value).toISOString() : null,
+        rewards,
+      };
+      
+      try {
+        const url = editingCampaignId 
+          ? `${API_BASE_URL}/campaigns/admin/${editingCampaignId}`
+          : `${API_BASE_URL}/campaigns/admin/create`;
+        
+        const res = await fetch(url, {
+          method: editingCampaignId ? 'PUT' : 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(campaignData),
+        });
+        
+        if (res.ok) {
+          closeCampaignModal();
+          loadCampaignList();
+          loadCampaigns(); // Refresh dropdown
+          alert(editingCampaignId ? '活动已更新' : '活动已创建');
+        } else {
+          const error = await res.json();
+          alert(error.error || '保存失败');
+        }
+      } catch (error) {
+        console.error('Save campaign error:', error);
+        alert('保存失败: ' + error.message);
+      }
+    }
+
+    async function editCampaign(campaignId) {
+      const campaign = allCampaigns.find(c => c.id === campaignId);
+      if (!campaign) return;
+      
+      editingCampaignId = campaignId;
+      document.getElementById('campaignModalTitle').textContent = '编辑活动';
+      document.getElementById('campaignId').value = campaignId;
+      document.getElementById('campaignName').value = campaign.name || '';
+      document.getElementById('campaignDescription').value = campaign.description || '';
+      document.getElementById('campaignCover').value = campaign.cover_image_url || '';
+      document.getElementById('campaignStartTime').value = campaign.start_time ? formatDateTimeLocal(new Date(campaign.start_time)) : '';
+      document.getElementById('campaignEndTime').value = campaign.end_time ? formatDateTimeLocal(new Date(campaign.end_time)) : '';
+      
+      // Load rewards
+      document.getElementById('rewardsListEditor').innerHTML = '';
+      rewardCounter = 0;
+      
+      // Fetch campaign rewards
+      try {
+        const res = await fetch(`${API_BASE_URL}/campaigns/${campaignId}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          const rewards = data.data?.rewards || [];
+          
+          rewards.forEach(reward => {
+            addRewardRow(reward.helpers_required, reward.reward_name, reward.reward_description);
+          });
+        }
+      } catch (error) {
+        console.error('Load campaign rewards error:', error);
+      }
+      
+      document.getElementById('campaignModal').classList.add('active');
+    }
+
+    async function toggleCampaignStatus(campaignId, currentStatus) {
+      const newStatus = currentStatus === 'active' ? 'paused' : 'active';
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/campaigns/${campaignId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        
+        if (res.ok) {
+          loadCampaignList();
+          loadCampaigns();
+        } else {
+          const error = await res.json();
+          alert(error.error || '操作失败');
+        }
+      } catch (error) {
+        console.error('Toggle campaign status error:', error);
+        alert('操作失败: ' + error.message);
+      }
+    }
+
+    // ============================================
     // Campaign Fission Debug Functions
     // ============================================
     
@@ -2353,6 +2920,9 @@
           const data = await res.json();
           const campaigns = data.data?.campaigns || [];
           const select = document.getElementById('campaignSelect');
+          
+          // Clear existing options except first
+          select.innerHTML = '<option value="">Select Campaign...</option>';
           
           campaigns.forEach(campaign => {
             const option = document.createElement('option');
@@ -2505,9 +3075,65 @@
     loadEnvironmentValidation();
     loadTunnelStatus();
     loadCampaigns();
+    loadCampaignList();
     connectEventStream();
     
     setTimeout(() => validateLocalTunnel(), 1500);
   </script>
+
+  <!-- Create/Edit Campaign Modal -->
+  <div class="modal-overlay" id="campaignModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="campaignModalTitle">创建活动</span>
+        <button class="modal-close" onclick="closeCampaignModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="campaignForm">
+          <input type="hidden" id="campaignId" name="id">
+          
+          <div class="form-group">
+            <label>活动名称 *</label>
+            <input type="text" id="campaignName" name="name" required placeholder="例如：新年邀请活动">
+          </div>
+          
+          <div class="form-group">
+            <label>活动描述</label>
+            <textarea id="campaignDescription" name="description" placeholder="描述活动内容和奖励..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>封面图片URL</label>
+            <input type="url" id="campaignCover" name="cover_image_url" placeholder="https://...">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>开始时间</label>
+              <input type="datetime-local" id="campaignStartTime" name="start_time">
+            </div>
+            <div class="form-group">
+              <label>结束时间</label>
+              <input type="datetime-local" id="campaignEndTime" name="end_time">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>奖品设置</label>
+            <div class="rewards-editor">
+              <div class="rewards-list-editor" id="rewardsListEditor">
+                <!-- Reward rows will be added here -->
+              </div>
+              <button type="button" class="add-reward-btn" onclick="addRewardRow()">+ 添加奖品</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeCampaignModal()">取消</button>
+        <button class="btn-submit" onclick="saveCampaign()">保存</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

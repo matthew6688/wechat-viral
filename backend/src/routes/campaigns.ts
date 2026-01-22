@@ -464,7 +464,7 @@ router.get('/admin/all', authenticate, requireAdmin, async (req: AuthRequest, re
 
 /**
  * POST /api/campaigns/admin/create
- * Create a new campaign (admin only)
+ * Create a new campaign with rewards (admin only)
  */
 router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
@@ -477,12 +477,14 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
       end_time,
       rules = {},
       anti_cheat_settings = {},
+      rewards = [],
     } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Campaign name is required' });
     }
 
+    // Create campaign
     const { data: campaignData, error } = await supabase
       .from('campaigns')
       .insert({
@@ -490,7 +492,7 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
         description,
         cover_image_url,
         entry_type,
-        status: 'draft',
+        status: 'active', // Default to active for easier testing
         start_time: start_time || new Date().toISOString(),
         end_time: end_time || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         rules,
@@ -503,6 +505,29 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
 
     const campaign = campaignData as unknown as { id: string; name: string };
 
+    // Create rewards if provided
+    if (rewards.length > 0) {
+      const rewardsToInsert = rewards.map((reward: any, index: number) => ({
+        campaign_id: campaign.id,
+        tier_level: reward.tier_level ?? index,
+        helpers_required: reward.helpers_required ?? 0,
+        reward_name: reward.reward_name || `奖品${index + 1}`,
+        reward_description: reward.reward_description || '',
+        reward_type: reward.reward_type || 'digital',
+        reward_content: reward.reward_content || {},
+        stock: reward.stock ?? -1,
+      }));
+
+      const { error: rewardsError } = await supabase
+        .from('campaign_rewards')
+        .insert(rewardsToInsert as Record<string, any>[]);
+
+      if (rewardsError) {
+        console.error('Create rewards error:', rewardsError);
+        // Don't fail the whole request, just log the error
+      }
+    }
+
     // Log event
     await logEvent({
       event_type: 'campaign_created',
@@ -510,6 +535,7 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
       event_data: {
         campaign_id: campaign.id,
         campaign_name: name,
+        rewards_count: rewards.length,
       },
     });
 
