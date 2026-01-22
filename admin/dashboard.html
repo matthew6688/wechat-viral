@@ -418,6 +418,8 @@
           const data = await settingsRes.json();
           const settings = data.data?.settings || {};
           
+          console.log('Debug settings loaded:', settings);
+          
           // Populate form
           document.getElementById('debugMode').checked = settings.debug_mode === true || settings.debug_mode === 'true';
           document.getElementById('logLevel').value = settings.log_level || 'info';
@@ -431,12 +433,21 @@
           document.getElementById('debugSettingsLoading').style.display = 'none';
           document.getElementById('debugSettingsForm').style.display = 'block';
         } else {
-          console.error('Failed to load debug settings');
-          document.getElementById('debugSettingsLoading').textContent = 'Failed to load settings';
+          const errorData = await settingsRes.json().catch(() => ({}));
+          console.error('Failed to load debug settings:', errorData);
+          document.getElementById('debugSettingsLoading').textContent = `Failed to load settings: ${errorData.error || 'Unknown error'}`;
+          
+          // Show form with default values even on error
+          document.getElementById('debugSettingsForm').style.display = 'block';
+          document.getElementById('debugSettingsLoading').style.display = 'none';
         }
       } catch (error) {
         console.error('Error loading debug settings:', error);
-        document.getElementById('debugSettingsLoading').textContent = 'Error loading settings';
+        document.getElementById('debugSettingsLoading').textContent = `Error: ${error.message || 'Network error'}`;
+        
+        // Show form with default values even on error
+        document.getElementById('debugSettingsForm').style.display = 'block';
+        document.getElementById('debugSettingsLoading').style.display = 'none';
       }
     }
 

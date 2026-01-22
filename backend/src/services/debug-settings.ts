@@ -14,23 +14,64 @@ export interface DebugSetting {
  * Get all debug settings
  */
 export async function getDebugSettings(): Promise<Record<string, any>> {
-  const { data, error } = await supabase
-    .from('debug_settings')
-    .select('*')
-    .order('key');
+  try {
+    const { data, error } = await supabase
+      .from('debug_settings')
+      .select('*')
+      .order('key');
 
-  if (error) {
-    console.error('Failed to get debug settings:', error);
-    throw error;
+    if (error) {
+      // If table doesn't exist, return default settings
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        console.warn('debug_settings table does not exist, returning default settings');
+        return getDefaultSettings();
+      }
+      console.error('Failed to get debug settings:', error);
+      throw error;
+    }
+
+    // If no settings found, return defaults
+    if (!data || data.length === 0) {
+      return getDefaultSettings();
+    }
+
+    // Convert array to object with key as property name
+    const settings: Record<string, any> = {};
+    (data || []).forEach((setting: DebugSetting) => {
+      // Parse JSON value if it's a string
+      let value = setting.value;
+      if (typeof value === 'string') {
+        try {
+          value = JSON.parse(value);
+        } catch (e) {
+          // Keep as string if not valid JSON
+        }
+      }
+      settings[setting.key] = value;
+    });
+
+    return settings;
+  } catch (error: any) {
+    console.error('Error in getDebugSettings:', error);
+    // Return default settings on any error
+    return getDefaultSettings();
   }
+}
 
-  // Convert array to object with key as property name
-  const settings: Record<string, any> = {};
-  (data || []).forEach((setting: DebugSetting) => {
-    settings[setting.key] = setting.value;
-  });
-
-  return settings;
+/**
+ * Get default debug settings
+ */
+function getDefaultSettings(): Record<string, any> {
+  return {
+    log_level: 'info',
+    debug_mode: false,
+    event_log_enabled: true,
+    api_logging: true,
+    error_tracking: true,
+    performance_monitoring: false,
+    max_log_retention_days: 30,
+    show_sensitive_data: false,
+  };
 }
 
 /**
