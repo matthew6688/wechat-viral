@@ -256,6 +256,48 @@ UPDATE users SET is_admin = true WHERE id = 'user_id';
 
 ## 📝 版本历史
 
+### v1.1.0 (2026-01-22)
+
+#### 🎨 Complete UI Redesign
+
+**New Design System**
+- Modern card-based layouts with rounded corners
+- New color palette: Dark navy (#1a1a2e), Green accent (#10b981)
+- Light grey background (#f8f9fa) with white cards
+- Subtle shadows and refined typography
+- Custom tab bar with icons
+
+**Page Redesigns**
+- **Landing**: Hero image, icon badge, CTA button with arrow
+- **Register**: Role selector buttons (2x2 grid), rounded inputs
+- **Home**: User card with avatar, points badge, action buttons, task cards with checkboxes
+- **Rewards**: Image cards with points overlay, Details/Earn buttons
+- **Invite**: Poster preview with navigation arrows, Save/Copy buttons
+- **Profile**: Avatar badge, Role/Balance cards, account details list
+- **Admin**: Table view with tabs (Users/Offers/Tasks), stats summary
+
+**Admin Dashboard Enhancements**
+- Collapsible sections for Debug Settings and Quick Reference
+- Enhanced Recent Events with more data points and JSON payload viewer
+- Improved environment validation with current value display
+- Real-time SSE debug logs
+- Tunnel Manager with status cards
+
+**Backend Improvements**
+- Cloudflare tunnel validator service
+- Environment validator service
+- Event stream service for real-time logs
+- Test webhook service for debugging
+- Fixed JWT token authentication issues
+- Fixed dotenv loading order
+
+**Bug Fixes**
+- Fixed 401 Unauthorized errors for admin API calls
+- Fixed JWT_SECRET loading from .env file
+- Removed duplicate dotenv.config() calls
+
+---
+
 ### v1.0.0 (2026-01-22)
 
 #### 🎉 初始发布
