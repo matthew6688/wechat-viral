@@ -2338,7 +2338,7 @@
     <!-- ============================================ -->
     <!-- ⚙️ SETTINGS SECTION (Collapsible - Default Collapsed) -->
     <!-- ============================================ -->
-    <section class="section collapsible collapsed" id="settingsMainSection">
+    <section class="section section-collapsible collapsed" id="settingsMainSection">
       <div class="section-header" onclick="toggleSection('settingsMainSection')">
         <div class="section-title">
           <span class="collapse-icon">▶</span>
@@ -2346,7 +2346,7 @@
         </div>
         <span class="section-toggle">▼</span>
       </div>
-      <div class="section-content collapsible-content">
+      <div class="section-content collapsible-content" style="display: none;">
         <!-- Settings Tabs -->
         <div class="main-tabs">
           <button class="main-tab active" onclick="switchSettingsTab('connection')">🔌 Connection</button>
@@ -3111,14 +3111,17 @@
     // Collapsible sections
     function toggleSection(sectionId) {
       const section = document.getElementById(sectionId);
-      const content = section.querySelector('.collapsible-content');
-      
-      if (section.classList.contains('expanded')) {
-        section.classList.remove('expanded');
-        content.style.display = 'none';
-      } else {
-        section.classList.add('expanded');
-        content.style.display = 'block';
+      if (section) {
+        section.classList.toggle('collapsed');
+        // Also handle the collapsible-content display
+        const content = section.querySelector('.collapsible-content');
+        if (content) {
+          if (section.classList.contains('collapsed')) {
+            content.style.display = 'none';
+          } else {
+            content.style.display = 'block';
+          }
+        }
       }
     }
 
@@ -3303,13 +3306,6 @@
     }
 
     // Toggle collapsible section
-    function toggleSection(sectionId) {
-      const section = document.getElementById(sectionId);
-      if (section) {
-        section.classList.toggle('collapsed');
-      }
-    }
-
     // ============================================
     // Analytics Functions
     // ============================================
