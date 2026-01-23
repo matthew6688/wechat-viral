@@ -10327,9 +10327,9 @@
               
               <!-- Best Performing Source -->
               <div class="source-section highlight">
-                <h5>🏆 Best Performing Source</h5>
+                <h5>🏆 最佳来源</h5>
                 <div id="bestSource" class="best-source-card">
-                  <div class="loading">Analyzing...</div>
+                  <div class="loading">分析中...</div>
                 </div>
               </div>
             </div>
@@ -13351,7 +13351,7 @@
               <button class="modal-close" onclick="closeContactDetailModal()">×</button>
             </div>
             <div class="modal-body" id="contactDetailContent">
-              Loading...
+              加载中...
             </div>
           </div>
         </div>
@@ -13381,7 +13381,7 @@
   <nav class="nav" style="display: none;">
     <div class="nav-brand">WeChat Viral Admin</div>
     <div class="nav-actions">
-      <span class="nav-user" id="userName">Loading...</span>
+      <span class="nav-user" id="userName">加载中...</span>
       <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
   </nav>
@@ -15479,7 +15479,7 @@
     async function loadInfluencers() {
       const tbody = document.getElementById('influencersBody');
       if (!tbody) return; // Panel not visible
-      tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">加载中...</td></tr>';
 
       try {
         const res = await fetch(`${API_BASE_URL}/admin/analytics/influencers?limit=20`, {
@@ -15522,7 +15522,7 @@
 
     async function loadCampaignAnalytics() {
       const tbody = document.getElementById('campaignsAnalyticsBody');
-      tbody.innerHTML = '<tr><td colspan="8" class="loading">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">加载中...</td></tr>';
 
       try {
         const res = await fetch(`${API_BASE_URL}/admin/analytics/campaigns`, {
@@ -15567,7 +15567,7 @@
 
     async function loadSourceAnalytics() {
       const container = document.getElementById('sourceCards');
-      container.innerHTML = '<div class="loading">Loading...</div>';
+      container.innerHTML = '<div class="loading">加载中...</div>';
 
       try {
         const res = await fetch(`${API_BASE_URL}/admin/analytics/source`, {
@@ -15615,7 +15615,7 @@
     async function loadDailyTrends() {
       const chartContainer = document.getElementById('trendsChart');
       const tbody = document.getElementById('trendsBody');
-      chartContainer.innerHTML = '<div class="loading">Loading...</div>';
+      chartContainer.innerHTML = '<div class="loading">加载中...</div>';
 
       try {
         const res = await fetch(`${API_BASE_URL}/admin/analytics/daily?days=30`, {
@@ -15941,7 +15941,7 @@
       const deviceEl = document.getElementById('deviceBars');
       const bestSourceEl = document.getElementById('bestSource');
 
-      if (chartEl) chartEl.innerHTML = '<div class="loading">Loading...</div>';
+      if (chartEl) chartEl.innerHTML = '<div class="loading">加载中...</div>';
 
       try {
         const res = await fetch(`${API_BASE_URL}/admin/analytics/source`, {
@@ -16989,7 +16989,7 @@
       const container = document.getElementById('knownHelpersList');
       if (!container) return;
       
-      container.innerHTML = '<div class="loading">Loading...</div>';
+      container.innerHTML = '<div class="loading">加载中...</div>';
       
       try {
         const response = await fetch(`${API_BASE_URL}/admin/testing/known-helpers`, {
@@ -17024,7 +17024,7 @@
       const container = document.getElementById('savedTestAccountsList');
       if (!container) return;
       
-      container.innerHTML = '<div class="loading">Loading...</div>';
+      container.innerHTML = '<div class="loading">加载中...</div>';
       
       try {
         const response = await fetch(`${API_BASE_URL}/admin/testing/test-accounts`, {
@@ -20663,7 +20663,7 @@
       const content = document.getElementById('contactDetailContent');
       
       modal.style.display = 'flex';
-      content.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Loading...</div>';
+      content.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">加载中...</div>';
       
       try {
         const response = await fetch(`${API_BASE_URL}/admin/contacts/${id}`, {
