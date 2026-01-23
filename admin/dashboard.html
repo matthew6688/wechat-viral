@@ -7650,6 +7650,132 @@
       transform: translateX(20px);
     }
 
+    /* Markdown Badge */
+    .badge-markdown {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 8px;
+      font-weight: 500;
+      vertical-align: middle;
+    }
+
+    /* Markdown Toolbar */
+    .markdown-toolbar {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+      padding: 8px;
+      background: var(--bg-primary);
+      border-radius: 6px;
+    }
+
+    .md-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+
+    .md-btn:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* Markdown Preview */
+    .markdown-preview {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 150px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .markdown-preview .preview-placeholder {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .markdown-preview h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .markdown-preview h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 16px 0 8px;
+      color: var(--text-primary);
+    }
+
+    .markdown-preview h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 12px 0 6px;
+    }
+
+    .markdown-preview p {
+      margin: 8px 0;
+    }
+
+    .markdown-preview ul, .markdown-preview ol {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .markdown-preview li {
+      margin: 4px 0;
+    }
+
+    .markdown-preview strong {
+      font-weight: 600;
+    }
+
+    .markdown-preview em {
+      font-style: italic;
+    }
+
+    .markdown-preview a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    .markdown-preview a:hover {
+      text-decoration: underline;
+    }
+
+    .markdown-preview code {
+      background: var(--bg-secondary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 13px;
+    }
+
+    .markdown-preview blockquote {
+      border-left: 3px solid var(--accent-color);
+      margin: 12px 0;
+      padding-left: 12px;
+      color: var(--text-secondary);
+    }
+
     /* Poster Preview */
     .poster-preview-container {
       display: flex;
@@ -18649,6 +18775,12 @@
       document.getElementById('wizardBrandName').value = '';
       document.getElementById('brandFields').style.display = 'none';
       
+      // Reset activity info
+      document.getElementById('wizardActivityInfoEnabled').checked = false;
+      document.getElementById('wizardActivityInfo').value = '';
+      document.getElementById('activityInfoFields').style.display = 'none';
+      document.getElementById('activityInfoPreview').innerHTML = '<p class="preview-placeholder">输入内容后显示预览...</p>';
+      
       // Set default dates
       const now = new Date();
       const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -18726,6 +18858,11 @@
           document.getElementById('wizardBrandLogo').value = campaign.brand_logo_url || '';
           document.getElementById('wizardBrandName').value = campaign.brand_name || '';
           toggleBrandFields();
+          
+          document.getElementById('wizardActivityInfoEnabled').checked = campaign.activity_info_enabled || false;
+          document.getElementById('wizardActivityInfo').value = campaign.activity_info || '';
+          toggleActivityInfoFields();
+          updateActivityInfoPreview();
           
           document.getElementById('wizardStartTime').value = campaign.start_time ? formatDateTimeLocal(new Date(campaign.start_time)) : '';
           document.getElementById('wizardEndTime').value = campaign.end_time ? formatDateTimeLocal(new Date(campaign.end_time)) : '';
@@ -18863,6 +19000,105 @@
     function toggleBrandFields() {
       const enabled = document.getElementById('wizardBrandEnabled').checked;
       document.getElementById('brandFields').style.display = enabled ? 'block' : 'none';
+    }
+
+    function toggleActivityInfoFields() {
+      const enabled = document.getElementById('wizardActivityInfoEnabled').checked;
+      document.getElementById('activityInfoFields').style.display = enabled ? 'block' : 'none';
+    }
+
+    function insertMarkdown(type) {
+      const textarea = document.getElementById('wizardActivityInfo');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      const selectedText = text.substring(start, end);
+      
+      let insertion = '';
+      let cursorOffset = 0;
+      
+      switch(type) {
+        case 'bold':
+          insertion = `**${selectedText || '粗体文本'}**`;
+          cursorOffset = selectedText ? insertion.length : 2;
+          break;
+        case 'italic':
+          insertion = `*${selectedText || '斜体文本'}*`;
+          cursorOffset = selectedText ? insertion.length : 1;
+          break;
+        case 'heading':
+          insertion = `## ${selectedText || '标题'}`;
+          cursorOffset = selectedText ? insertion.length : 3;
+          break;
+        case 'list':
+          insertion = selectedText 
+            ? selectedText.split('\n').map(line => `- ${line}`).join('\n')
+            : '- 列表项';
+          cursorOffset = insertion.length;
+          break;
+        case 'link':
+          if (selectedText) {
+            insertion = `[${selectedText}](https://)`;
+            cursorOffset = insertion.length - 1;
+          } else {
+            insertion = '[链接文字](https://)';
+            cursorOffset = 5;
+          }
+          break;
+      }
+      
+      textarea.value = text.substring(0, start) + insertion + text.substring(end);
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + cursorOffset;
+      updateActivityInfoPreview();
+    }
+
+    function updateActivityInfoPreview() {
+      const content = document.getElementById('wizardActivityInfo').value;
+      const preview = document.getElementById('activityInfoPreview');
+      
+      if (!content.trim()) {
+        preview.innerHTML = '<p class="preview-placeholder">输入内容后显示预览...</p>';
+        return;
+      }
+      
+      // Simple markdown to HTML converter
+      let html = content
+        // Escape HTML
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        // Headers
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        // Bold and italic
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        // Links
+        .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>')
+        // Unordered lists
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        // Ordered lists
+        .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+        // Code
+        .replace(/`(.+?)`/g, '<code>$1</code>')
+        // Blockquotes
+        .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+        // Line breaks
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+      
+      // Wrap lists
+      html = html.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+      html = html.replace(/<\/ul><ul>/g, '');
+      
+      // Wrap in paragraph if not starting with block element
+      if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<blockquote')) {
+        html = '<p>' + html + '</p>';
+      }
+      
+      preview.innerHTML = html;
     }
 
     function toggleRecommendText() {
@@ -19101,6 +19337,8 @@
         brand_enabled: document.getElementById('wizardBrandEnabled').checked,
         brand_name: document.getElementById('wizardBrandName').value.trim(),
         brand_logo_url: document.getElementById('wizardBrandLogo').value.trim(),
+        activity_info_enabled: document.getElementById('wizardActivityInfoEnabled').checked,
+        activity_info: document.getElementById('wizardActivityInfo').value.trim(),
         start_time: document.getElementById('wizardStartTime').value ? new Date(document.getElementById('wizardStartTime').value).toISOString() : null,
         end_time: document.getElementById('wizardEndTime').value ? new Date(document.getElementById('wizardEndTime').value).toISOString() : null,
         
@@ -21071,6 +21309,55 @@
             <div class="wizard-form-group">
               <label>品牌名称</label>
               <input type="text" id="wizardBrandName" placeholder="您的品牌名称">
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Info (Optional) -->
+        <div class="wizard-section">
+          <div class="wizard-section-title">📋 活动信息 (可选)</div>
+          <div class="toggle-group">
+            <div class="toggle-info">
+              <div class="toggle-label">活动说明</div>
+              <div class="toggle-hint">开启后，用户可在排行榜页面查看活动详情，了解活动规则</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="wizardActivityInfoEnabled" onchange="toggleActivityInfoFields()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div id="activityInfoFields" style="display: none; margin-top: 16px;">
+            <div class="wizard-form-group">
+              <label>活动说明内容 <span class="badge-markdown">支持 Markdown</span></label>
+              <textarea id="wizardActivityInfo" rows="8" placeholder="# 活动规则
+
+## 参与方式
+1. 扫码关注公众号
+2. 生成专属海报
+3. 邀请好友扫码助力
+
+## 奖品说明
+- 邀请 3 人：获得基础礼包
+- 邀请 5 人：获得进阶礼包
+- 邀请 10 人：获得豪华礼包
+
+## 注意事项
+- 每位好友只能助力一次
+- 奖品数量有限，先到先得
+- 活动最终解释权归主办方所有" oninput="updateActivityInfoPreview()"></textarea>
+              <div class="markdown-toolbar">
+                <button type="button" class="md-btn" onclick="insertMarkdown('bold')" title="粗体">B</button>
+                <button type="button" class="md-btn" onclick="insertMarkdown('italic')" title="斜体">I</button>
+                <button type="button" class="md-btn" onclick="insertMarkdown('heading')" title="标题">H</button>
+                <button type="button" class="md-btn" onclick="insertMarkdown('list')" title="列表">•</button>
+                <button type="button" class="md-btn" onclick="insertMarkdown('link')" title="链接">🔗</button>
+              </div>
+            </div>
+            <div class="wizard-form-group">
+              <label>预览效果</label>
+              <div class="markdown-preview" id="activityInfoPreview">
+                <p class="preview-placeholder">输入内容后显示预览...</p>
+              </div>
             </div>
           </div>
         </div>
