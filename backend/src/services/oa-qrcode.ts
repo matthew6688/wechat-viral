@@ -109,16 +109,38 @@ export async function getOrCreateUserQRCode(userId: string): Promise<{
   const { ticket, url } = await createPermanentQRCode(userId, referralCode);
   const sceneStr = `ref_${referralCode}`;
 
-  // Save to database
-  const { error } = await supabase.from('oa_qrcodes').insert({
-    user_id: userId,
-    scene_str: sceneStr,
-    ticket,
-    qr_type: 'permanent',
-    qr_url: url,
-  });
+  // Save to database (use upsert to handle duplicates)
+  const { error } = await supabase.from('oa_qrcodes').upsert(
+    {
+      user_id: userId,
+      scene_str: sceneStr,
+      ticket,
+      qr_type: 'permanent',
+      qr_url: url,
+    },
+    {
+      onConflict: 'ticket',
+      ignoreDuplicates: true,
+    }
+  );
 
   if (error) {
+    // If it's a duplicate key error, try to fetch the existing record
+    if (error.code === '23505') {
+      const { data: existingByTicket } = await supabase
+        .from('oa_qrcodes')
+        .select('ticket, qr_url, scene_str')
+        .eq('ticket', ticket)
+        .single();
+      
+      if (existingByTicket) {
+        return {
+          ticket: existingByTicket.ticket,
+          url: existingByTicket.qr_url,
+          sceneStr: existingByTicket.scene_str,
+        };
+      }
+    }
     throw new Error(`Failed to save QR code: ${error.message}`);
   }
 

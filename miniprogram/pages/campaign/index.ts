@@ -46,6 +46,7 @@ Page({
     maxHelpers: 8,
     nextReward: null as CampaignReward | null,
     showDebug: false, // Set to true for debugging
+    showProfileModal: false, // Profile authorization modal
   },
 
   onLoad(options: { id?: string; from?: string }) {
@@ -64,6 +65,65 @@ Page({
     }
 
     this.loadCampaignData(campaignId);
+    
+    // Check if user needs to authorize profile
+    this.checkProfileAuthorization();
+  },
+  
+  /**
+   * Check if user has authorized their profile, prompt if not
+   */
+  checkProfileAuthorization() {
+    // Delay check to allow login to complete
+    setTimeout(() => {
+      const hasProfile = app.hasUserProfile();
+      const hasSkipped = wx.getStorageSync('profile_auth_skipped');
+      
+      // Show modal if user hasn't authorized and hasn't skipped
+      if (!hasProfile && !hasSkipped) {
+        this.setData({ showProfileModal: true });
+      }
+    }, 1500);
+  },
+  
+  /**
+   * User taps "Authorize" button - must be from user tap event
+   */
+  async authorizeProfile() {
+    this.setData({ showProfileModal: false });
+    
+    try {
+      const result = await app.getUserProfile();
+      if (result) {
+        wx.showToast({
+          title: '授权成功',
+          icon: 'success',
+        });
+        // Refresh helpers list to show updated names
+        const campaignId = this.data.campaign.id;
+        if (campaignId) {
+          await this.loadHelpers(campaignId);
+        }
+      }
+    } catch (error) {
+      console.error('Authorize profile error:', error);
+    }
+  },
+  
+  /**
+   * User taps "Skip" button
+   */
+  skipProfile() {
+    this.setData({ showProfileModal: false });
+    // Remember that user skipped (for this session)
+    wx.setStorageSync('profile_auth_skipped', true);
+  },
+  
+  /**
+   * Prevent touch events from propagating through modal
+   */
+  preventTouchMove() {
+    return false;
   },
 
   onShow() {

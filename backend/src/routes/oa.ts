@@ -15,6 +15,52 @@ import { decryptMessage, decryptEchostr } from '../services/oa-crypto';
 
 const router = express.Router();
 
+// ============================================
+// WeChat Webhook Deduplication
+// WeChat may retry webhooks if response is slow
+// We use a simple in-memory cache to prevent duplicate processing
+// ============================================
+const processedEvents = new Map<string, number>(); // eventKey -> timestamp
+const EVENT_DEDUP_TTL = 60 * 1000; // 60 seconds TTL
+
+// Clean up old entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, timestamp] of processedEvents.entries()) {
+    if (now - timestamp > EVENT_DEDUP_TTL) {
+      processedEvents.delete(key);
+    }
+  }
+}, 30 * 1000); // Clean every 30 seconds
+
+/**
+ * Generate a unique key for deduplication
+ * Uses: FromUserName + Event + CreateTime (+ EventKey for scans)
+ */
+function getEventDeduplicationKey(event: any): string {
+  const parts = [
+    event.FromUserName,
+    event.Event,
+    event.CreateTime,
+    event.EventKey || '',
+  ];
+  return parts.join('_');
+}
+
+/**
+ * Check if event was already processed (and mark it if not)
+ * Returns true if this is a duplicate, false if it's new
+ */
+function isDuplicateEvent(event: any): boolean {
+  const key = getEventDeduplicationKey(event);
+  if (processedEvents.has(key)) {
+    console.log(`[Dedup] Skipping duplicate event: ${event.Event} from ${event.FromUserName}`);
+    return true;
+  }
+  processedEvents.set(key, Date.now());
+  return false;
+}
+
 /**
  * GET /api/oa/wh - Short alias for webhook (to avoid URL truncation)
  * URL verification - supports plaintext, compatible, and security mode
@@ -133,6 +179,12 @@ router.post('/wh', express.text({ type: 'text/xml' }), async (req, res) => {
 
     // Parse XML
     const event = await parseEventXML(xmlBody);
+
+    // Check for duplicate events (WeChat may retry webhooks)
+    if (isDuplicateEvent(event)) {
+      res.set('Content-Type', 'text/xml');
+      return res.send('success');
+    }
 
     let reply = '';
 
@@ -295,6 +347,12 @@ router.post('/webhook', express.text({ type: 'text/xml' }), async (req, res) => 
 
     // Parse XML
     const event = await parseEventXML(xmlBody);
+
+    // Check for duplicate events (WeChat may retry webhooks)
+    if (isDuplicateEvent(event)) {
+      res.set('Content-Type', 'text/xml');
+      return res.send('success');
+    }
 
     let reply = '';
 

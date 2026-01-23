@@ -256,45 +256,59 @@ UPDATE users SET is_admin = true WHERE id = 'user_id';
 
 ## 📝 版本历史
 
+详细的版本历史请查看 [CHANGELOG.md](CHANGELOG.md)
+
+### v1.2.0 (2026-01-23) - Latest
+
+#### 🎯 Admin Dashboard Enhancements
+
+**All Contacts Page (New)**
+- Unified user management with WeChat profile display
+- Avatar, nickname, location, OpenID, UnionID
+- User actions: delete, block, admin management
+- Search, filter, pagination
+
+**Overview Redesign**
+- "Today's Pulse" dashboard with key business metrics
+- Net Growth, Viral Coefficient, Reward Cost
+- Campaign summary with performance breakdown
+- Client-side caching with manual refresh
+
+**Event History Improvements**
+- Compact table layout (replaced card view)
+- User column first, inline copy buttons
+- Expandable rows for details
+
+**Campaign Debug**
+- Full event table in debug panel
+- Same format as Event History
+
+**Campaign Management**
+- Delete campaign with cascading deletion
+
+#### 🔧 WeChat Profile Capture
+
+- Official Account: Full profile capture (avatar, nickname, location, gender)
+- Mini Program: `wx.getUserProfile()` integration
+- Profile authorization modal
+
+#### 🐛 Bug Fixes
+
+- WeChat OA profile not captured
+- Duplicate webhook events
+- Campaign events not showing in debug
+- Mini Program registration form input issues
+
+---
+
 ### v1.1.0 (2026-01-22)
 
 #### 🎨 Complete UI Redesign
 
-**New Design System**
 - Modern card-based layouts with rounded corners
 - New color palette: Dark navy (#1a1a2e), Green accent (#10b981)
-- Light grey background (#f8f9fa) with white cards
-- Subtle shadows and refined typography
 - Custom tab bar with icons
-
-**Page Redesigns**
-- **Landing**: Hero image, icon badge, CTA button with arrow
-- **Register**: Role selector buttons (2x2 grid), rounded inputs
-- **Home**: User card with avatar, points badge, action buttons, task cards with checkboxes
-- **Rewards**: Image cards with points overlay, Details/Earn buttons
-- **Invite**: Poster preview with navigation arrows, Save/Copy buttons
-- **Profile**: Avatar badge, Role/Balance cards, account details list
-- **Admin**: Table view with tabs (Users/Offers/Tasks), stats summary
-
-**Admin Dashboard Enhancements**
-- Collapsible sections for Debug Settings and Quick Reference
-- Enhanced Recent Events with more data points and JSON payload viewer
-- Improved environment validation with current value display
 - Real-time SSE debug logs
-- Tunnel Manager with status cards
-
-**Backend Improvements**
-- Cloudflare tunnel validator service
-- Environment validator service
-- Event stream service for real-time logs
-- Test webhook service for debugging
-- Fixed JWT token authentication issues
-- Fixed dotenv loading order
-
-**Bug Fixes**
-- Fixed 401 Unauthorized errors for admin API calls
-- Fixed JWT_SECRET loading from .env file
-- Removed duplicate dotenv.config() calls
 
 ---
 
@@ -302,76 +316,11 @@ UPDATE users SET is_admin = true WHERE id = 'user_id';
 
 #### 🎉 初始发布
 
-**核心功能**
-- ✅ 微信小程序登录和用户系统
-- ✅ 邀请码生成和二维码系统
-- ✅ 积分和奖励系统
-- ✅ 公众号集成（二维码、关注事件）
-- ✅ 管理后台基础功能
-
-**技术实现**
-- ✅ Node.js/Express 后端 API
-- ✅ Supabase 数据库集成
-- ✅ JWT 身份认证
-- ✅ 微信 API 集成
-
-**UI/UX**
-- ✅ 极简设计风格（Attio/Linear 风格）
-- ✅ 大量留白设计
-- ✅ 黑白灰配色方案
-- ✅ 响应式布局
-
-**事件日志**
-- ✅ 统一事件日志系统
-- ✅ 登录/注册事件记录
-- ✅ 扫描/关注事件记录
-- ✅ 邀请/兑换事件记录
-- ✅ 管理后台事件查看
-
-**管理功能**
-- ✅ 管理员邮箱/密码登录
-- ✅ 事件日志查看
-- ✅ 统计数据展示
-- ✅ 用户管理
-- ✅ 邀请关系链查看
-
-**文档**
-- ✅ 完整的 README
-- ✅ 配置指南
-- ✅ 故障排除文档
-
-#### 🔧 技术细节
-
-- **后端**: Node.js 18+, Express, TypeScript
-- **数据库**: Supabase (PostgreSQL)
-- **前端**: 微信小程序（原生）, HTML/CSS/JS
-- **认证**: JWT + Bcrypt
-- **图片处理**: Sharp
-- **微信集成**: wechat-crypto, xml2js
-
-#### 📦 依赖
-
-**后端主要依赖**
-- express
-- @supabase/supabase-js
-- jsonwebtoken
-- bcrypt
-- sharp
-- xml2js
-- wechat-crypto
-- axios
-
-#### 🐛 已知问题
-
-- 需要配置微信 IP 白名单才能生成海报
-- 本地开发需要使用 Cloudflare Tunnel 或类似工具
-
-#### 📚 相关文档
-
-- `OA_CONFIG_GUIDE.md` - 公众号配置指南
-- `ADMIN_SETUP.md` - 管理员设置指南
-- `WEBHOOK_TROUBLESHOOTING.md` - Webhook 故障排除
-- `CLOUDFLARE_TUNNEL_SETUP.md` - Cloudflare Tunnel 设置
+- WeChat Mini Program login and user system
+- Invite code and QR code system
+- Points and rewards system
+- Official Account integration
+- Admin dashboard with event logging
 
 ## 🤝 贡献指南
 

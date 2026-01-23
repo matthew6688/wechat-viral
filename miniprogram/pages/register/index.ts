@@ -23,13 +23,39 @@ Page({
 
   handleInput(e: any) {
     const { field } = e.currentTarget.dataset;
+    const value = e.detail.value;
+    console.log('Input changed:', field, value);
     this.setData({
-      [`formData.${field}`]: e.detail.value,
+      [`formData.${field}`]: value,
     });
   },
 
-  async onRegister() {
-    const { formData } = this.data;
+  selectRole(e: any) {
+    const { role } = e.currentTarget.dataset;
+    console.log('Role selected:', role);
+    this.setData({
+      'formData.role': role,
+    });
+  },
+
+  async onRegister(e: any) {
+    // Get form data from event if available (form submission)
+    let formData = this.data.formData;
+    
+    // If submitted via form, merge the form values
+    if (e && e.detail && e.detail.value) {
+      const formValues = e.detail.value;
+      formData = {
+        ...formData,
+        name: formValues.name || formData.name,
+        company: formValues.company || formData.company,
+        phone: formValues.phone || formData.phone,
+        wechatId: formValues.wechatId || formData.wechatId,
+        mainProducts: formValues.mainProducts || formData.mainProducts,
+      };
+    }
+    
+    console.log('Submitting form data:', formData);
     
     if (!formData.name || !formData.phone) {
       wx.showToast({
@@ -61,6 +87,7 @@ Page({
       }, 1500);
     } catch (error: any) {
       wx.hideLoading();
+      console.error('Registration error:', error);
       wx.showToast({
         title: error.message || '注册失败',
         icon: 'none',

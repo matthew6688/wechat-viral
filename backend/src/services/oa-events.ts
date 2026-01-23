@@ -86,13 +86,24 @@ async function findInviterByReferralCode(referralCode: string): Promise<string |
 }
 
 /**
- * Get user info from Official Account (includes unionid if bound)
+ * WeChat user profile info from Official Account API
  */
-async function getUserInfo(openid: string): Promise<{
+interface WeChatUserInfo {
   openid: string;
   unionid?: string;
   nickname?: string;
-}> {
+  headimgurl?: string;  // Avatar URL
+  city?: string;
+  province?: string;
+  country?: string;
+  sex?: number;  // 0=unknown, 1=male, 2=female
+  subscribe?: number;  // 1=subscribed, 0=unsubscribed
+}
+
+/**
+ * Get user info from Official Account (includes unionid, avatar, location if bound)
+ */
+async function getUserInfo(openid: string): Promise<WeChatUserInfo> {
   try {
     const accessToken = await getOAAccessToken();
     const response = await axios.get(OA_API.getUserInfo, {
@@ -108,10 +119,24 @@ async function getUserInfo(openid: string): Promise<{
       return { openid };
     }
 
+    console.log('WeChat user info received:', {
+      openid: response.data.openid,
+      nickname: response.data.nickname,
+      hasAvatar: !!response.data.headimgurl,
+      city: response.data.city,
+      subscribe: response.data.subscribe,
+    });
+
     return {
       openid: response.data.openid,
       unionid: response.data.unionid,
       nickname: response.data.nickname,
+      headimgurl: response.data.headimgurl,
+      city: response.data.city,
+      province: response.data.province,
+      country: response.data.country,
+      sex: response.data.sex,
+      subscribe: response.data.subscribe,
     };
   } catch (error) {
     console.error('Error getting user info:', error);
@@ -120,12 +145,31 @@ async function getUserInfo(openid: string): Promise<{
 }
 
 /**
- * Identify or create user by openid/unionid
+ * Identify or create user by openid/unionid, and update profile data
  */
 async function identifyUser(
   openid: string,
-  unionid?: string
+  userInfo: WeChatUserInfo
 ): Promise<{ id: string; isNew: boolean }> {
+  const unionid = userInfo.unionid;
+  
+  // Build profile update data from WeChat info
+  const profileData: Record<string, any> = {
+    openid_oa: openid,
+  };
+  
+  // Only update profile fields if they have values
+  if (userInfo.nickname) profileData.wechat_nickname = userInfo.nickname;
+  if (userInfo.headimgurl) profileData.wechat_avatar_url = userInfo.headimgurl;
+  if (userInfo.city) profileData.wechat_city = userInfo.city;
+  if (userInfo.province) profileData.wechat_province = userInfo.province;
+  if (userInfo.country) profileData.wechat_country = userInfo.country;
+  // wechat_gender is integer in DB: 0=unknown, 1=male, 2=female
+  if (userInfo.sex !== undefined) {
+    profileData.wechat_gender = userInfo.sex;
+  }
+  if (unionid) profileData.unionid = unionid;
+  
   // Priority 1: Find by unionid (if bound to Open Platform)
   if (unionid) {
     const { data: userByUnionid } = await supabase
@@ -135,10 +179,10 @@ async function identifyUser(
       .single();
 
     if (userByUnionid) {
-      // Update openid_oa if different
+      // Update profile data
       await supabase
         .from('users')
-        .update({ openid_oa: openid })
+        .update(profileData)
         .eq('id', userByUnionid.id);
       return { id: userByUnionid.id, isNew: false };
     }
@@ -152,13 +196,11 @@ async function identifyUser(
     .single();
 
   if (userByOpenid) {
-    // Update unionid if available
-    if (unionid) {
-      await supabase
-        .from('users')
-        .update({ unionid })
-        .eq('id', userByOpenid.id);
-    }
+    // Update profile data
+    await supabase
+      .from('users')
+      .update(profileData)
+      .eq('id', userByOpenid.id);
     return { id: userByOpenid.id, isNew: false };
   }
 
@@ -170,25 +212,26 @@ async function identifyUser(
     .single();
 
   if (userByMpOpenid) {
-    // Update openid_oa and unionid
-    const updateData: any = { openid_oa: openid };
-    if (unionid) updateData.unionid = unionid;
-    await supabase.from('users').update(updateData).eq('id', userByMpOpenid.id);
+    // Update profile data
+    await supabase.from('users').update(profileData).eq('id', userByMpOpenid.id);
     return { id: userByMpOpenid.id, isNew: false };
   }
 
-  // Create new user (minimal info, will be completed in Mini Program)
+  // Create new user with profile data
+  // Generate unique placeholder for phone (max 20 chars) to avoid unique constraint violation
+  // Format: oa_ + last 6 chars of openid + 7 random chars = 16 chars total
+  const randomSuffix = Math.random().toString(36).substring(2, 9);
+  const uniquePhonePlaceholder = `oa_${openid.slice(-6)}${randomSuffix}`.slice(0, 20);
   const { data: newUser, error } = await supabase
     .from('users')
     .insert({
-      openid_oa: openid,
-      unionid: unionid || null,
-      name: '新用户',
-      phone: '',
-      wechat_id: '',
+      ...profileData,
+      name: userInfo.nickname || '新用户',
+      phone: uniquePhonePlaceholder,
+      wechat_id: openid, // Use OA openid as wechat_id
       company: '',
       role: 'Other',
-      main_products: '',
+      source: 'oa',
     })
     .select('id')
     .single();
@@ -296,8 +339,8 @@ export async function handleSubscribeEvent(event: WeChatEvent): Promise<string> 
   // Get user info (includes unionid if bound)
   const userInfo = await getUserInfo(openid);
 
-  // Identify or create user
-  const { id: userId, isNew } = await identifyUser(openid, userInfo.unionid);
+  // Identify or create user (also updates profile data)
+  const { id: userId, isNew } = await identifyUser(openid, userInfo);
 
   // Check if this is a campaign scene (new format: camp_{id}_ref_{code})
   const campaignScene = parseCampaignScene(sceneStr);
@@ -393,7 +436,7 @@ export async function handleSubscribeEvent(event: WeChatEvent): Promise<string> 
 async function handleCampaignSubscribe(
   event: WeChatEvent,
   openid: string,
-  userInfo: { openid: string; unionid?: string; nickname?: string },
+  userInfo: WeChatUserInfo,
   userId: string,
   isNew: boolean,
   campaignScene: { campaignId: string; referralCode: string; raw: string }
@@ -446,7 +489,24 @@ async function handleCampaignSubscribe(
   // Record follow event
   await recordFollowEvent(openid, userInfo.unionid, sceneStr, participant.user_id);
 
-  // Log detailed event
+  // Log follow_oa event (new user subscribed via campaign QR)
+  await logEvent({
+    event_type: 'follow_oa',
+    user_id: userId,
+    related_user_id: participant.user_id,
+    event_data: {
+      openid,
+      unionid: userInfo.unionid,
+      scene_str: sceneStr,
+      is_new_user: isNew,
+      campaign_id: campaignId,
+      campaign_name: campaign.name,
+      referral_code: referralCode,
+      source: 'campaign_qr',
+    },
+  });
+
+  // Log campaign_help event
   await logEvent({
     event_type: 'campaign_help',
     user_id: userId,
@@ -579,11 +639,11 @@ export async function handleScanEvent(event: WeChatEvent): Promise<string> {
   const openid = event.FromUserName;
   const sceneStr = event.EventKey || '';
 
-  // Get user info
+  // Get user info (includes nickname, avatar, location)
   const userInfo = await getUserInfo(openid);
 
-  // Find or create user
-  const { id: userId, isNew } = await identifyUser(openid, userInfo.unionid);
+  // Find or create user (pass full userInfo to update profile data)
+  const { id: userId, isNew } = await identifyUser(openid, userInfo);
 
   // Check if this is a campaign scene (new format: camp_{id}_ref_{code})
   const campaignScene = parseCampaignScene(sceneStr);
@@ -667,7 +727,7 @@ export async function handleScanEvent(event: WeChatEvent): Promise<string> {
 async function handleCampaignScan(
   event: WeChatEvent,
   openid: string,
-  userInfo: { openid: string; unionid?: string; nickname?: string },
+  userInfo: WeChatUserInfo,
   userId: string,
   campaignScene: { campaignId: string; referralCode: string; raw: string }
 ): Promise<string> {
@@ -728,7 +788,24 @@ async function handleCampaignScan(
 
   console.log('Help Result:', helpResult);
 
-  // Log detailed event
+  // Log scan_qr event (existing follower scanned campaign QR)
+  await logEvent({
+    event_type: 'scan_qr',
+    user_id: userId,
+    related_user_id: participant.user_id,
+    event_data: {
+      openid,
+      unionid: userInfo.unionid,
+      scene_str: sceneStr,
+      event_type: 'SCAN', // Already following
+      campaign_id: campaignId,
+      campaign_name: campaign.name,
+      referral_code: referralCode,
+      source: 'campaign_qr',
+    },
+  });
+
+  // Log campaign_help event
   await logEvent({
     event_type: 'campaign_help',
     user_id: userId,

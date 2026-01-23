@@ -317,25 +317,35 @@ router.get('/debug/oa-events', async (req: AuthRequest, res) => {
 
 /**
  * GET /api/admin/debug/all-events
- * Get all events from event_logs table (unified event log)
+ * Get all events from event_logs table (unified event log) with enhanced data
  */
 router.get('/debug/all-events', async (req: AuthRequest, res) => {
   try {
-    const { limit = 200, event_type } = req.query;
+    const { limit = 200, event_type, search, device_type, location } = req.query;
 
     let query = supabase
       .from('event_logs')
       .select(`
         *,
-        user:users!event_logs_user_id_fkey(id, name, phone, openid, unionid),
-        related_user:users!event_logs_related_user_id_fkey(id, name, phone)
+        user:users!event_logs_user_id_fkey(id, name, phone, openid, unionid, wechat_nickname, wechat_avatar_url),
+        related_user:users!event_logs_related_user_id_fkey(id, name, phone, wechat_nickname, wechat_avatar_url)
       `)
       .order('created_at', { ascending: false })
       .limit(parseInt(limit as string));
 
     // Filter by event type if provided
-    if (event_type) {
+    if (event_type && event_type !== 'all') {
       query = query.eq('event_type', event_type as string);
+    }
+
+    // Filter by device type
+    if (device_type && device_type !== 'all') {
+      query = query.eq('device_type', device_type as string);
+    }
+
+    // Filter by location (city)
+    if (location && location !== 'all') {
+      query = query.eq('location_city', location as string);
     }
 
     const { data: events, error } = await query;
@@ -355,10 +365,66 @@ router.get('/debug/all-events', async (req: AuthRequest, res) => {
       throw error;
     }
 
+    // Enrich events with campaign names if campaign_id is in event_data
+    const enrichedEvents = await Promise.all((events || []).map(async (event: any) => {
+      let campaignName = null;
+      const campaignId = event.event_data?.campaign_id;
+      
+      if (campaignId) {
+        try {
+          const { data: campaign } = await supabase
+            .from('campaigns')
+            .select('name')
+            .eq('id', campaignId)
+            .single();
+          campaignName = campaign?.name;
+        } catch (e) {
+          // Ignore campaign lookup errors
+        }
+      }
+
+      return {
+        ...event,
+        campaign_name: campaignName,
+        // Ensure user profile data is easily accessible
+        user_display: event.user ? {
+          name: event.user.name || event.user.wechat_nickname || 'Unknown',
+          nickname: event.user.wechat_nickname,
+          avatar: event.user.wechat_avatar_url,
+          phone: event.user.phone,
+        } : null,
+        related_user_display: event.related_user ? {
+          name: event.related_user.name || event.related_user.wechat_nickname || 'Unknown',
+          nickname: event.related_user.wechat_nickname,
+          avatar: event.related_user.wechat_avatar_url,
+        } : null,
+      };
+    }));
+
+    // Get unique values for filters
+    const { data: deviceTypes } = await supabase
+      .from('event_logs')
+      .select('device_type')
+      .not('device_type', 'is', null)
+      .limit(100);
+    
+    const { data: locations } = await supabase
+      .from('event_logs')
+      .select('location_city')
+      .not('location_city', 'is', null)
+      .limit(100);
+
+    const uniqueDeviceTypes = [...new Set((deviceTypes || []).map((d: any) => d.device_type).filter(Boolean))];
+    const uniqueLocations = [...new Set((locations || []).map((l: any) => l.location_city).filter(Boolean))];
+
     res.json({
       data: {
-        events: events || [],
-        total: events?.length || 0,
+        events: enrichedEvents,
+        total: enrichedEvents.length,
+        filters: {
+          device_types: uniqueDeviceTypes,
+          locations: uniqueLocations,
+        },
       },
     });
   } catch (error: any) {
@@ -1425,6 +1491,1270 @@ router.get('/analytics/daily', async (req: AuthRequest, res) => {
   } catch (error: any) {
     console.error('Get daily analytics error:', error);
     res.status(500).json({ error: error.message || 'Failed to get daily analytics' });
+  }
+});
+
+// ============================================
+// TESTING TOOLS - Reset APIs
+// ============================================
+
+/**
+ * POST /api/admin/testing/reset-all-campaign-data
+ * Reset all campaign data (helpers, participants, claims, events)
+ * Keeps: users, campaigns, rewards structure
+ */
+router.post('/testing/reset-all-campaign-data', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const results: Record<string, number> = {};
+
+    // Count before delete for campaign reward claims
+    const { count: claimsCountBefore } = await (supabase
+      .from('campaign_reward_claims')
+      .select('*', { count: 'exact', head: true }) as any);
+    
+    // Delete campaign reward claims
+    await (supabase
+      .from('campaign_reward_claims')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000') as any);
+    results.reward_claims_deleted = claimsCountBefore || 0;
+
+    // Count before delete for campaign helpers
+    const { count: helpersCountBefore } = await (supabase
+      .from('campaign_helpers')
+      .select('*', { count: 'exact', head: true }) as any);
+    
+    // Delete campaign helpers
+    await (supabase
+      .from('campaign_helpers')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000') as any);
+    results.helpers_deleted = helpersCountBefore || 0;
+
+    // Count before delete for campaign participants
+    const { count: participantsCountBefore } = await (supabase
+      .from('campaign_participants')
+      .select('*', { count: 'exact', head: true }) as any);
+    
+    // Delete campaign participants
+    await (supabase
+      .from('campaign_participants')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000') as any);
+    results.participants_deleted = participantsCountBefore || 0;
+
+    // Count before delete for campaign-related event logs
+    const { count: eventsCountBefore } = await (supabase
+      .from('event_logs')
+      .select('*', { count: 'exact', head: true })
+      .or('event_type.like.campaign_%,event_type.like.oa_%') as any);
+    
+    // Delete campaign-related event logs
+    await (supabase
+      .from('event_logs')
+      .delete()
+      .or('event_type.like.campaign_%,event_type.like.oa_%') as any);
+    results.events_deleted = eventsCountBefore || 0;
+
+    // Log this action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_reset_all_campaign_data',
+      user_id: (req as any).user?.id,
+      event_data: results,
+    });
+
+    res.json({
+      success: true,
+      message: 'All campaign data has been reset',
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Reset all campaign data error:', error);
+    res.status(500).json({ error: error.message || 'Failed to reset campaign data' });
+  }
+});
+
+/**
+ * POST /api/admin/testing/reset-campaign/:id
+ * Reset a specific campaign's data
+ */
+router.post('/testing/reset-campaign/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const campaignId = req.params.id;
+    const results: Record<string, number> = {};
+
+    // Count before delete for campaign reward claims
+    const { count: claimsCountBefore } = await (supabase
+      .from('campaign_reward_claims')
+      .select('*', { count: 'exact', head: true })
+      .eq('campaign_id', campaignId) as any);
+    
+    // Delete campaign reward claims for this campaign
+    await (supabase
+      .from('campaign_reward_claims')
+      .delete()
+      .eq('campaign_id', campaignId) as any);
+    results.reward_claims_deleted = claimsCountBefore || 0;
+
+    // Count before delete for campaign helpers
+    const { count: helpersCountBefore } = await (supabase
+      .from('campaign_helpers')
+      .select('*', { count: 'exact', head: true })
+      .eq('campaign_id', campaignId) as any);
+    
+    // Delete campaign helpers for this campaign
+    await (supabase
+      .from('campaign_helpers')
+      .delete()
+      .eq('campaign_id', campaignId) as any);
+    results.helpers_deleted = helpersCountBefore || 0;
+
+    // Count before delete for campaign participants
+    const { count: participantsCountBefore } = await (supabase
+      .from('campaign_participants')
+      .select('*', { count: 'exact', head: true })
+      .eq('campaign_id', campaignId) as any);
+    
+    // Delete campaign participants for this campaign
+    await (supabase
+      .from('campaign_participants')
+      .delete()
+      .eq('campaign_id', campaignId) as any);
+    results.participants_deleted = participantsCountBefore || 0;
+
+    // Count before delete for campaign-related event logs
+    const { count: eventsCountBefore } = await (supabase
+      .from('event_logs')
+      .select('*', { count: 'exact', head: true })
+      .eq('campaign_id', campaignId) as any);
+    
+    // Delete campaign-related event logs for this campaign
+    await (supabase
+      .from('event_logs')
+      .delete()
+      .eq('campaign_id', campaignId) as any);
+    results.events_deleted = eventsCountBefore || 0;
+
+    // Log this action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_reset_campaign',
+      user_id: (req as any).user?.id,
+      campaign_id: campaignId,
+      event_data: results,
+    });
+
+    res.json({
+      success: true,
+      message: `Campaign ${campaignId} data has been reset`,
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Reset campaign error:', error);
+    res.status(500).json({ error: error.message || 'Failed to reset campaign' });
+  }
+});
+
+/**
+ * POST /api/admin/testing/reset-helper
+ * Reset a specific helper's records (by OpenID or UnionID)
+ * Allows them to help again in campaigns
+ */
+router.post('/testing/reset-helper', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { openid, unionid, campaign_id } = req.body;
+    
+    if (!openid && !unionid) {
+      return res.status(400).json({ error: 'Either openid or unionid is required' });
+    }
+
+    const results: Record<string, number> = {};
+    
+    // Count before delete
+    let countQuery = supabase.from('campaign_helpers').select('*', { count: 'exact', head: true });
+    if (openid) {
+      countQuery = countQuery.eq('helper_openid', openid);
+    } else if (unionid) {
+      countQuery = countQuery.eq('helper_unionid', unionid);
+    }
+    if (campaign_id) {
+      countQuery = countQuery.eq('campaign_id', campaign_id);
+    }
+    const { count: helpersCountBefore } = await (countQuery as any);
+    
+    // Build delete query based on provided identifiers
+    let deleteQuery = supabase.from('campaign_helpers').delete();
+    if (openid) {
+      deleteQuery = deleteQuery.eq('helper_openid', openid);
+    } else if (unionid) {
+      deleteQuery = deleteQuery.eq('helper_unionid', unionid);
+    }
+    if (campaign_id) {
+      deleteQuery = deleteQuery.eq('campaign_id', campaign_id);
+    }
+    
+    await (deleteQuery as any);
+    results.helpers_deleted = helpersCountBefore || 0;
+
+    // Log this action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_reset_helper',
+      user_id: (req as any).user?.id,
+      event_data: { openid, unionid, campaign_id, ...results },
+    });
+
+    res.json({
+      success: true,
+      message: `Helper records deleted`,
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Reset helper error:', error);
+    res.status(500).json({ error: error.message || 'Failed to reset helper' });
+  }
+});
+
+/**
+ * GET /api/admin/testing/test-accounts
+ * Get saved test WeChat accounts
+ */
+router.get('/testing/test-accounts', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { data: settings } = await supabase
+      .from('debug_settings')
+      .select('value')
+      .eq('key', 'test_wechat_accounts')
+      .single();
+
+    const accounts = settings?.value || [];
+
+    res.json({
+      success: true,
+      data: { accounts },
+    });
+  } catch (error: any) {
+    console.error('Get test accounts error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get test accounts' });
+  }
+});
+
+/**
+ * POST /api/admin/testing/test-accounts
+ * Save test WeChat accounts
+ */
+router.post('/testing/test-accounts', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { accounts } = req.body;
+
+    if (!Array.isArray(accounts)) {
+      return res.status(400).json({ error: 'Accounts must be an array' });
+    }
+
+    // Upsert the test accounts setting
+    const { error } = await supabase
+      .from('debug_settings')
+      .upsert({
+        key: 'test_wechat_accounts',
+        value: accounts,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'key' });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: 'Test accounts saved',
+      data: { accounts },
+    });
+  } catch (error: any) {
+    console.error('Save test accounts error:', error);
+    res.status(500).json({ error: error.message || 'Failed to save test accounts' });
+  }
+});
+
+/**
+ * GET /api/admin/testing/known-helpers
+ * Get all known helper OpenIDs from the database
+ */
+router.get('/testing/known-helpers', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    // Get unique helper OpenIDs
+    const { data: helpers } = await supabase
+      .from('campaign_helpers')
+      .select('helper_openid, helper_unionid, created_at, campaign_id')
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    // Get unique values
+    const uniqueHelpers = new Map();
+    (helpers || []).forEach((h: any) => {
+      const key = h.helper_openid || h.helper_unionid;
+      if (key && !uniqueHelpers.has(key)) {
+        uniqueHelpers.set(key, {
+          openid: h.helper_openid,
+          unionid: h.helper_unionid,
+          first_seen: h.created_at,
+          campaign_id: h.campaign_id,
+        });
+      }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        helpers: Array.from(uniqueHelpers.values()),
+        total: uniqueHelpers.size,
+      },
+    });
+  } catch (error: any) {
+    console.error('Get known helpers error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get known helpers' });
+  }
+});
+
+/**
+ * POST /api/admin/testing/nuclear-reset
+ * Delete ALL data (requires confirmation)
+ */
+router.post('/testing/nuclear-reset', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { confirmation } = req.body;
+
+    if (confirmation !== 'DELETE ALL') {
+      return res.status(400).json({ error: 'Invalid confirmation. Type "DELETE ALL" to confirm.' });
+    }
+
+    const results: Record<string, number | string> = {};
+
+    // Delete in order of dependencies
+    const tables = [
+      'campaign_reward_claims',
+      'campaign_helpers',
+      'campaign_participants',
+      'campaign_rewards',
+      'campaigns',
+      'event_logs',
+      'invites',
+      'users',
+    ];
+
+    for (const table of tables) {
+      try {
+        // Count before delete
+        const { count } = await (supabase
+          .from(table)
+          .select('*', { count: 'exact', head: true }) as any);
+        
+        // Delete all
+        await (supabase
+          .from(table)
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000') as any);
+        
+        results[`${table}_deleted`] = count || 0;
+      } catch (err: any) {
+        console.warn(`Failed to delete from ${table}:`, err.message);
+        results[`${table}_error`] = err.message;
+      }
+    }
+
+    res.json({
+      success: true,
+      message: '⚠️ All data has been deleted!',
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Nuclear reset error:', error);
+    res.status(500).json({ error: error.message || 'Failed to perform nuclear reset' });
+  }
+});
+
+// ============================================
+// CONTACTS MANAGEMENT ENDPOINTS
+// ============================================
+
+/**
+ * GET /api/admin/contacts
+ * List all contacts with filters and pagination
+ */
+router.get('/contacts', async (req: AuthRequest, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      search = '',
+      source = '',
+      status = '',
+      hasMP = '',
+      hasOA = '',
+      hasEmail = '',
+      hasPhone = '',
+      isAdmin = '',
+      sortBy = 'created_at',
+      sortOrder = 'desc',
+    } = req.query;
+
+    const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+    // Build query
+    let query = supabase
+      .from('users')
+      .select(`
+        id, name, phone, email, wechat_id, company, role,
+        openid, openid_oa, unionid,
+        wechat_avatar_url, wechat_nickname, wechat_gender,
+        wechat_city, wechat_province, wechat_country, wechat_language,
+        source, status, tags, notes, is_admin,
+        first_seen_at, last_active_at, created_at
+      `, { count: 'exact' });
+
+    // Apply filters
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%,wechat_nickname.ilike.%${search}%,openid.ilike.%${search}%,openid_oa.ilike.%${search}%`);
+    }
+    if (source) {
+      query = query.eq('source', source);
+    }
+    // Filter by status - by default exclude deleted users unless explicitly requested
+    if (status) {
+      query = query.eq('status', status);
+    } else {
+      // Exclude deleted users by default
+      query = query.neq('status', 'deleted');
+    }
+    if (hasMP === 'true') {
+      query = query.not('openid', 'is', null);
+    }
+    if (hasOA === 'true') {
+      query = query.not('openid_oa', 'is', null);
+    }
+    if (hasEmail === 'true') {
+      query = query.not('email', 'is', null);
+    }
+    if (hasPhone === 'true') {
+      query = query.not('phone', 'is', null);
+    }
+    if (isAdmin === 'true') {
+      query = query.eq('is_admin', true);
+    }
+
+    // Apply sorting and pagination
+    query = query
+      .order(sortBy as string, { ascending: sortOrder === 'asc' })
+      .range(offset, offset + parseInt(limit as string) - 1);
+
+    const { data: contacts, error, count } = await query;
+
+    if (error) throw error;
+
+    // Get engagement stats for each contact
+    const contactsWithStats = await Promise.all((contacts || []).map(async (contact: any) => {
+      // Get campaign participation stats
+      const { count: campaignsJoined } = await supabase
+        .from('campaign_participants')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', contact.id);
+
+      // Get total helpers brought
+      const { data: participations } = await supabase
+        .from('campaign_participants')
+        .select('helper_count')
+        .eq('user_id', contact.id);
+
+      const totalHelpers = (participations || []).reduce((sum: number, p: any) => sum + (p.helper_count || 0), 0);
+
+      // Get rewards claimed
+      const { count: rewardsClaimed } = await supabase
+        .from('campaign_reward_claims')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', contact.id);
+
+      // Get points balance
+      const { data: pointsAccount } = await supabase
+        .from('points_accounts')
+        .select('total_points')
+        .eq('user_id', contact.id)
+        .single();
+
+      // Check OA follow status
+      const { data: oaFollow } = await supabase
+        .from('oa_follow_events')
+        .select('is_following')
+        .eq('openid', contact.openid_oa)
+        .order('follow_time', { ascending: false })
+        .limit(1)
+        .single();
+
+      return {
+        ...contact,
+        engagement: {
+          campaigns_joined: campaignsJoined || 0,
+          total_helpers: totalHelpers,
+          rewards_claimed: rewardsClaimed || 0,
+          points_balance: pointsAccount?.total_points || 0,
+          oa_following: oaFollow?.is_following ?? null,
+        },
+      };
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        contacts: contactsWithStats,
+        pagination: {
+          page: parseInt(page as string),
+          limit: parseInt(limit as string),
+          total: count || 0,
+          totalPages: Math.ceil((count || 0) / parseInt(limit as string)),
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Get contacts error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get contacts' });
+  }
+});
+
+/**
+ * GET /api/admin/contacts/stats
+ * Get contact statistics
+ */
+router.get('/contacts/stats', async (req: AuthRequest, res) => {
+  try {
+    // Total users (excluding deleted)
+    const { count: totalUsers } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .neq('status', 'deleted');
+
+    // Users with MP OpenID (excluding deleted)
+    const { count: mpUsers } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .not('openid', 'is', null)
+      .neq('status', 'deleted');
+
+    // Users with OA OpenID (excluding deleted)
+    const { count: oaUsers } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .not('openid_oa', 'is', null)
+      .neq('status', 'deleted');
+
+    // Registered users (with email or phone, excluding deleted)
+    const { count: registeredUsers } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .or('email.not.is.null,phone.not.is.null')
+      .neq('status', 'deleted');
+
+    // Admin users (excluding deleted)
+    const { count: adminUsers } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_admin', true)
+      .neq('status', 'deleted');
+
+    // Active users (last 7 days, excluding deleted)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const { count: activeUsers } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .gte('last_active_at', sevenDaysAgo.toISOString())
+      .neq('status', 'deleted');
+
+    // Blocked users
+    const { count: blockedUsers } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'blocked');
+
+    // New users today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const { count: newUsersToday } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', today.toISOString());
+
+    res.json({
+      success: true,
+      data: {
+        total: totalUsers || 0,
+        mp_users: mpUsers || 0,
+        oa_users: oaUsers || 0,
+        registered: registeredUsers || 0,
+        admins: adminUsers || 0,
+        active_7d: activeUsers || 0,
+        blocked: blockedUsers || 0,
+        new_today: newUsersToday || 0,
+      },
+    });
+  } catch (error: any) {
+    console.error('Get contacts stats error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get contacts stats' });
+  }
+});
+
+/**
+ * GET /api/admin/contacts/:id
+ * Get single contact details
+ */
+router.get('/contacts/:id', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get user details
+    const { data: contact, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    if (!contact) {
+      return res.status(404).json({ error: 'Contact not found' });
+    }
+
+    // Get campaign participations
+    const { data: participations } = await supabase
+      .from('campaign_participants')
+      .select(`
+        *,
+        campaign:campaigns(id, name, status)
+      `)
+      .eq('user_id', id)
+      .order('joined_at', { ascending: false });
+
+    // Get reward claims
+    const { data: rewardClaims } = await supabase
+      .from('campaign_reward_claims')
+      .select(`
+        *,
+        campaign:campaigns(name),
+        reward:campaign_rewards(reward_name, tier_level)
+      `)
+      .eq('user_id', id)
+      .order('claimed_at', { ascending: false });
+
+    // Get points account
+    const { data: pointsAccount } = await supabase
+      .from('points_accounts')
+      .select('total_points')
+      .eq('user_id', id)
+      .single();
+
+    // Get points history
+    const { data: pointsHistory } = await supabase
+      .from('points_logs')
+      .select('*')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    // Get OA follow status
+    const { data: oaFollowEvents } = await supabase
+      .from('oa_follow_events')
+      .select('*')
+      .eq('openid', contact.openid_oa)
+      .order('follow_time', { ascending: false })
+      .limit(5);
+
+    // Get recent events
+    const { data: recentEvents } = await supabase
+      .from('event_logs')
+      .select('*')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    // Calculate engagement summary
+    const totalHelpers = (participations || []).reduce((sum: number, p: any) => sum + (p.helper_count || 0), 0);
+
+    res.json({
+      success: true,
+      data: {
+        contact,
+        engagement: {
+          campaigns_joined: participations?.length || 0,
+          total_helpers: totalHelpers,
+          rewards_claimed: rewardClaims?.length || 0,
+          points_balance: pointsAccount?.total_points || 0,
+          oa_following: oaFollowEvents?.[0]?.is_following ?? null,
+        },
+        participations: participations || [],
+        rewardClaims: rewardClaims || [],
+        pointsHistory: pointsHistory || [],
+        oaFollowEvents: oaFollowEvents || [],
+        recentEvents: recentEvents || [],
+      },
+    });
+  } catch (error: any) {
+    console.error('Get contact error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get contact' });
+  }
+});
+
+/**
+ * PUT /api/admin/contacts/:id
+ * Update contact info
+ */
+router.put('/contacts/:id', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const { name, phone, email, company, role, tags, notes, status } = req.body;
+
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (phone !== undefined) updateData.phone = phone;
+    if (email !== undefined) updateData.email = email;
+    if (company !== undefined) updateData.company = company;
+    if (role !== undefined) updateData.role = role;
+    if (tags !== undefined) updateData.tags = tags;
+    if (notes !== undefined) updateData.notes = notes;
+    if (status !== undefined) updateData.status = status;
+
+    const { data: contact, error } = await supabase
+      .from('users')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Log the action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_update_contact',
+      user_id: (req as any).user?.id,
+      related_user_id: id,
+      event_data: { updated_fields: Object.keys(updateData) },
+    });
+
+    res.json({
+      success: true,
+      message: 'Contact updated',
+      data: { contact },
+    });
+  } catch (error: any) {
+    console.error('Update contact error:', error);
+    res.status(500).json({ error: error.message || 'Failed to update contact' });
+  }
+});
+
+/**
+ * POST /api/admin/contacts/:id/make-admin
+ * Make user an admin
+ */
+router.post('/contacts/:id/make-admin', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: contact, error } = await supabase
+      .from('users')
+      .update({ is_admin: true })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Log the action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_grant_admin',
+      user_id: (req as any).user?.id,
+      related_user_id: id,
+      event_data: { action: 'make_admin' },
+    });
+
+    res.json({
+      success: true,
+      message: 'User is now an admin',
+      data: { contact },
+    });
+  } catch (error: any) {
+    console.error('Make admin error:', error);
+    res.status(500).json({ error: error.message || 'Failed to make admin' });
+  }
+});
+
+/**
+ * POST /api/admin/contacts/:id/remove-admin
+ * Remove admin privileges
+ */
+router.post('/contacts/:id/remove-admin', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent removing own admin
+    if ((req as any).user?.id === id) {
+      return res.status(400).json({ error: 'Cannot remove your own admin privileges' });
+    }
+
+    const { data: contact, error } = await supabase
+      .from('users')
+      .update({ is_admin: false })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Log the action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_revoke_admin',
+      user_id: (req as any).user?.id,
+      related_user_id: id,
+      event_data: { action: 'remove_admin' },
+    });
+
+    res.json({
+      success: true,
+      message: 'Admin privileges removed',
+      data: { contact },
+    });
+  } catch (error: any) {
+    console.error('Remove admin error:', error);
+    res.status(500).json({ error: error.message || 'Failed to remove admin' });
+  }
+});
+
+/**
+ * POST /api/admin/contacts/:id/block
+ * Block a user
+ */
+router.post('/contacts/:id/block', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent blocking yourself
+    if ((req as any).user?.id === id) {
+      return res.status(400).json({ error: 'Cannot block yourself' });
+    }
+
+    const { data: contact, error } = await supabase
+      .from('users')
+      .update({ status: 'blocked' })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Log the action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_block_user',
+      user_id: (req as any).user?.id,
+      related_user_id: id,
+      event_data: { action: 'block' },
+    });
+
+    res.json({
+      success: true,
+      message: 'User blocked',
+      data: { contact },
+    });
+  } catch (error: any) {
+    console.error('Block user error:', error);
+    res.status(500).json({ error: error.message || 'Failed to block user' });
+  }
+});
+
+/**
+ * POST /api/admin/contacts/:id/unblock
+ * Unblock a user
+ */
+router.post('/contacts/:id/unblock', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: contact, error } = await supabase
+      .from('users')
+      .update({ status: 'active' })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Log the action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_unblock_user',
+      user_id: (req as any).user?.id,
+      related_user_id: id,
+      event_data: { action: 'unblock' },
+    });
+
+    res.json({
+      success: true,
+      message: 'User unblocked',
+      data: { contact },
+    });
+  } catch (error: any) {
+    console.error('Unblock user error:', error);
+    res.status(500).json({ error: error.message || 'Failed to unblock user' });
+  }
+});
+
+/**
+ * POST /api/admin/contacts/:id/reset
+ * Reset user's campaign data
+ */
+router.post('/contacts/:id/reset', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const results: Record<string, number> = {};
+
+    // Count before delete - reward claims
+    const { count: claimsCount } = await supabase
+      .from('campaign_reward_claims')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', id);
+    
+    // Delete reward claims
+    await (supabase
+      .from('campaign_reward_claims')
+      .delete()
+      .eq('user_id', id) as any);
+    results.reward_claims_deleted = claimsCount || 0;
+
+    // Count before delete - campaign participations
+    const { count: participationsCount } = await supabase
+      .from('campaign_participants')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', id);
+
+    // Delete campaign participations (this will cascade to helpers)
+    await (supabase
+      .from('campaign_participants')
+      .delete()
+      .eq('user_id', id) as any);
+    results.participations_deleted = participationsCount || 0;
+
+    // Delete helpers where this user was the helper
+    const { data: user } = await supabase
+      .from('users')
+      .select('openid, openid_oa')
+      .eq('id', id)
+      .single();
+
+    if (user?.openid) {
+      await (supabase
+        .from('campaign_helpers')
+        .delete()
+        .eq('helper_openid', user.openid) as any);
+    }
+    if (user?.openid_oa) {
+      await (supabase
+        .from('campaign_helpers')
+        .delete()
+        .eq('helper_openid', user.openid_oa) as any);
+    }
+
+    // Log the action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_reset_user',
+      user_id: (req as any).user?.id,
+      related_user_id: id,
+      event_data: results,
+    });
+
+    res.json({
+      success: true,
+      message: 'User campaign data reset',
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Reset user error:', error);
+    res.status(500).json({ error: error.message || 'Failed to reset user' });
+  }
+});
+
+/**
+ * DELETE /api/admin/contacts/:id
+ * Soft delete a user
+ */
+router.delete('/contacts/:id', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent deleting yourself
+    if ((req as any).user?.id === id) {
+      return res.status(400).json({ error: 'Cannot delete yourself' });
+    }
+
+    const { data: contact, error } = await supabase
+      .from('users')
+      .update({ status: 'deleted' })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Log the action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_delete_user',
+      user_id: (req as any).user?.id,
+      related_user_id: id,
+      event_data: { action: 'soft_delete' },
+    });
+
+    res.json({
+      success: true,
+      message: 'User deleted',
+      data: { contact },
+    });
+  } catch (error: any) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete user' });
+  }
+});
+
+/**
+ * DELETE /api/admin/contacts/:id/hard
+ * Hard delete a user (permanent)
+ */
+router.delete('/contacts/:id/hard', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const { confirmation } = req.body;
+
+    if (confirmation !== 'DELETE') {
+      return res.status(400).json({ error: 'Invalid confirmation. Type "DELETE" to confirm.' });
+    }
+
+    // Prevent deleting yourself
+    if ((req as any).user?.id === id) {
+      return res.status(400).json({ error: 'Cannot delete yourself' });
+    }
+
+    const results: Record<string, number | string> = {};
+
+    // Delete in order of dependencies
+    try {
+      await (supabase.from('campaign_reward_claims').delete().eq('user_id', id) as any);
+      results.reward_claims = 'deleted';
+    } catch (e) {}
+
+    try {
+      await (supabase.from('campaign_participants').delete().eq('user_id', id) as any);
+      results.participations = 'deleted';
+    } catch (e) {}
+
+    try {
+      await (supabase.from('points_logs').delete().eq('user_id', id) as any);
+      results.points_logs = 'deleted';
+    } catch (e) {}
+
+    try {
+      await (supabase.from('points_accounts').delete().eq('user_id', id) as any);
+      results.points_account = 'deleted';
+    } catch (e) {}
+
+    try {
+      await (supabase.from('event_logs').delete().eq('user_id', id) as any);
+      results.event_logs = 'deleted';
+    } catch (e) {}
+
+    // Finally delete the user
+    const { error } = await (supabase.from('users').delete().eq('id', id) as any);
+    if (error) throw error;
+
+    results.user = 'deleted';
+
+    res.json({
+      success: true,
+      message: 'User permanently deleted',
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Hard delete user error:', error);
+    res.status(500).json({ error: error.message || 'Failed to hard delete user' });
+  }
+});
+
+/**
+ * POST /api/admin/contacts/:id/tags
+ * Add or remove tags
+ */
+router.post('/contacts/:id/tags', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const { action, tag } = req.body;
+
+    if (!tag || !['add', 'remove'].includes(action)) {
+      return res.status(400).json({ error: 'Invalid action or tag' });
+    }
+
+    // Get current tags
+    const { data: user } = await supabase
+      .from('users')
+      .select('tags')
+      .eq('id', id)
+      .single();
+
+    let tags = user?.tags || [];
+
+    if (action === 'add' && !tags.includes(tag)) {
+      tags.push(tag);
+    } else if (action === 'remove') {
+      tags = tags.filter((t: string) => t !== tag);
+    }
+
+    const { data: contact, error } = await supabase
+      .from('users')
+      .update({ tags })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: action === 'add' ? 'Tag added' : 'Tag removed',
+      data: { contact },
+    });
+  } catch (error: any) {
+    console.error('Update tags error:', error);
+    res.status(500).json({ error: error.message || 'Failed to update tags' });
+  }
+});
+
+/**
+ * POST /api/admin/contacts/export
+ * Export contacts
+ */
+router.post('/contacts/export', async (req: AuthRequest, res) => {
+  try {
+    const { format = 'json', filters = {} } = req.body;
+
+    let query = supabase
+      .from('users')
+      .select('*');
+
+    // Apply filters
+    if (filters.status) {
+      query = query.eq('status', filters.status);
+    }
+    if (filters.source) {
+      query = query.eq('source', filters.source);
+    }
+
+    const { data: contacts, error } = await query.order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (format === 'csv') {
+      // Convert to CSV
+      const headers = ['ID', 'Name', 'Phone', 'Email', 'WeChat Nickname', 'MP OpenID', 'OA OpenID', 'UnionID', 'Source', 'Status', 'Created At'];
+      const rows = (contacts || []).map((c: any) => [
+        c.id,
+        c.name || '',
+        c.phone || '',
+        c.email || '',
+        c.wechat_nickname || '',
+        c.openid || '',
+        c.openid_oa || '',
+        c.unionid || '',
+        c.source || '',
+        c.status || '',
+        c.created_at || '',
+      ]);
+
+      const csv = [headers.join(','), ...rows.map((r: any[]) => r.map(v => `"${v}"`).join(','))].join('\n');
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=contacts.csv');
+      return res.send(csv);
+    }
+
+    res.json({
+      success: true,
+      data: { contacts },
+    });
+  } catch (error: any) {
+    console.error('Export contacts error:', error);
+    res.status(500).json({ error: error.message || 'Failed to export contacts' });
+  }
+});
+
+/**
+ * POST /api/admin/contacts/bulk-action
+ * Perform bulk actions on multiple contacts
+ */
+router.post('/contacts/bulk-action', async (req: AuthRequest, res) => {
+  try {
+    const { action, ids, data } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: 'No contacts selected' });
+    }
+
+    const results: Record<string, any> = { success: [], failed: [] };
+
+    for (const id of ids) {
+      try {
+        switch (action) {
+          case 'add_tag':
+            if (data?.tag) {
+              const { data: user } = await supabase.from('users').select('tags').eq('id', id).single();
+              const tags = [...(user?.tags || []), data.tag].filter((v, i, a) => a.indexOf(v) === i);
+              await supabase.from('users').update({ tags }).eq('id', id);
+            }
+            break;
+          case 'remove_tag':
+            if (data?.tag) {
+              const { data: user } = await supabase.from('users').select('tags').eq('id', id).single();
+              const tags = (user?.tags || []).filter((t: string) => t !== data.tag);
+              await supabase.from('users').update({ tags }).eq('id', id);
+            }
+            break;
+          case 'block':
+            await supabase.from('users').update({ status: 'blocked' }).eq('id', id);
+            break;
+          case 'unblock':
+            await supabase.from('users').update({ status: 'active' }).eq('id', id);
+            break;
+          case 'delete':
+            await supabase.from('users').update({ status: 'deleted' }).eq('id', id);
+            break;
+          default:
+            throw new Error('Unknown action');
+        }
+        results.success.push(id);
+      } catch (e: any) {
+        results.failed.push({ id, error: e.message });
+      }
+    }
+
+    // Log the bulk action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_bulk_action',
+      user_id: (req as any).user?.id,
+      event_data: { action, count: ids.length, results },
+    });
+
+    res.json({
+      success: true,
+      message: `Bulk action completed: ${results.success.length} succeeded, ${results.failed.length} failed`,
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Bulk action error:', error);
+    res.status(500).json({ error: error.message || 'Failed to perform bulk action' });
   }
 });
 

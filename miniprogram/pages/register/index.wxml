@@ -1,37 +1,43 @@
-<view class="container">
-  <view class="header">
-    <text class="title">Create Profile</text>
-    <text class="subtitle">Join to access resources and rewards.</text>
+<view class="register-container">
+  <view class="register-header">
+    <text class="register-title">Create Profile</text>
+    <text class="register-subtitle">Join to access resources and rewards.</text>
   </view>
 
-  <view class="form">
+  <form class="register-form" catchsubmit="onRegister">
     <!-- Full Name -->
-    <view class="form-group">
-      <text class="label">FULL NAME <text class="required">*</text></text>
+    <view class="register-form-group">
+      <text class="register-label">FULL NAME <text class="required">*</text></text>
       <input 
-        class="input" 
+        class="register-input" 
+        name="name"
         data-field="name" 
         value="{{formData.name}}" 
-        bindinput="handleInput" 
-        placeholder="" 
+        bindinput="handleInput"
+        placeholder="请输入姓名"
+        placeholder-class="register-placeholder"
+        cursor-spacing="20"
       />
     </view>
 
     <!-- Company Name -->
-    <view class="form-group">
-      <text class="label">COMPANY NAME</text>
+    <view class="register-form-group">
+      <text class="register-label">COMPANY NAME</text>
       <input 
-        class="input" 
+        class="register-input" 
+        name="company"
         data-field="company" 
         value="{{formData.company}}" 
-        bindinput="handleInput" 
-        placeholder="" 
+        bindinput="handleInput"
+        placeholder="请输入公司名称"
+        placeholder-class="register-placeholder"
+        cursor-spacing="20"
       />
     </view>
 
     <!-- Role Selector -->
-    <view class="form-group">
-      <text class="label">ROLE <text class="required">*</text></text>
+    <view class="register-form-group">
+      <text class="register-label">ROLE <text class="required">*</text></text>
       <view class="role-selector">
         <view 
           class="role-btn {{formData.role === 'Owner' ? 'active' : ''}}" 
@@ -65,43 +71,53 @@
     </view>
 
     <!-- Mobile Number -->
-    <view class="form-group">
-      <text class="label">MOBILE NUMBER <text class="required">*</text></text>
+    <view class="register-form-group">
+      <text class="register-label">MOBILE NUMBER <text class="required">*</text></text>
       <input 
-        class="input" 
+        class="register-input" 
+        name="phone"
         data-field="phone" 
         type="number" 
         value="{{formData.phone}}" 
-        bindinput="handleInput" 
-        placeholder="" 
+        bindinput="handleInput"
+        placeholder="请输入手机号"
+        placeholder-class="register-placeholder"
+        cursor-spacing="20"
       />
     </view>
 
     <!-- WeChat ID -->
-    <view class="form-group">
-      <text class="label">WECHAT ID</text>
+    <view class="register-form-group">
+      <text class="register-label">WECHAT ID</text>
       <input 
-        class="input" 
+        class="register-input" 
+        name="wechatId"
         data-field="wechatId" 
         value="{{formData.wechatId}}" 
-        bindinput="handleInput" 
-        placeholder="" 
+        bindinput="handleInput"
+        placeholder="请输入微信号"
+        placeholder-class="register-placeholder"
+        cursor-spacing="20"
       />
     </view>
 
     <!-- Main Products -->
-    <view class="form-group">
-      <text class="label">MAIN PRODUCTS</text>
+    <view class="register-form-group">
+      <text class="register-label">MAIN PRODUCTS</text>
       <textarea 
-        class="textarea" 
+        class="register-textarea" 
+        name="mainProducts"
         data-field="mainProducts" 
         value="{{formData.mainProducts}}" 
-        bindinput="handleInput" 
-        placeholder="" 
+        bindinput="handleInput"
+        placeholder="请输入主营产品"
+        placeholder-class="register-placeholder"
+        cursor-spacing="20"
+        auto-height="{{true}}"
       />
     </view>
 
     <!-- Submit Button -->
-    <button class="btn-submit" bindtap="onRegister">Complete Registration</button>
-  </view>
+    <button class="register-btn-submit" form-type="submit">Complete Registration</button>
+  </form>
 </view>

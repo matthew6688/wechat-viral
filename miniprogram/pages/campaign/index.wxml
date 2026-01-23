@@ -176,11 +176,14 @@
       </view>
       <view wx:if="{{helpers && helpers.length > 0}}" class="helpers-list">
         <view wx:for="{{helpers}}" wx:key="id" class="helper-item">
-          <view class="helper-avatar-placeholder">
-            <text>{{index + 1}}</text>
+          <view class="helper-avatar-container">
+            <image wx:if="{{item.avatar_url}}" class="helper-avatar" src="{{item.avatar_url}}" mode="aspectFill"></image>
+            <view wx:else class="helper-avatar-placeholder">
+              <text>{{index + 1}}</text>
+            </view>
           </view>
           <view class="helper-info">
-            <text class="helper-id">用户 {{item.helper_openid ? item.helper_openid.substring(0, 8) + '...' : '--'}}</text>
+            <text class="helper-name">{{item.display_name || '微信用户'}}</text>
             <text class="helper-time">{{utils.formatTime(item.created_at)}}</text>
           </view>
           <view class="helper-status {{item.is_valid ? 'valid' : 'invalid'}}">
@@ -202,6 +205,24 @@
       <text class="debug-text">Scene: {{sceneStr}}</text>
       <text class="debug-text">Participant ID: {{participant.id}}</text>
       <text class="debug-text">Referral Code: {{participant.referral_code}}</text>
+    </view>
+  </view>
+
+  <!-- Profile Authorization Modal -->
+  <view wx:if="{{showProfileModal}}" class="modal-overlay" catchtouchmove="preventTouchMove">
+    <view class="modal-container profile-modal">
+      <view class="modal-header">
+        <text class="modal-title">完善个人信息</text>
+      </view>
+      <view class="modal-body">
+        <view class="profile-prompt-icon">👤</view>
+        <text class="profile-prompt-text">授权您的微信头像和昵称</text>
+        <text class="profile-prompt-hint">让好友更容易认出您</text>
+      </view>
+      <view class="modal-footer">
+        <button class="btn-secondary" bindtap="skipProfile">暂不授权</button>
+        <button class="btn-primary" bindtap="authorizeProfile">立即授权</button>
+      </view>
     </view>
   </view>
 </view>

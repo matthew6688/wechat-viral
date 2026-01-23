@@ -147,4 +147,67 @@ App({
       });
     });
   },
+
+  /**
+   * Check if user has authorized their profile (nickname/avatar)
+   */
+  hasUserProfile(): boolean {
+    const user = this.globalData.user;
+    // User has profile if they have a real nickname (not default "新用户" or "微信用户")
+    const hasNickname = user?.wechat_nickname && 
+      user.wechat_nickname !== '新用户' && 
+      user.wechat_nickname !== '微信用户';
+    const hasAvatar = !!user?.wechat_avatar_url;
+    return hasNickname || hasAvatar;
+  },
+
+  /**
+   * Request user profile authorization using wx.getUserProfile
+   * This must be called from a user tap event (button click)
+   */
+  async getUserProfile(): Promise<{ nickName: string; avatarUrl: string } | null> {
+    return new Promise((resolve) => {
+      wx.getUserProfile({
+        desc: '用于展示您的昵称和头像',
+        success: async (res) => {
+          console.log('getUserProfile success:', res.userInfo);
+          const { nickName, avatarUrl } = res.userInfo;
+          
+          // Update user profile on server
+          try {
+            const token = storage.getToken();
+            if (token) {
+              const response = await wx.request({
+                url: `${API_BASE_URL}/users/profile`,
+                method: 'PUT',
+                header: {
+                  Authorization: `Bearer ${token}`,
+                },
+                data: {
+                  wechat_nickname: nickName,
+                  wechat_avatar_url: avatarUrl,
+                },
+              });
+
+              if (response.statusCode === 200 && (response.data as any).data) {
+                // Update local user data
+                const updatedUser = (response.data as any).data;
+                this.globalData.user = updatedUser;
+                storage.setUser(updatedUser);
+                console.log('User profile updated:', nickName);
+              }
+            }
+          } catch (error) {
+            console.error('Update profile error:', error);
+          }
+
+          resolve({ nickName, avatarUrl });
+        },
+        fail: (err) => {
+          console.log('getUserProfile failed or cancelled:', err);
+          resolve(null);
+        },
+      });
+    });
+  },
 });

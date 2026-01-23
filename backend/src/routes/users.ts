@@ -234,4 +234,63 @@ router.post('/register', authenticate, async (req: AuthRequest, res) => {
   }
 });
 
+/**
+ * PUT /api/users/profile
+ * Update user profile (nickname and avatar from wx.getUserProfile)
+ */
+router.put('/profile', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { wechat_nickname, wechat_avatar_url } = req.body;
+
+    if (!wechat_nickname && !wechat_avatar_url) {
+      return res.status(400).json({ error: 'wechat_nickname or wechat_avatar_url is required' });
+    }
+
+    // Prepare update data
+    const updateData: any = {};
+    if (wechat_nickname) {
+      updateData.wechat_nickname = wechat_nickname;
+      updateData.name = wechat_nickname; // Also update name field
+    }
+    if (wechat_avatar_url) {
+      updateData.wechat_avatar_url = wechat_avatar_url;
+    }
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .update(updateData)
+      .eq('id', req.userId)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+
+    // Log profile update event
+    await logEvent({
+      event_type: 'profile_update',
+      user_id: req.userId,
+      event_data: {
+        updated_fields: Object.keys(updateData),
+        has_nickname: !!wechat_nickname,
+        has_avatar: !!wechat_avatar_url,
+      },
+      ip_address: getClientIp(req),
+      user_agent: getUserAgent(req),
+    });
+
+    res.json({
+      data: {
+        id: user.id,
+        name: user.name,
+        wechat_nickname: user.wechat_nickname,
+        wechat_avatar_url: user.wechat_avatar_url,
+        is_admin: user.is_admin || false,
+      },
+    });
+  } catch (error: any) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ error: error.message || 'Failed to update profile' });
+  }
+});
+
 export default router;

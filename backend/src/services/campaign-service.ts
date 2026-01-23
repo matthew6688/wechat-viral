@@ -479,7 +479,12 @@ export async function getHelpers(
 ): Promise<CampaignHelper[]> {
   let query = supabase
     .from('campaign_helpers')
-    .select('*')
+    .select(`
+      *,
+      helper_user:users!campaign_helpers_helper_user_id_fkey(
+        id, name, wechat_nickname, wechat_avatar_url
+      )
+    `)
     .eq('participant_id', participantId)
     .order('created_at', { ascending: false });
 
@@ -494,7 +499,12 @@ export async function getHelpers(
     return [];
   }
 
-  return data || [];
+  // Transform to include display name
+  return (data || []).map((helper: any) => ({
+    ...helper,
+    display_name: helper.helper_user?.wechat_nickname || helper.helper_user?.name || '微信用户',
+    avatar_url: helper.helper_user?.wechat_avatar_url || null,
+  }));
 }
 
 // ============================================
@@ -602,13 +612,21 @@ export async function getCampaignQRCodeImage(ticket: string): Promise<Buffer> {
 // ============================================
 
 /**
- * Get campaign statistics
+ * Get enhanced campaign statistics
  */
 export async function getCampaignStats(campaignId: string): Promise<{
   totalParticipants: number;
   totalHelpers: number;
   validHelpers: number;
+  invalidHelpers: number;
   avgHelpersPerParticipant: number;
+  rewardsClaimed: number;
+  totalRewardsAvailable: number;
+  conversionRate: number;
+  retentionRate: number;
+  topPerformer: { name: string; helperCount: number } | null;
+  helpersToday: number;
+  helpersThisWeek: number;
 }> {
   // Count participants
   const { count: participantCount } = await supabase
@@ -629,17 +647,96 @@ export async function getCampaignStats(campaignId: string): Promise<{
     .eq('campaign_id', campaignId)
     .eq('is_valid', true);
 
+  // Count invalid helpers (unfollowed)
+  const { count: invalidHelperCount } = await supabase
+    .from('campaign_helpers')
+    .select('*', { count: 'exact', head: true })
+    .eq('campaign_id', campaignId)
+    .eq('is_valid', false);
+
+  // Count rewards claimed
+  const { count: rewardsClaimedCount } = await supabase
+    .from('campaign_reward_claims')
+    .select('*', { count: 'exact', head: true })
+    .eq('campaign_id', campaignId);
+
+  // Count total rewards available
+  const { count: totalRewardsCount } = await supabase
+    .from('campaign_rewards')
+    .select('*', { count: 'exact', head: true })
+    .eq('campaign_id', campaignId);
+
+  // Get top performer
+  const { data: topPerformerData } = await supabase
+    .from('campaign_participants')
+    .select(`
+      helper_count,
+      user:users(name, wechat_nickname)
+    `)
+    .eq('campaign_id', campaignId)
+    .order('helper_count', { ascending: false })
+    .limit(1) as any;
+
+  // Count helpers today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const { count: helpersTodayCount } = await supabase
+    .from('campaign_helpers')
+    .select('*', { count: 'exact', head: true })
+    .eq('campaign_id', campaignId)
+    .gte('created_at', today.toISOString());
+
+  // Count helpers this week
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const { count: helpersWeekCount } = await supabase
+    .from('campaign_helpers')
+    .select('*', { count: 'exact', head: true })
+    .eq('campaign_id', campaignId)
+    .gte('created_at', weekAgo.toISOString());
+
   const totalParticipants = participantCount || 0;
   const totalHelpers = totalHelperCount || 0;
   const validHelpers = validHelperCount || 0;
+  const invalidHelpers = invalidHelperCount || 0;
+  const rewardsClaimed = rewardsClaimedCount || 0;
+  const totalRewardsAvailable = totalRewardsCount || 0;
+
+  // Calculate conversion rate (helpers who became participants)
+  const conversionRate = totalHelpers > 0 
+    ? Math.round((totalParticipants / totalHelpers) * 100) 
+    : 0;
+
+  // Calculate retention rate
+  const retentionRate = totalHelpers > 0
+    ? Math.round((validHelpers / totalHelpers) * 100)
+    : 100;
+
+  // Get top performer info
+  let topPerformer = null;
+  if (topPerformerData && topPerformerData.length > 0) {
+    const tp = topPerformerData[0] as any;
+    topPerformer = {
+      name: tp.user?.wechat_nickname || tp.user?.name || 'Unknown',
+      helperCount: tp.helper_count || 0,
+    };
+  }
 
   return {
     totalParticipants,
     totalHelpers,
     validHelpers,
+    invalidHelpers,
     avgHelpersPerParticipant: totalParticipants > 0 
       ? Math.round((validHelpers / totalParticipants) * 100) / 100 
       : 0,
+    rewardsClaimed,
+    totalRewardsAvailable,
+    conversionRate,
+    retentionRate,
+    topPerformer,
+    helpersToday: helpersTodayCount || 0,
+    helpersThisWeek: helpersWeekCount || 0,
   };
 }
 
@@ -650,19 +747,39 @@ export async function getCampaignDebugEvents(
   campaignId: string,
   limit: number = 50
 ): Promise<any[]> {
-  const { data, error } = await supabase
+  // First get all campaign events, then filter in JS
+  // This is a workaround for Supabase's limited JSON filtering
+  // Use explicit relationship name to avoid ambiguity
+  const { data: allEvents, error } = await supabase
     .from('event_logs')
-    .select('*')
-    .or(`event_data->campaign_id.eq.${campaignId},event_type.in.(campaign_join,campaign_help,campaign_qr_created)`)
+    .select(`
+      *,
+      user:users!event_logs_user_id_fkey(id, name, wechat_nickname, wechat_avatar_url)
+    `)
+    .or(`event_type.ilike.campaign%,event_type.eq.follow_oa,event_type.eq.unfollow_oa`)
     .order('created_at', { ascending: false })
-    .limit(limit);
-
+    .limit(200);
+  
   if (error) {
     console.error('Get campaign debug events error:', error);
     return [];
   }
+  
+  // Filter events that belong to this campaign
+  const filteredEvents = (allEvents || []).filter((event: any) => {
+    const eventCampaignId = event.event_data?.campaign_id;
+    return eventCampaignId === campaignId;
+  }).slice(0, limit);
 
-  return data || [];
+  // Add user_display field for consistent frontend rendering
+  return filteredEvents.map((event: any) => ({
+    ...event,
+    user_display: event.user ? {
+      name: event.user.name,
+      nickname: event.user.wechat_nickname,
+      avatar: event.user.wechat_avatar_url,
+    } : null,
+  }));
 }
 
 // ============================================
