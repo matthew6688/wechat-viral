@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - WeChat Viral</title>
+  <title>管理后台 - WeChat Viral 活动裂变系统</title>
   <style>
     * {
       margin: 0;
@@ -3098,6 +3098,49 @@
       background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     }
 
+    .testing-section-warning {
+      border-color: #fcd34d;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    }
+
+    .testing-card-warning {
+      border-color: #f59e0b;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    }
+
+    .delete-users-stats {
+      margin: 12px 0;
+    }
+
+    .stat-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .delete-users-confirm {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .delete-users-confirm label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .delete-users-confirm code {
+      background: rgba(0, 0, 0, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+
     .testing-section-header {
       margin-bottom: 20px;
     }
@@ -5531,8 +5574,46 @@
 
     .helper-info {
       display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .helper-avatar-small {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .helper-avatar-placeholder-small {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .helper-name-cell {
+      display: flex;
       flex-direction: column;
       gap: 2px;
+    }
+
+    .helper-display-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .helper-openid-small {
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 10px;
+      color: var(--text-muted);
     }
 
     .helper-openid {
@@ -7114,6 +7195,719 @@
       opacity: 0.9;
     }
 
+    /* ============================================ */
+    /* Campaign Wizard Styles */
+    /* ============================================ */
+    .campaign-wizard-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg-primary);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+    }
+
+    .campaign-wizard-overlay.active {
+      display: flex;
+    }
+
+    .wizard-header {
+      padding: 16px 24px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .wizard-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wizard-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-primary);
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-primary);
+      transition: all 0.15s;
+    }
+
+    .wizard-back:hover {
+      border-color: var(--text-primary);
+    }
+
+    .wizard-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .wizard-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .wizard-actions button {
+      padding: 8px 16px;
+      font-size: 13px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-save-draft {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .btn-save-draft:hover {
+      border-color: var(--text-primary);
+    }
+
+    /* Step Progress */
+    .wizard-steps {
+      display: flex;
+      justify-content: center;
+      padding: 20px 24px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      gap: 0;
+    }
+
+    .wizard-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px;
+      position: relative;
+    }
+
+    .wizard-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      width: 40px;
+      height: 2px;
+      background: var(--border-color);
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .wizard-step.completed:not(:last-child)::after {
+      background: var(--success);
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg-primary);
+      border: 2px solid var(--border-color);
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .wizard-step.active .step-number {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .wizard-step.completed .step-number {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+
+    .wizard-step.completed .step-number::after {
+      content: '✓';
+    }
+
+    .step-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .wizard-step.active .step-label {
+      color: var(--text-primary);
+    }
+
+    .wizard-step.completed .step-label {
+      color: var(--success);
+    }
+
+    /* Wizard Content */
+    .wizard-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .wizard-panel {
+      max-width: 800px;
+      margin: 0 auto;
+      display: none;
+    }
+
+    .wizard-panel.active {
+      display: block;
+    }
+
+    .wizard-section {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .wizard-section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Wizard Form Elements */
+    .wizard-form-group {
+      margin-bottom: 20px;
+    }
+
+    .wizard-form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .wizard-form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .wizard-form-group label span.required {
+      color: var(--error);
+    }
+
+    .wizard-form-group input,
+    .wizard-form-group textarea,
+    .wizard-form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+      background: var(--bg-primary);
+      transition: border-color 0.15s;
+    }
+
+    .wizard-form-group input:focus,
+    .wizard-form-group textarea:focus,
+    .wizard-form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .wizard-form-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Page Style Selector */
+    .style-options {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .style-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .style-option:hover {
+      border-color: var(--text-muted);
+    }
+
+    .style-option.selected {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .style-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+
+    .style-color.red { background: #ef4444; }
+    .style-color.blue { background: #3b82f6; }
+    .style-color.green { background: #10b981; }
+    .style-color.orange { background: #f59e0b; }
+
+    /* Rewards Table */
+    .rewards-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .rewards-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .rewards-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    .rewards-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .rewards-table input {
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .rewards-table input[type="number"] {
+      width: 70px;
+    }
+
+    .reward-image-upload {
+      width: 48px;
+      height: 48px;
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: var(--bg-primary);
+      font-size: 18px;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .reward-image-upload:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .reward-image-upload img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .btn-remove-reward {
+      padding: 6px 10px;
+      border: none;
+      background: transparent;
+      color: var(--error);
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-remove-reward:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .btn-add-reward {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      width: 100%;
+      justify-content: center;
+      margin-top: 12px;
+      transition: all 0.15s;
+    }
+
+    .btn-add-reward:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Toggle Switch */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .toggle-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .toggle-info {
+      flex: 1;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .toggle-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--border-color);
+      border-radius: 24px;
+      transition: 0.2s;
+    }
+
+    .toggle-slider::before {
+      position: absolute;
+      content: '';
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--accent);
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    /* Poster Preview */
+    .poster-preview-container {
+      display: flex;
+      gap: 24px;
+    }
+
+    .poster-settings {
+      flex: 1;
+    }
+
+    .poster-preview {
+      width: 240px;
+      flex-shrink: 0;
+    }
+
+    .poster-preview-box {
+      width: 240px;
+      height: 400px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .poster-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .poster-upload-placeholder {
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .poster-upload-placeholder span {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .poster-preview-container {
+        flex-direction: column-reverse;
+      }
+      .poster-preview {
+        width: 100%;
+      }
+      .poster-preview-box {
+        width: 100%;
+        height: 300px;
+      }
+    }
+
+    /* Message Templates */
+    .message-template {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .message-template:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-template-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .message-template-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .message-template-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .message-template textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      background: var(--bg-secondary);
+    }
+
+    .message-variables {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .message-variable {
+      padding: 4px 8px;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent);
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: monospace;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .message-variable:hover {
+      background: rgba(99, 102, 241, 0.2);
+    }
+
+    /* Claim Method Selector */
+    .claim-method-options {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .claim-method-option {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .claim-method-option:hover {
+      border-color: var(--text-muted);
+    }
+
+    .claim-method-option.selected {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .claim-method-option span {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .claim-method-option small {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    /* Activation Codes */
+    .activation-codes-upload {
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .activation-codes-upload:hover {
+      border-color: var(--accent);
+    }
+
+    .activation-codes-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+    }
+
+    .activation-stat {
+      flex: 1;
+      text-align: center;
+    }
+
+    .activation-stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .activation-stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Wizard Footer */
+    .wizard-footer {
+      padding: 16px 24px;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .wizard-footer-left {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .wizard-footer-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-wizard {
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+
+    .btn-wizard-prev {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .btn-wizard-prev:hover {
+      border-color: var(--text-primary);
+    }
+
+    .btn-wizard-next {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+    }
+
+    .btn-wizard-next:hover {
+      opacity: 0.9;
+    }
+
+    .btn-wizard-save {
+      background: var(--success);
+      border: none;
+      color: #fff;
+    }
+
+    .btn-wizard-save:hover {
+      opacity: 0.9;
+    }
+
     .campaign-table {
       width: 100%;
       border-collapse: collapse;
@@ -7354,6 +8148,76 @@
 
     .reward-row .reward-url {
       font-size: 12px;
+    }
+
+    /* Form Section (Collapsible) */
+    .form-section {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-top: 16px;
+      overflow: hidden;
+    }
+
+    .form-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    .form-section-header:hover {
+      background: #f0f0f0;
+    }
+
+    .form-section-content {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .form-section-content.collapsed {
+      display: none;
+    }
+
+    .toggle-icon {
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-icon.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .form-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    #campaignMessageToSharer,
+    #campaignMessageToHelper {
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      resize: vertical;
     }
 
     /* Environment Validation Styles */
@@ -8950,72 +9814,72 @@
       </div>
       
       <nav class="sidebar-nav">
-        <!-- Overview -->
+        <!-- 概览 -->
         <div class="nav-section">
           <button class="nav-item active" data-panel="overview" onclick="switchPanel('overview')">
             <span class="nav-item-icon">📊</span>
-            <span class="nav-item-text">Overview</span>
+            <span class="nav-item-text">数据概览</span>
           </button>
         </div>
 
-        <!-- Campaigns -->
+        <!-- 活动管理 -->
         <div class="nav-section">
-          <div class="nav-section-title">Campaigns</div>
+          <div class="nav-section-title">活动管理</div>
           <button class="nav-item" data-panel="campaigns-management" onclick="switchPanel('campaigns-management')">
             <span class="nav-item-icon">📋</span>
-            <span class="nav-item-text">Management</span>
+            <span class="nav-item-text">活动列表</span>
           </button>
           <button class="nav-item" data-panel="campaigns-analytics" onclick="switchPanel('campaigns-analytics')">
             <span class="nav-item-icon">📈</span>
-            <span class="nav-item-text">Analytics</span>
+            <span class="nav-item-text">数据分析</span>
           </button>
           <button class="nav-item" data-panel="campaigns-debug" onclick="switchPanel('campaigns-debug')">
             <span class="nav-item-icon">🔍</span>
-            <span class="nav-item-text">Debug</span>
+            <span class="nav-item-text">活动调试</span>
           </button>
           <button class="nav-item" data-panel="campaigns-report" onclick="switchPanel('campaigns-report')">
             <span class="nav-item-icon">📑</span>
-            <span class="nav-item-text">Report</span>
+            <span class="nav-item-text">数据报表</span>
           </button>
         </div>
 
-        <!-- Contacts -->
+        <!-- 用户管理 -->
         <div class="nav-section">
-          <div class="nav-section-title">Contacts</div>
+          <div class="nav-section-title">用户管理</div>
           <button class="nav-item" data-panel="contacts-list" onclick="switchPanel('contacts-list')">
             <span class="nav-item-icon">📇</span>
-            <span class="nav-item-text">All Contacts</span>
+            <span class="nav-item-text">全部用户</span>
           </button>
         </div>
 
-        <!-- Events -->
+        <!-- 系统监控 -->
         <div class="nav-section">
-          <div class="nav-section-title">Monitoring</div>
+          <div class="nav-section-title">系统监控</div>
           <button class="nav-item" data-panel="events-live" onclick="switchPanel('events-live')">
             <span class="nav-item-icon">🔴</span>
-            <span class="nav-item-text">Live Logs</span>
-            <span class="nav-item-badge" id="liveLogsBadge">LIVE</span>
+            <span class="nav-item-text">实时日志</span>
+            <span class="nav-item-badge" id="liveLogsBadge">实时</span>
           </button>
           <button class="nav-item" data-panel="events-history" onclick="switchPanel('events-history')">
             <span class="nav-item-icon">📜</span>
-            <span class="nav-item-text">Event History</span>
+            <span class="nav-item-text">历史事件</span>
           </button>
         </div>
 
-        <!-- Settings -->
+        <!-- 系统设置 -->
         <div class="nav-section">
-          <div class="nav-section-title">Settings</div>
+          <div class="nav-section-title">系统设置</div>
           <button class="nav-item" data-panel="settings-tunnel" onclick="switchPanel('settings-tunnel')">
             <span class="nav-item-icon">🏗️</span>
-            <span class="nav-item-text">Infrastructure</span>
+            <span class="nav-item-text">基础设施</span>
           </button>
           <button class="nav-item" data-panel="settings-debug" onclick="switchPanel('settings-debug')">
             <span class="nav-item-icon">🐛</span>
-            <span class="nav-item-text">Debug Settings</span>
+            <span class="nav-item-text">调试设置</span>
           </button>
           <button class="nav-item" data-panel="settings-testing" onclick="switchPanel('settings-testing')">
             <span class="nav-item-icon">🧪</span>
-            <span class="nav-item-text">Testing Tools</span>
+            <span class="nav-item-text">测试工具</span>
           </button>
         </div>
       </nav>
@@ -9024,10 +9888,10 @@
         <div class="sidebar-user">
           <div class="sidebar-user-avatar">👤</div>
           <div class="sidebar-user-info">
-            <div class="sidebar-user-name" id="sidebarUserName">Admin</div>
-            <div class="sidebar-user-role">Administrator</div>
+            <div class="sidebar-user-name" id="sidebarUserName">管理员</div>
+            <div class="sidebar-user-role">系统管理员</div>
           </div>
-          <button class="sidebar-logout" onclick="logout()">Logout</button>
+          <button class="sidebar-logout" onclick="logout()">退出</button>
         </div>
       </div>
     </aside>
@@ -9052,35 +9916,35 @@
           <!-- Stats Header with Refresh -->
           <div class="overview-header">
             <div class="overview-meta">
-              <span class="last-updated" id="overviewLastUpdated">Loading...</span>
+              <span class="last-updated" id="overviewLastUpdated">加载中...</span>
             </div>
             <button class="btn-refresh" onclick="refreshOverviewStats()" id="refreshOverviewBtn">
               <span class="refresh-icon">🔄</span>
-              <span class="refresh-text">Refresh</span>
+              <span class="refresh-text">刷新数据</span>
             </button>
           </div>
 
           <!-- Key Metrics -->
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-label">📊 Active Campaigns</div>
+              <div class="stat-label">📊 进行中活动</div>
               <div class="stat-value" id="activeCampaigns">-</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">👥 Participants</div>
+              <div class="stat-label">👥 参与人数</div>
               <div class="stat-value" id="totalParticipants">-</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">🤝 Helpers</div>
+              <div class="stat-label">🤝 助力人数</div>
               <div class="stat-value" id="totalHelpers">-</div>
-              <div class="stat-sub" id="validHelpers">- valid</div>
+              <div class="stat-sub" id="validHelpers">- 有效</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">🎁 Rewards</div>
+              <div class="stat-label">🎁 已领取奖励</div>
               <div class="stat-value" id="rewardsClaimed">-</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">📈 Avg/User</div>
+              <div class="stat-label">📈 人均助力</div>
               <div class="stat-value" id="avgHelpers">-</div>
             </div>
           </div>
@@ -9088,21 +9952,21 @@
           <!-- Active Campaigns Table -->
           <div class="overview-section">
             <div class="overview-section-header">
-              <h3>📋 Active Campaigns</h3>
+              <h3>📋 进行中的活动</h3>
             </div>
             <div class="overview-campaigns-table" id="overviewCampaignsTable">
               <table>
                 <thead>
                   <tr>
-                    <th>Campaign</th>
-                    <th>Participants</th>
-                    <th>Helpers</th>
-                    <th>Rewards</th>
-                    <th>Status</th>
+                    <th>活动名称</th>
+                    <th>参与人数</th>
+                    <th>助力人数</th>
+                    <th>已领奖励</th>
+                    <th>状态</th>
                   </tr>
                 </thead>
                 <tbody id="overviewCampaignsBody">
-                  <tr><td colspan="5" class="loading-cell">Loading...</td></tr>
+                  <tr><td colspan="5" class="loading-cell">加载中...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -9111,10 +9975,10 @@
           <!-- Recent Activity -->
           <div class="overview-section">
             <div class="overview-section-header">
-              <h3>🕐 Recent Activity <span class="activity-period">(last 24h)</span></h3>
+              <h3>🕐 最近动态 <span class="activity-period">(最近24小时)</span></h3>
             </div>
             <div class="recent-activity" id="recentActivity">
-              <div class="activity-item">Loading...</div>
+              <div class="activity-item">加载中...</div>
             </div>
           </div>
         </div>
@@ -9123,7 +9987,7 @@
         <!-- CAMPAIGNS MANAGEMENT PANEL -->
         <!-- ============================================ -->
         <div class="content-panel" id="panel-campaigns-management">
-          <div class="loading" id="campaignListLoading">Loading campaigns...</div>
+          <div class="loading" id="campaignListLoading">加载活动列表...</div>
           <div id="campaignListContent" style="display: none;">
             <table class="campaign-table">
               <thead>
@@ -9147,12 +10011,12 @@
         <!-- ============================================ -->
         <div class="content-panel" id="panel-campaigns-analytics">
           <div class="analytics-tabs">
-            <button class="analytics-tab active" onclick="switchAnalyticsTab('influencers')">🏆 Influencers</button>
-            <button class="analytics-tab" onclick="switchAnalyticsTab('campaigns')">📈 Comparison</button>
-            <button class="analytics-tab" onclick="switchAnalyticsTab('sources')">🎯 Sources</button>
-            <button class="analytics-tab" onclick="switchAnalyticsTab('trends')">📅 Trends</button>
-            <button class="analytics-tab" onclick="switchAnalyticsTab('goals')">🎯 Goals</button>
-            <button class="analytics-tab" onclick="switchAnalyticsTab('reference')">📚 Reference</button>
+            <button class="analytics-tab active" onclick="switchAnalyticsTab('influencers')">🏆 影响力排名</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('campaigns')">📈 活动对比</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('sources')">🎯 来源分析</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('trends')">📅 趋势图表</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('goals')">🎯 目标追踪</button>
+            <button class="analytics-tab" onclick="switchAnalyticsTab('reference')">📚 参考文档</button>
           </div>
           <div id="analyticsContent">
             <!-- Analytics content loaded dynamically -->
@@ -9162,17 +10026,17 @@
           <div class="analytics-panel" id="analyticsInfluencersPanel">
             <div class="analytics-panel-header">
               <div>
-                <h4>🏆 Top Influencers</h4>
-                <p class="panel-subtitle">Who brings the most followers and has the highest viral potential?</p>
+                <h4>🏆 影响力排行榜</h4>
+                <p class="panel-subtitle">哪些用户带来最多粉丝，拥有最高的裂变潜力？</p>
               </div>
               <div class="panel-controls">
                 <select id="influencerPeriod" onchange="loadInfluencers()" class="filter-select">
-                  <option value="7">Last 7 days</option>
-                  <option value="30" selected>Last 30 days</option>
-                  <option value="90">Last 90 days</option>
-                  <option value="all">All time</option>
+                  <option value="7">最近 7 天</option>
+                  <option value="30" selected>最近 30 天</option>
+                  <option value="90">最近 90 天</option>
+                  <option value="all">全部时间</option>
                 </select>
-                <button class="btn-secondary btn-sm" onclick="loadInfluencers()">🔄 Refresh</button>
+                <button class="btn-secondary btn-sm" onclick="loadInfluencers()">🔄 刷新</button>
               </div>
             </div>
             
@@ -9182,28 +10046,28 @@
                 <span class="summary-icon">👥</span>
                 <div class="summary-content">
                   <span class="summary-value" id="totalInfluencers">-</span>
-                  <span class="summary-label">Total Influencers</span>
+                  <span class="summary-label">活跃用户数</span>
                 </div>
               </div>
               <div class="summary-card">
                 <span class="summary-icon">🌟</span>
                 <div class="summary-content">
                   <span class="summary-value" id="avgInfluenceScore">-</span>
-                  <span class="summary-label">Avg Influence Score</span>
+                  <span class="summary-label">平均影响力</span>
                 </div>
               </div>
               <div class="summary-card">
                 <span class="summary-icon">🔄</span>
                 <div class="summary-content">
                   <span class="summary-value" id="avgViralK">-</span>
-                  <span class="summary-label">Avg Viral Coefficient</span>
+                  <span class="summary-label">平均裂变系数</span>
                 </div>
               </div>
               <div class="summary-card">
                 <span class="summary-icon">🏅</span>
                 <div class="summary-content">
                   <span class="summary-value" id="topPerformerName">-</span>
-                  <span class="summary-label">Top Performer</span>
+                  <span class="summary-label">最佳表现者</span>
                 </div>
               </div>
             </div>
@@ -9213,19 +10077,19 @@
               <table class="leaderboard-table">
                 <thead>
                   <tr>
-                    <th>Rank</th>
-                    <th>User</th>
-                    <th>Score</th>
-                    <th>Helpers</th>
-                    <th>2nd Gen</th>
-                    <th>Viral K</th>
-                    <th>Retention</th>
-                    <th>Rewards</th>
-                    <th>Trend</th>
+                    <th>排名</th>
+                    <th>用户</th>
+                    <th>得分</th>
+                    <th>助力数</th>
+                    <th>二代数</th>
+                    <th>裂变K值</th>
+                    <th>留存率</th>
+                    <th>奖励数</th>
+                    <th>趋势</th>
                   </tr>
                 </thead>
                 <tbody id="influencersTableBody">
-                  <tr><td colspan="9" class="loading">Loading influencers...</td></tr>
+                  <tr><td colspan="9" class="loading">加载中...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -9235,18 +10099,18 @@
           <div class="analytics-panel hidden" id="analyticsCampaignsPanel">
             <div class="analytics-panel-header">
               <div>
-                <h4>📈 Campaign Comparison</h4>
-                <p class="panel-subtitle">Compare performance across campaigns</p>
+                <h4>📈 活动对比分析</h4>
+                <p class="panel-subtitle">对比不同活动的效果表现</p>
               </div>
               <div class="panel-controls">
-                <button class="btn-secondary btn-sm" onclick="loadCampaignComparison()">🔄 Refresh</button>
+                <button class="btn-secondary btn-sm" onclick="loadCampaignComparison()">🔄 刷新</button>
               </div>
             </div>
             
             <!-- Campaign Selector for A/B Comparison -->
             <div class="comparison-selector">
               <div class="comparison-item">
-                <label>Campaign A:</label>
+                <label>活动 A:</label>
                 <select id="campaignA" onchange="updateComparison()" class="filter-select">
                   <option value="">Select campaign...</option>
                 </select>
@@ -9803,27 +10667,27 @@
         <div class="content-panel" id="panel-campaigns-debug">
           <!-- Debug Tabs -->
           <div class="debug-main-tabs">
-            <button class="debug-main-tab active" onclick="switchDebugMainTab('overview')">📊 Debug Overview</button>
-            <button class="debug-main-tab" onclick="switchDebugMainTab('reference')">📚 Reference Guide</button>
+            <button class="debug-main-tab active" onclick="switchDebugMainTab('overview')">📊 调试概览</button>
+            <button class="debug-main-tab" onclick="switchDebugMainTab('reference')">📚 参考文档</button>
           </div>
           
           <!-- Debug Overview Tab -->
           <div class="debug-main-panel" id="debugOverviewPanel">
             <!-- Quick Select Campaign Buttons -->
             <div class="campaign-quick-select" id="campaignQuickSelect">
-              <span class="quick-select-label">Quick Select:</span>
+              <span class="quick-select-label">快速选择:</span>
               <div class="quick-select-buttons" id="campaignQuickButtons">
                 <!-- Buttons populated dynamically -->
               </div>
             </div>
             <div style="display: flex; gap: 8px; margin-bottom: 16px;">
               <select id="campaignSelect" onchange="loadCampaignDebug()" style="padding: 8px 12px; font-size: 13px; border: 1px solid var(--border-color); border-radius: 6px; flex: 1;">
-                <option value="">Select Campaign...</option>
+                <option value="">选择活动...</option>
               </select>
-              <button class="btn-secondary" onclick="refreshCampaignDebug()" style="padding: 8px 16px;">Refresh</button>
+              <button class="btn-secondary" onclick="refreshCampaignDebug()" style="padding: 8px 16px;">刷新</button>
             </div>
             <div id="campaignDebugContent">
-              <div class="empty-state">Select a campaign to view debug data</div>
+              <div class="empty-state">请选择一个活动查看调试数据</div>
             </div>
           </div>
           
@@ -10317,23 +11181,23 @@
           <!-- Report Header -->
           <div class="report-header">
             <div class="report-campaign-selector">
-              <label>Select Campaign:</label>
+              <label>选择活动:</label>
               <select id="reportCampaignSelect" onchange="loadCampaignReport()">
-                <option value="">Choose a campaign...</option>
+                <option value="">选择活动...</option>
               </select>
               <button class="btn-secondary btn-sm" onclick="refreshCampaignReport()">
-                <span>↻</span> Refresh
+                <span>↻</span> 刷新
               </button>
             </div>
             <div class="report-actions" id="reportActions" style="display: none;">
               <button class="btn-secondary btn-sm" onclick="exportReportPDF()">
-                <span>📄</span> Export PDF
+                <span>📄</span> 导出 PDF
               </button>
               <button class="btn-secondary btn-sm" onclick="exportReportCSV()">
-                <span>📊</span> Export CSV
+                <span>📊</span> 导出 CSV
               </button>
               <button class="btn-secondary btn-sm" onclick="printReport()">
-                <span>🖨️</span> Print
+                <span>🖨️</span> 打印
               </button>
             </div>
           </div>
@@ -10347,8 +11211,8 @@
           <div id="reportContent" class="report-content">
             <div class="report-placeholder">
               <div class="placeholder-icon">📑</div>
-              <h3>Select a Campaign</h3>
-              <p>Choose a campaign from the dropdown above to generate a comprehensive performance report.</p>
+              <h3>请选择活动</h3>
+              <p>从上方下拉菜单选择活动，生成完整的运营报表。</p>
             </div>
           </div>
         </div>
@@ -10359,8 +11223,8 @@
         <div class="content-panel" id="panel-events-live">
           <!-- Live Logs Tabs -->
           <div class="live-logs-tabs">
-            <button class="live-logs-tab active" onclick="switchLiveLogsTab('stream')">🔴 Live Stream</button>
-            <button class="live-logs-tab" onclick="switchLiveLogsTab('reference')">📚 Reference</button>
+            <button class="live-logs-tab active" onclick="switchLiveLogsTab('stream')">🔴 实时日志</button>
+            <button class="live-logs-tab" onclick="switchLiveLogsTab('reference')">📚 参考文档</button>
           </div>
           
           <!-- Live Stream Tab -->
@@ -10369,15 +11233,15 @@
             <div class="live-logs-controls">
               <div class="connection-status">
                 <span class="status-dot" id="connectionDot"></span>
-                <span id="connectionStatus">Connecting...</span>
+                <span id="connectionStatus">连接中...</span>
                 <span class="client-count" id="clientCount"></span>
               </div>
               <div class="control-buttons">
                 <button class="btn-control" id="pauseBtn" onclick="togglePause()">
-                  <span id="pauseIcon">⏸️</span> <span id="pauseText">Pause</span>
+                  <span id="pauseIcon">⏸️</span> <span id="pauseText">暂停</span>
                 </button>
-                <button class="btn-control" onclick="clearLogs()">🗑️ Clear</button>
-                <button class="btn-control" onclick="reconnectStream()">🔄 Reconnect</button>
+                <button class="btn-control" onclick="clearLogs()">🗑️ 清空</button>
+                <button class="btn-control" onclick="reconnectStream()">🔄 重连</button>
               </div>
             </div>
             
@@ -10385,41 +11249,41 @@
             <div class="live-stats-bar">
               <div class="live-stat">
                 <span class="live-stat-value" id="totalEventsCount">0</span>
-                <span class="live-stat-label">Total Events</span>
+                <span class="live-stat-label">事件总数</span>
               </div>
               <div class="live-stat">
                 <span class="live-stat-value" id="sessionEventsCount">0</span>
-                <span class="live-stat-label">This Session</span>
+                <span class="live-stat-label">本次会话</span>
               </div>
               <div class="live-stat">
                 <span class="live-stat-value" id="lastEventTime">-</span>
-                <span class="live-stat-label">Last Event</span>
+                <span class="live-stat-label">最后事件</span>
               </div>
               <div class="live-stat">
                 <span class="live-stat-value" id="eventsPerMinute">0</span>
-                <span class="live-stat-label">Events/Min</span>
+                <span class="live-stat-label">事件/分钟</span>
               </div>
             </div>
             
             <!-- Filter Bar -->
             <div class="live-filter-bar">
               <select id="liveEventFilter" onchange="updateLiveFilter()" class="live-filter-select">
-                <option value="">All Events</option>
-                <option value="oa_">WeChat OA Events</option>
-                <option value="campaign_">Campaign Events</option>
-                <option value="login">Login Events</option>
-                <option value="register">Register Events</option>
+                <option value="">全部事件</option>
+                <option value="oa_">公众号事件</option>
+                <option value="campaign_">活动事件</option>
+                <option value="login">登录事件</option>
+                <option value="register">注册事件</option>
               </select>
               <label class="filter-checkbox">
                 <input type="checkbox" id="showTestEvents" onchange="updateLiveFilter()">
-                Show Test Events
+                显示测试事件
               </label>
             </div>
             
             <!-- Logs Container -->
             <div class="debug-logs" id="debugLogsContainer">
               <div class="debug-log-entry" id="debugLogsPlaceholder">
-                <div class="log-time">Connecting to event stream...</div>
+                <div class="log-time">正在连接事件流...</div>
               </div>
             </div>
           </div>
@@ -10431,7 +11295,7 @@
               <!-- How It Works -->
               <div class="live-ref-section">
                 <h5 class="live-ref-title" onclick="toggleLiveRefSection(this)">
-                  <span>🔄 How Live Logs Works</span>
+                  <span>🔄 实时日志工作原理</span>
                   <span class="toggle-icon">▼</span>
                 </h5>
                 <div class="live-ref-body">
@@ -10686,33 +11550,33 @@
           <!-- Filters Row -->
           <div class="events-filters">
             <select id="eventTypeFilter" onchange="filterEvents()" class="event-filter-select">
-              <option value="">All Events</option>
-              <option value="oa_subscribe">🔔 OA Subscribe</option>
-              <option value="oa_scan">📷 OA Scan</option>
-              <option value="oa_unsubscribe">🔕 OA Unsubscribe</option>
-              <option value="campaign_helper_recorded">👥 Helper Recorded</option>
-              <option value="campaign_qr_created">🎫 QR Created</option>
-              <option value="campaign_reward_claimed">🎁 Reward Claimed</option>
-              <option value="campaign_created">📝 Campaign Created</option>
-              <option value="campaign_updated">✏️ Campaign Updated</option>
-              <option value="login">🔑 Login</option>
-              <option value="register">📋 Register</option>
+              <option value="">全部事件</option>
+              <option value="oa_subscribe">🔔 关注公众号</option>
+              <option value="oa_scan">📷 扫码事件</option>
+              <option value="oa_unsubscribe">🔕 取消关注</option>
+              <option value="campaign_helper_recorded">👥 助力记录</option>
+              <option value="campaign_qr_created">🎫 生成二维码</option>
+              <option value="campaign_reward_claimed">🎁 领取奖励</option>
+              <option value="campaign_created">📝 创建活动</option>
+              <option value="campaign_updated">✏️ 更新活动</option>
+              <option value="login">🔑 登录</option>
+              <option value="register">📋 注册</option>
             </select>
             <select id="deviceTypeFilter" onchange="filterEvents()" class="event-filter-select">
-              <option value="">All Devices</option>
-              <option value="mobile">📱 Mobile</option>
-              <option value="tablet">📱 Tablet</option>
-              <option value="desktop">🖥️ Desktop</option>
+              <option value="">全部设备</option>
+              <option value="mobile">📱 手机</option>
+              <option value="tablet">📱 平板</option>
+              <option value="desktop">🖥️ 电脑</option>
             </select>
-            <input type="text" id="eventSearchInput" placeholder="Search user, ID, location..." 
+            <input type="text" id="eventSearchInput" placeholder="搜索用户、ID、位置..." 
               onkeyup="filterEvents()" class="event-search-input" style="flex: 1;">
             <button class="btn-secondary" onclick="refreshEvents()" style="padding: 8px 16px;">
-              🔄 Refresh
+              🔄 刷新
             </button>
           </div>
-          <div class="loading" id="eventsLoading">Loading events...</div>
+          <div class="loading" id="eventsLoading">加载事件中...</div>
           <div class="events-list" id="eventsList"></div>
-          <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
+          <div class="empty-state" id="emptyState" style="display: none;">暂无事件</div>
         </div>
 
         <!-- ============================================ -->
@@ -10724,23 +11588,23 @@
             <div class="env-card" id="tunnelCard">
               <div class="env-header">
                 <span class="env-icon">🌐</span>
-                <span class="env-name">Cloudflare Tunnel</span>
-                <span class="env-status" id="tunnelStatus">⏳ Checking...</span>
+                <span class="env-name">Cloudflare 隧道</span>
+                <span class="env-status" id="tunnelStatus">⏳ 检测中...</span>
               </div>
               <div class="env-details" id="tunnelDetails">
                 <div class="env-row">
-                  <span class="env-label">Tunnel URL:</span>
+                  <span class="env-label">隧道地址:</span>
                   <input type="text" id="tunnelUrlInput" placeholder="https://xxx.trycloudflare.com" 
                     style="flex: 1; padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 11px; font-family: monospace;">
-                  <button class="btn-copy" onclick="saveTunnelUrl()" style="background: #10b981; color: white;">Save</button>
+                  <button class="btn-copy" onclick="saveTunnelUrl()" style="background: #10b981; color: white;">保存</button>
                 </div>
                 <div class="env-row">
-                  <span class="env-label">Webhook URL:</span>
+                  <span class="env-label">Webhook 地址:</span>
                   <span class="env-value" id="webhookUrl">-</span>
-                  <button class="btn-copy" onclick="copyToClipboard(document.getElementById('webhookUrl').textContent)">Copy</button>
+                  <button class="btn-copy" onclick="copyToClipboard(document.getElementById('webhookUrl').textContent)">复制</button>
                 </div>
                 <div class="env-row">
-                  <span class="env-label">Status:</span>
+                  <span class="env-label">状态:</span>
                   <span class="env-value" id="tunnelStatusText">-</span>
                 </div>
               </div>
@@ -10833,22 +11697,22 @@
           <!-- Infrastructure Sub-Tabs -->
           <div class="infra-tabs">
             <button class="infra-tab-btn active" onclick="switchInfraTab('system-health')">
-              <span>✅</span> System Health
+              <span>✅</span> 系统状态
             </button>
             <button class="infra-tab-btn" onclick="switchInfraTab('tunnel')">
-              <span>🚇</span> Tunnel
+              <span>🚇</span> 隧道配置
             </button>
             <button class="infra-tab-btn" onclick="switchInfraTab('wechat-oa')">
-              <span>📱</span> WeChat OA
+              <span>📱</span> 公众号
             </button>
             <button class="infra-tab-btn" onclick="switchInfraTab('database')">
-              <span>🗄️</span> Database
+              <span>🗄️</span> 数据库
             </button>
             <button class="infra-tab-btn" onclick="switchInfraTab('backend')">
-              <span>💻</span> Backend
+              <span>💻</span> 后端服务
             </button>
             <button class="infra-tab-btn" onclick="switchInfraTab('data-flow')">
-              <span>🔄</span> Data Flow
+              <span>🔄</span> 数据流
             </button>
           </div>
 
@@ -10861,94 +11725,94 @@
             <div class="tunnel-section">
               <div class="connection-header">
                 <div class="connection-title-row">
-                  <h4>Overall System Status</h4>
+                  <h4>系统总体状态</h4>
                   <div class="connection-indicator" id="systemOverallStatus">
                     <span class="indicator-dot" style="background: var(--text-muted);"></span>
-                    <span class="indicator-text">Click refresh to check</span>
+                    <span class="indicator-text">点击刷新检测</span>
                   </div>
                 </div>
-                <button class="btn-recheck" onclick="validateAllSystems()" title="Run system health check">
-                  🔄 Check Now
+                <button class="btn-recheck" onclick="validateAllSystems()" title="运行系统健康检查">
+                  🔄 立即检测
                 </button>
               </div>
 
               <div class="health-score" id="healthScore">
                 <div class="health-score-circle" style="background: linear-gradient(135deg, #9ca3af, #6b7280);">
                   <div class="health-score-value" id="healthScoreValue">--</div>
-                  <div class="health-score-label">Health Score</div>
+                  <div class="health-score-label">健康得分</div>
                 </div>
               </div>
             </div>
 
             <!-- System Checklist -->
             <div class="tunnel-section">
-              <h4>📋 System Checklist</h4>
-              <p class="section-desc">All components must be configured for the system to work properly.</p>
+              <h4>📋 系统检查清单</h4>
+              <p class="section-desc">所有组件都必须正确配置才能使系统正常工作。</p>
 
               <div class="checklist-group">
                 <div class="checklist-category">
-                  <div class="checklist-category-title">🗄️ Database (Supabase)</div>
+                  <div class="checklist-category-title">🗄️ 数据库 (Supabase)</div>
                   <div class="checklist-item" id="check-db-url">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">SUPABASE_URL configured</span>
+                    <span class="check-text">SUPABASE_URL 已配置</span>
                   </div>
                   <div class="checklist-item" id="check-db-key">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">SUPABASE_SERVICE_KEY configured</span>
+                    <span class="check-text">SUPABASE_SERVICE_KEY 已配置</span>
                   </div>
                   <div class="checklist-item" id="check-db-tables">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">All database tables exist</span>
+                    <span class="check-text">数据库表已创建</span>
                   </div>
                   <div class="checklist-item" id="check-db-connection">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">Database connection successful</span>
+                    <span class="check-text">数据库连接成功</span>
                   </div>
                 </div>
 
                 <div class="checklist-category">
-                  <div class="checklist-category-title">📱 WeChat Mini Program</div>
+                  <div class="checklist-category-title">📱 微信小程序</div>
                   <div class="checklist-item" id="check-mp-appid">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">WECHAT_APPID configured</span>
+                    <span class="check-text">WECHAT_APPID 已配置</span>
                   </div>
                   <div class="checklist-item" id="check-mp-secret">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">WECHAT_SECRET configured</span>
+                    <span class="check-text">WECHAT_SECRET 已配置</span>
                   </div>
                   <div class="checklist-item" id="check-mp-domain">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">Server domain whitelisted (Production only)</span>
+                    <span class="check-text">服务器域名已添加（仅生产环境）</span>
                   </div>
                   <div class="checklist-hints">
                     <div class="hint-item">
-                      <span class="hint-label">🖥️ Local Dev:</span>
-                      <span class="hint-text">Enable "不校验合法域名" in WeChat DevTools → Details → Local Settings</span>
+                      <span class="hint-label">🖥️ 本地开发:</span>
+                      <span class="hint-text">在微信开发者工具 → 详情 → 本地设置中勾选"不校验合法域名"</span>
                     </div>
                     <div class="hint-item">
-                      <span class="hint-label">🌐 Production:</span>
-                      <span class="hint-text">Add your domain in WeChat MP Admin → Development → Server Domain</span>
+                      <span class="hint-label">🌐 生产环境:</span>
+                      <span class="hint-text">在微信公众平台 → 开发 → 开发设置中添加服务器域名</span>
                     </div>
                   </div>
                 </div>
 
                 <div class="checklist-category">
-                  <div class="checklist-category-title">📡 WeChat Official Account</div>
+                  <div class="checklist-category-title">📡 微信公众号</div>
                   <div class="checklist-item" id="check-oa-appid">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">OA_APPID configured</span>
+                    <span class="check-text">OA_APPID 已配置</span>
                   </div>
                   <div class="checklist-item" id="check-oa-secret">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">OA_SECRET configured</span>
+                    <span class="check-text">OA_SECRET 已配置</span>
                   </div>
                   <div class="checklist-item" id="check-oa-token">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">OA_TOKEN configured</span>
+                    <span class="check-text">OA_TOKEN 已配置</span>
                   </div>
                   <div class="checklist-item" id="check-oa-aeskey">
                     <span class="check-icon">⏳</span>
-                    <span class="check-text">OA_ENCODING_AES_KEY configured</span>
+                    <span class="check-text">OA_ENCODING_AES_KEY 已配置</span>
                   </div>
                   <div class="checklist-item" id="check-oa-webhook">
                     <span class="check-icon">⏳</span>
@@ -12004,65 +12868,65 @@
         <!-- SETTINGS DEBUG PANEL -->
         <!-- ============================================ -->
         <div class="content-panel" id="panel-settings-debug">
-          <div class="loading" id="debugSettingsLoading">Loading settings...</div>
+          <div class="loading" id="debugSettingsLoading">加载设置中...</div>
           <div id="debugSettingsForm" style="display: none;">
             <form id="debugSettingsFormElement">
               <div class="settings-grid">
                 <div class="setting-item">
                   <label>
                     <input type="checkbox" id="debugMode" name="debug_mode">
-                    <span>Debug Mode</span>
+                    <span>调试模式</span>
                   </label>
-                  <p class="setting-desc">Enable verbose logging</p>
+                  <p class="setting-desc">启用详细日志</p>
                 </div>
 
                 <div class="setting-item">
                   <label>
-                    <span>Log Level</span>
+                    <span>日志级别</span>
                   </label>
                   <select id="logLevel" name="log_level">
-                    <option value="debug">Debug</option>
-                    <option value="info" selected>Info</option>
-                    <option value="warn">Warn</option>
-                    <option value="error">Error</option>
+                    <option value="debug">调试</option>
+                    <option value="info" selected>信息</option>
+                    <option value="warn">警告</option>
+                    <option value="error">错误</option>
                   </select>
                 </div>
 
                 <div class="setting-item">
                   <label>
                     <input type="checkbox" id="eventLogEnabled" name="event_log_enabled" checked>
-                    <span>Event Logging</span>
+                    <span>事件日志</span>
                   </label>
-                  <p class="setting-desc">Log events to database</p>
+                  <p class="setting-desc">将事件记录到数据库</p>
                 </div>
 
                 <div class="setting-item">
                   <label>
                     <input type="checkbox" id="apiLogging" name="api_logging" checked>
-                    <span>API Logging</span>
+                    <span>API 日志</span>
                   </label>
-                  <p class="setting-desc">Log API requests</p>
+                  <p class="setting-desc">记录 API 请求</p>
                 </div>
 
                 <div class="setting-item">
                   <label>
                     <input type="checkbox" id="errorTracking" name="error_tracking" checked>
-                    <span>Error Tracking</span>
+                    <span>错误追踪</span>
                   </label>
-                  <p class="setting-desc">Track and report errors</p>
+                  <p class="setting-desc">追踪并上报错误</p>
                 </div>
 
                 <div class="setting-item">
                   <label>
                     <input type="checkbox" id="performanceMonitoring" name="performance_monitoring">
-                    <span>Performance Monitoring</span>
+                    <span>性能监控</span>
                   </label>
-                  <p class="setting-desc">Monitor response times</p>
+                  <p class="setting-desc">监控响应时间</p>
                 </div>
 
                 <div class="setting-item">
                   <label>
-                    <span>Log Retention (days)</span>
+                    <span>日志保留天数</span>
                   </label>
                   <input type="number" id="maxLogRetentionDays" name="max_log_retention_days" value="30" min="1" max="365">
                 </div>
@@ -12070,13 +12934,13 @@
                 <div class="setting-item">
                   <label>
                     <input type="checkbox" id="showSensitiveData" name="show_sensitive_data">
-                    <span>Show Sensitive Data</span>
+                    <span>显示敏感数据</span>
                   </label>
-                  <p class="setting-desc warning">⚠️ Security risk - logs tokens/passwords</p>
+                  <p class="setting-desc warning">⚠️ 安全风险 - 会记录令牌/密码</p>
                 </div>
               </div>
 
-              <button type="submit" class="btn-save">Save Settings</button>
+              <button type="submit" class="btn-save">保存设置</button>
               <div id="debugSettingsMessage" class="settings-message"></div>
             </form>
           </div>
@@ -12091,36 +12955,36 @@
             <div class="testing-warning-banner">
               <span class="warning-icon">⚠️</span>
               <div class="warning-text">
-                <strong>Development Only</strong>
-                <p>These tools are for testing purposes. Actions cannot be undone!</p>
+                <strong>仅限开发测试使用</strong>
+                <p>这些工具仅用于测试目的，操作无法撤销！</p>
               </div>
             </div>
 
             <!-- Reset Campaign Data Section -->
             <div class="testing-section">
               <div class="testing-section-header">
-                <h3>🔄 Reset Campaign Data</h3>
-                <p>Delete helpers, participants, claims, and events. Keeps users and campaign structure.</p>
+                <h3>🔄 重置活动数据</h3>
+                <p>删除助力记录、参与者、领奖记录和事件日志，保留用户和活动结构。</p>
               </div>
               
               <div class="testing-cards">
                 <!-- Reset All Campaigns -->
                 <div class="testing-card">
                   <div class="testing-card-icon">🗑️</div>
-                  <h4>Reset All Campaign Data</h4>
-                  <p>Deletes all helpers, participants, reward claims, and campaign events across all campaigns.</p>
-                  <button class="btn-danger" onclick="resetAllCampaignData()">Reset All Campaigns</button>
+                  <h4>重置所有活动数据</h4>
+                  <p>删除所有活动的助力记录、参与者、领奖记录和活动事件。</p>
+                  <button class="btn-danger" onclick="resetAllCampaignData()">重置所有活动</button>
                 </div>
 
                 <!-- Reset Specific Campaign -->
                 <div class="testing-card">
                   <div class="testing-card-icon">📋</div>
-                  <h4>Reset Specific Campaign</h4>
-                  <p>Reset data for a single campaign only.</p>
+                  <h4>重置指定活动</h4>
+                  <p>仅重置选定活动的数据。</p>
                   <select id="testingCampaignSelect" class="testing-select">
-                    <option value="">Select a campaign...</option>
+                    <option value="">选择活动...</option>
                   </select>
-                  <button class="btn-warning" onclick="resetSpecificCampaign()">Reset Selected Campaign</button>
+                  <button class="btn-warning" onclick="resetSpecificCampaign()">重置选中活动</button>
                 </div>
               </div>
             </div>
@@ -12128,44 +12992,79 @@
             <!-- Test WeChat Accounts Section -->
             <div class="testing-section">
               <div class="testing-section-header">
-                <h3>🧪 Test WeChat Accounts</h3>
-                <p>Manage your test WeChat accounts. Reset their helper records to allow re-testing.</p>
+                <h3>🧪 测试微信账号</h3>
+                <p>管理测试微信账号，重置助力记录以便重新测试。</p>
               </div>
 
               <!-- Known Helpers from Database -->
               <div class="testing-subsection">
-                <h4>📋 Known Helpers in Database</h4>
-                <p class="testing-hint">These are WeChat accounts that have helped in campaigns. Click to reset their records.</p>
+                <h4>📋 数据库中的助力用户</h4>
+                <p class="testing-hint">这些微信账号曾在活动中进行过助力，点击可重置记录。</p>
                 <div id="knownHelpersList" class="known-helpers-list">
-                  <div class="loading">Loading...</div>
+                  <div class="loading">加载中...</div>
                 </div>
-                <button class="btn-secondary btn-sm" onclick="loadKnownHelpers()">↻ Refresh List</button>
+                <button class="btn-secondary btn-sm" onclick="loadKnownHelpers()">↻ 刷新列表</button>
               </div>
 
               <!-- Saved Test Accounts -->
               <div class="testing-subsection">
-                <h4>⭐ Saved Test Accounts</h4>
-                <p class="testing-hint">Save your frequently used test accounts for quick access.</p>
+                <h4>⭐ 已保存的测试账号</h4>
+                <p class="testing-hint">保存常用测试账号以便快速访问。</p>
                 <div id="savedTestAccountsList" class="saved-accounts-list">
-                  <div class="loading">Loading...</div>
+                  <div class="loading">加载中...</div>
                 </div>
                 <div class="add-test-account-form">
-                  <input type="text" id="newTestAccountOpenId" placeholder="Enter OpenID" class="testing-input">
-                  <input type="text" id="newTestAccountName" placeholder="Nickname (optional)" class="testing-input">
-                  <button class="btn-secondary" onclick="addTestAccount()">+ Add Account</button>
+                  <input type="text" id="newTestAccountOpenId" placeholder="输入 OpenID" class="testing-input">
+                  <input type="text" id="newTestAccountName" placeholder="昵称（可选）" class="testing-input">
+                  <button class="btn-secondary" onclick="addTestAccount()">+ 添加账号</button>
                 </div>
               </div>
 
               <!-- Manual Reset -->
               <div class="testing-subsection">
-                <h4>🔧 Manual Reset by OpenID</h4>
-                <p class="testing-hint">Enter an OpenID to reset all their helper records.</p>
+                <h4>🔧 按 OpenID 手动重置</h4>
+                <p class="testing-hint">输入 OpenID 重置该用户的所有助力记录。</p>
                 <div class="manual-reset-form">
-                  <input type="text" id="manualResetOpenId" placeholder="Enter OpenID" class="testing-input">
+                  <input type="text" id="manualResetOpenId" placeholder="输入 OpenID" class="testing-input">
                   <select id="manualResetCampaign" class="testing-select">
-                    <option value="">All campaigns</option>
+                    <option value="">全部活动</option>
                   </select>
-                  <button class="btn-warning" onclick="resetHelperManually()">Reset Helper</button>
+                  <button class="btn-warning" onclick="resetHelperManually()">重置助力</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delete Users Section -->
+            <div class="testing-section testing-section-warning">
+              <div class="testing-section-header">
+                <h3>👥 删除全部用户</h3>
+                <p>删除所有用户账户，保留活动配置。</p>
+              </div>
+              
+              <div class="testing-cards">
+                <div class="testing-card testing-card-warning">
+                  <div class="testing-card-icon">👥</div>
+                  <h4>删除全部用户</h4>
+                  <p>删除所有用户账户及其活动参与、助力记录等相关数据。<strong>活动配置将被保留。</strong></p>
+                  <div class="delete-users-stats" id="deleteUsersStats">
+                    <span class="stat-badge">加载用户数量...</span>
+                  </div>
+                  <div class="delete-users-confirm">
+                    <label>输入 <code>DELETE USERS</code> 确认:</label>
+                    <input type="text" id="deleteUsersConfirmInput" placeholder="输入 DELETE USERS" class="testing-input">
+                    <button class="btn-danger" onclick="deleteAllUsers()">🗑️ 删除全部用户</button>
+                  </div>
+                </div>
+                
+                <div class="testing-card">
+                  <div class="testing-card-icon">🧹</div>
+                  <h4>删除非管理员用户</h4>
+                  <p>删除<strong>管理员以外</strong>的所有用户，适合清理测试数据同时保留管理员账户。</p>
+                  <div class="delete-users-confirm">
+                    <label>输入 <code>DELETE NON-ADMIN</code> 确认:</label>
+                    <input type="text" id="deleteNonAdminConfirmInput" placeholder="输入 DELETE NON-ADMIN" class="testing-input">
+                    <button class="btn-warning" onclick="deleteNonAdminUsers()">🧹 删除非管理员用户</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -12173,29 +13072,29 @@
             <!-- Nuclear Option Section -->
             <div class="testing-section testing-section-danger">
               <div class="testing-section-header">
-                <h3>☢️ Nuclear Option</h3>
-                <p>Delete ALL data including users. This cannot be undone!</p>
+                <h3>☢️ 危险操作</h3>
+                <p>删除所有数据，包括用户和活动。此操作无法撤销！</p>
               </div>
               
               <div class="nuclear-option-card">
                 <div class="nuclear-warning">
                   <span class="nuclear-icon">☢️</span>
                   <div>
-                    <strong>Delete Everything</strong>
-                    <p>This will delete ALL data: users, campaigns, helpers, participants, events, everything.</p>
+                    <strong>删除全部数据</strong>
+                    <p>将删除所有数据：用户、活动、助力记录、参与者、事件日志等。</p>
                   </div>
                 </div>
                 <div class="nuclear-confirm">
-                  <label>Type <code>DELETE ALL</code> to confirm:</label>
-                  <input type="text" id="nuclearConfirmInput" placeholder="Type DELETE ALL" class="testing-input">
-                  <button class="btn-nuclear" onclick="nuclearReset()">☢️ Delete Everything</button>
+                  <label>输入 <code>DELETE ALL</code> 确认:</label>
+                  <input type="text" id="nuclearConfirmInput" placeholder="输入 DELETE ALL" class="testing-input">
+                  <button class="btn-nuclear" onclick="nuclearReset()">☢️ 删除全部数据</button>
                 </div>
               </div>
             </div>
 
             <!-- Reset Results -->
             <div id="testingResults" class="testing-results" style="display: none;">
-              <h4>📊 Last Operation Results</h4>
+              <h4>📊 操作结果</h4>
               <pre id="testingResultsContent"></pre>
             </div>
           </div>
@@ -12210,23 +13109,23 @@
             <div class="contacts-stats-bar" id="contactsStatsBar">
               <div class="contacts-stat">
                 <span class="stat-value" id="contactsTotalCount">-</span>
-                <span class="stat-label">Total</span>
+                <span class="stat-label">总用户数</span>
               </div>
               <div class="contacts-stat">
                 <span class="stat-value" id="contactsMPCount">-</span>
-                <span class="stat-label">📱 MP Users</span>
+                <span class="stat-label">📱 小程序用户</span>
               </div>
               <div class="contacts-stat">
                 <span class="stat-value" id="contactsOACount">-</span>
-                <span class="stat-label">📢 OA Followers</span>
+                <span class="stat-label">📢 公众号粉丝</span>
               </div>
               <div class="contacts-stat">
                 <span class="stat-value" id="contactsRegisteredCount">-</span>
-                <span class="stat-label">✅ Registered</span>
+                <span class="stat-label">✅ 已注册</span>
               </div>
               <div class="contacts-stat">
                 <span class="stat-value" id="contactsAdminCount">-</span>
-                <span class="stat-label">👑 Admins</span>
+                <span class="stat-label">👑 管理员</span>
               </div>
             </div>
 
@@ -12234,54 +13133,54 @@
             <div class="contacts-filters">
               <div class="filter-row">
                 <div class="search-box">
-                  <input type="text" id="contactsSearch" placeholder="Search by name, phone, email, or OpenID..." onkeyup="debounceContactsSearch()">
+                  <input type="text" id="contactsSearch" placeholder="搜索姓名、手机号、邮箱或 OpenID..." onkeyup="debounceContactsSearch()">
                   <span class="search-icon">🔍</span>
                 </div>
                 <select id="contactsSourceFilter" onchange="loadContacts()">
-                  <option value="">All Sources</option>
-                  <option value="miniprogram">Mini Program</option>
-                  <option value="oa">Official Account</option>
-                  <option value="registration">Registration</option>
-                  <option value="manual">Manual</option>
+                  <option value="">全部来源</option>
+                  <option value="miniprogram">小程序</option>
+                  <option value="oa">公众号</option>
+                  <option value="registration">注册</option>
+                  <option value="manual">手动添加</option>
                 </select>
                 <select id="contactsStatusFilter" onchange="loadContacts()">
-                  <option value="">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="blocked">Blocked</option>
-                  <option value="deleted">Deleted</option>
+                  <option value="">全部状态</option>
+                  <option value="active">正常</option>
+                  <option value="blocked">已禁用</option>
+                  <option value="deleted">已删除</option>
                 </select>
               </div>
               <div class="filter-row filter-toggles">
                 <label class="filter-toggle">
                   <input type="checkbox" id="filterHasMP" onchange="loadContacts()">
-                  <span>📱 Has MP</span>
+                  <span>📱 有小程序</span>
                 </label>
                 <label class="filter-toggle">
                   <input type="checkbox" id="filterHasOA" onchange="loadContacts()">
-                  <span>📢 Has OA</span>
+                  <span>📢 有公众号</span>
                 </label>
                 <label class="filter-toggle">
                   <input type="checkbox" id="filterHasEmail" onchange="loadContacts()">
-                  <span>✉️ Has Email</span>
+                  <span>✉️ 有邮箱</span>
                 </label>
                 <label class="filter-toggle">
                   <input type="checkbox" id="filterHasPhone" onchange="loadContacts()">
-                  <span>📞 Has Phone</span>
+                  <span>📞 有手机</span>
                 </label>
                 <label class="filter-toggle">
                   <input type="checkbox" id="filterIsAdmin" onchange="loadContacts()">
-                  <span>👑 Admin</span>
+                  <span>👑 管理员</span>
                 </label>
               </div>
             </div>
 
             <!-- Bulk Actions Bar (hidden by default) -->
             <div class="contacts-bulk-actions" id="contactsBulkActions" style="display: none;">
-              <span class="bulk-selected-count">Selected: <strong id="selectedContactsCount">0</strong></span>
-              <button class="btn-bulk" onclick="bulkAddTag()">🏷️ Add Tag</button>
-              <button class="btn-bulk" onclick="bulkExportContacts()">📤 Export</button>
-              <button class="btn-bulk btn-bulk-danger" onclick="bulkBlockContacts()">🚫 Block</button>
-              <button class="btn-bulk btn-bulk-danger" onclick="bulkDeleteContacts()">🗑️ Delete</button>
+              <span class="bulk-selected-count">已选择: <strong id="selectedContactsCount">0</strong> 位用户</span>
+              <button class="btn-bulk" onclick="bulkAddTag()">🏷️ 添加标签</button>
+              <button class="btn-bulk" onclick="bulkExportContacts()">📤 导出</button>
+              <button class="btn-bulk btn-bulk-danger" onclick="bulkBlockContacts()">🚫 禁用</button>
+              <button class="btn-bulk btn-bulk-danger" onclick="bulkDeleteContacts()">🗑️ 删除</button>
             </div>
 
             <!-- Contacts Table -->
@@ -12292,17 +13191,17 @@
                     <th class="col-checkbox">
                       <input type="checkbox" id="selectAllContacts" onchange="toggleSelectAllContacts()">
                     </th>
-                    <th class="col-user">User</th>
-                    <th class="col-contact">Contact Info</th>
-                    <th class="col-ids">WeChat IDs</th>
-                    <th class="col-engagement">Engagement</th>
-                    <th class="col-source">Source</th>
-                    <th class="col-actions">Actions</th>
+                    <th class="col-user">用户</th>
+                    <th class="col-contact">联系方式</th>
+                    <th class="col-ids">微信标识</th>
+                    <th class="col-engagement">互动数据</th>
+                    <th class="col-source">来源</th>
+                    <th class="col-actions">操作</th>
                   </tr>
                 </thead>
                 <tbody id="contactsTableBody">
                   <tr class="loading-row">
-                    <td colspan="7">Loading contacts...</td>
+                    <td colspan="7">加载中...</td>
                   </tr>
                 </tbody>
               </table>
@@ -12310,10 +13209,10 @@
 
             <!-- Pagination -->
             <div class="contacts-pagination">
-              <button class="btn-page" id="contactsPrevBtn" onclick="loadContactsPage('prev')" disabled>◀ Prev</button>
-              <span class="page-info">Page <span id="contactsCurrentPage">1</span> of <span id="contactsTotalPages">1</span></span>
-              <button class="btn-page" id="contactsNextBtn" onclick="loadContactsPage('next')" disabled>Next ▶</button>
-              <span class="page-total">Showing <span id="contactsShowing">0</span> of <span id="contactsTotal">0</span></span>
+              <button class="btn-page" id="contactsPrevBtn" onclick="loadContactsPage('prev')" disabled>◀ 上一页</button>
+              <span class="page-info">第 <span id="contactsCurrentPage">1</span> / <span id="contactsTotalPages">1</span> 页</span>
+              <button class="btn-page" id="contactsNextBtn" onclick="loadContactsPage('next')" disabled>下一页 ▶</button>
+              <span class="page-total">显示 <span id="contactsShowing">0</span> / <span id="contactsTotal">0</span> 条</span>
             </div>
           </div>
         </div>
@@ -12322,7 +13221,7 @@
         <div class="modal-overlay" id="contactDetailModal" style="display: none;">
           <div class="modal contact-detail-modal">
             <div class="modal-header">
-              <h3>👤 Contact Details</h3>
+              <h3>👤 用户详情</h3>
               <button class="modal-close" onclick="closeContactDetailModal()">×</button>
             </div>
             <div class="modal-body" id="contactDetailContent">
@@ -12381,7 +13280,7 @@
       <div class="stat-card">
         <div class="stat-label">🤝 Total Helpers</div>
         <div class="stat-value" id="totalHelpers">-</div>
-        <div class="stat-sub" id="validHelpers">- valid</div>
+        <div class="stat-sub" id="validHelpers">- 有效</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">📈 Retention</div>
@@ -12463,7 +13362,7 @@
             <button class="btn-secondary" onclick="refreshCampaignDebug()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
           </div>
           <div id="campaignDebugContent">
-            <div class="empty-state">Select a campaign to view debug data</div>
+            <div class="empty-state">请选择活动查看调试数据</div>
           </div>
         </div>
       </div>
@@ -12930,6 +13829,14 @@
   <script>
     const API_BASE_URL = 'http://localhost:3000/api';
     
+    // Helper function to join URL parts without double slashes
+    function joinUrl(base, path) {
+      if (!base) return path;
+      const cleanBase = base.replace(/\/+$/, ''); // Remove trailing slashes
+      const cleanPath = path.replace(/^\/+/, ''); // Remove leading slashes
+      return `${cleanBase}/${cleanPath}`;
+    }
+    
     // Check authentication
     const token = localStorage.getItem('admin_token');
     if (!token) {
@@ -12951,49 +13858,49 @@
     
     const panelInfo = {
       'overview': { 
-        title: 'Overview', 
-        subtitle: 'Dashboard overview and key metrics',
+        title: '数据概览', 
+        subtitle: '实时数据概览和关键指标',
         onLoad: () => { loadOverviewStats(false); }
       },
       'campaigns-management': { 
-        title: 'Campaign Management', 
-        subtitle: 'Create and manage your campaigns',
-        actions: '<button class="btn-primary" onclick="showCreateCampaignModal()">+ New Campaign</button>',
+        title: '活动管理', 
+        subtitle: '创建和管理裂变活动',
+        actions: '<button class="btn-primary" onclick="showCreateCampaignModal()">+ 创建活动</button>',
         onLoad: loadCampaignList
       },
       'campaigns-analytics': { 
-        title: 'Campaign Analytics', 
-        subtitle: 'Performance insights and metrics',
+        title: '数据分析', 
+        subtitle: '活动效果和用户转化分析',
         onLoad: () => { loadEnhancedInfluencers(); }
       },
       'campaigns-debug': { 
-        title: 'Campaign Debug', 
-        subtitle: 'Debug data and troubleshooting',
+        title: '活动调试', 
+        subtitle: '调试数据和问题排查',
         onLoad: loadCampaignSelectOptions
       },
       'campaigns-report': { 
-        title: 'Campaign Report', 
-        subtitle: 'Comprehensive performance reports',
+        title: '数据报表', 
+        subtitle: '综合运营报表和导出',
         onLoad: loadReportCampaignOptions
       },
       'events-live': { 
-        title: 'Live Logs', 
-        subtitle: 'Real-time event stream',
+        title: '实时日志', 
+        subtitle: '实时事件流监控',
         onLoad: initEventStream
       },
       'events-history': { 
-        title: 'Event History', 
-        subtitle: 'Browse and search past events',
+        title: '历史事件', 
+        subtitle: '浏览和搜索历史事件',
         onLoad: loadEvents
       },
       'settings-connection': { 
-        title: 'Connection Status', 
-        subtitle: 'Environment and service validation',
+        title: '连接状态', 
+        subtitle: '环境和服务验证',
         onLoad: runAllValidations
       },
       'settings-tunnel': { 
-        title: 'Infrastructure', 
-        subtitle: 'Manage system connections and configuration',
+        title: '基础设施', 
+        subtitle: '管理系统连接和配置',
         onLoad: () => {
           // Auto-validate current infra tab (except system-health which is manual)
           setTimeout(() => {
@@ -13010,19 +13917,19 @@
         }
       },
       'settings-debug': { 
-        title: 'Debug Settings', 
-        subtitle: 'Configure logging and monitoring',
+        title: '调试设置', 
+        subtitle: '配置日志和监控选项',
         onLoad: loadDebugSettings
       },
       'settings-testing': {
-        title: 'Testing Tools',
-        subtitle: 'Reset data and manage test accounts for development',
+        title: '测试工具',
+        subtitle: '重置数据和管理测试账户',
         onLoad: loadTestingTools
       },
       'contacts-list': {
-        title: 'Contacts',
-        subtitle: 'Manage all users across Mini Program and Official Account',
-        actions: '<button class="btn-primary" onclick="bulkExportContacts()">📤 Export</button>',
+        title: '全部用户',
+        subtitle: '管理小程序和公众号的所有用户',
+        actions: '<button class="btn-primary" onclick="bulkExportContacts()">📤 导出数据</button>',
         onLoad: loadContacts
       }
     };
@@ -13203,8 +14110,8 @@
           if (tunnelUrl) {
             currentTunnelUrl = tunnelUrl;
             urlInput.value = tunnelUrl;
-            webhookEl.textContent = `${tunnelUrl}/api/oa/webhook`;
-            document.getElementById('instructionUrl').textContent = `${tunnelUrl}/api/oa/webhook`;
+            webhookEl.textContent = joinUrl(tunnelUrl, '/api/oa/webhook');
+            document.getElementById('instructionUrl').textContent = joinUrl(tunnelUrl, '/api/oa/webhook');
             
             // Test if tunnel is accessible
             const testRes = await fetch(`${API_BASE_URL}/admin/tunnel/test`, {
@@ -13372,7 +14279,7 @@
             mismatchMsg.innerHTML = `
               <strong>Webhook URL may not be configured!</strong><br>
               <small>Current tunnel: ${currentTunnel}</small><br>
-              <small>Update WeChat OA backend with: <code>${currentTunnel}/api/oa/webhook</code></small>
+              <small>Update WeChat OA backend with: <code>${joinUrl(currentTunnel, '/api/oa/webhook')}</code></small>
             `;
             status.textContent = '⚠️ Check Webhook';
             status.className = 'env-status warning';
@@ -14079,7 +14986,7 @@
       if (totalHelpersEl) totalHelpersEl.textContent = data.totalHelpers || 0;
       
       const validHelpersEl = document.getElementById('validHelpers');
-      if (validHelpersEl) validHelpersEl.textContent = `${data.validHelpers || 0} valid`;
+      if (validHelpersEl) validHelpersEl.textContent = `${data.validHelpers || 0} 有效`;
       
       const rewardsClaimedEl = document.getElementById('rewardsClaimed');
       if (rewardsClaimedEl) rewardsClaimedEl.textContent = data.rewardsClaimed || 0;
@@ -14124,16 +15031,16 @@
         items.push(`<div class="activity-item"><span class="activity-icon">🤝</span><span class="activity-count">${activity.newHelpers}</span> new helpers recorded</div>`);
       }
       if (activity.rewardsClaimed > 0) {
-        items.push(`<div class="activity-item"><span class="activity-icon">🎁</span><span class="activity-count">${activity.rewardsClaimed}</span> rewards claimed</div>`);
+        items.push(`<div class="activity-item"><span class="activity-icon">🎁</span><span class="activity-count">${activity.rewardsClaimed}</span> 个奖励已领取</div>`);
       }
       if (activity.newParticipants > 0) {
         items.push(`<div class="activity-item"><span class="activity-icon">👥</span><span class="activity-count">${activity.newParticipants}</span> new participants joined</div>`);
       }
       if (activity.newFollowers > 0) {
-        items.push(`<div class="activity-item"><span class="activity-icon">➕</span><span class="activity-count">${activity.newFollowers}</span> new OA followers</div>`);
+        items.push(`<div class="activity-item"><span class="activity-icon">➕</span><span class="activity-count">${activity.newFollowers}</span> 新关注用户</div>`);
       }
       if (activity.unfollows > 0) {
-        items.push(`<div class="activity-item"><span class="activity-icon">➖</span><span class="activity-count">${activity.unfollows}</span> unfollows</div>`);
+        items.push(`<div class="activity-item"><span class="activity-icon">➖</span><span class="activity-count">${activity.unfollows}</span> 取消关注</div>`);
       }
       
       if (items.length === 0) {
@@ -15913,6 +16820,8 @@
       await loadKnownHelpers();
       // Load saved test accounts
       await loadSavedTestAccounts();
+      // Load user stats for delete section
+      await loadDeleteUsersStats();
     }
 
     async function loadTestingCampaigns() {
@@ -15939,7 +16848,7 @@
           ).join('');
           
           if (testingSelect) {
-            testingSelect.innerHTML = '<option value="">Select a campaign...</option>' + options;
+            testingSelect.innerHTML = '<option value="">选择活动...</option>' + options;
           }
           if (manualSelect) {
             manualSelect.innerHTML = '<option value="">All campaigns</option>' + options;
@@ -16294,6 +17203,115 @@
       }
     }
 
+    // Load user count for delete users section
+    async function loadDeleteUsersStats() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/contacts/stats`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          const statsEl = document.getElementById('deleteUsersStats');
+          if (statsEl) {
+            const total = data.data.totalUsers || 0;
+            const admins = data.data.adminUsers || 0;
+            const nonAdmin = total - admins;
+            statsEl.innerHTML = `
+              <span class="stat-badge">👥 ${total} total users</span>
+              <span class="stat-badge">👑 ${admins} admins</span>
+              <span class="stat-badge">🧹 ${nonAdmin} non-admin</span>
+            `;
+          }
+        }
+      } catch (error) {
+        console.error('Load delete users stats error:', error);
+      }
+    }
+
+    async function deleteAllUsers() {
+      const confirmation = document.getElementById('deleteUsersConfirmInput').value.trim();
+      
+      if (confirmation !== 'DELETE USERS') {
+        alert('Please type "DELETE USERS" to confirm');
+        return;
+      }
+      
+      if (!confirm('⚠️ DELETE ALL USERS\n\nThis will delete:\n• All user accounts\n• All campaign participations\n• All helper records\n• All reward claims\n• All user-related events\n\nCampaigns will be preserved.\n\nAre you sure?')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/testing/delete-all-users`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ confirmation }),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          showTestingResults(data);
+          alert(`✅ Deleted ${data.data?.deletedUsers || 'all'} users!\n\nCampaigns have been preserved.`);
+          document.getElementById('deleteUsersConfirmInput').value = '';
+          loadDeleteUsersStats();
+          
+          // If current user was deleted, redirect to login
+          if (data.data?.currentUserDeleted) {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_user');
+            window.location.href = './login.html';
+          }
+        } else {
+          alert('Failed to delete users: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Delete all users error:', error);
+        alert('Error deleting users: ' + error.message);
+      }
+    }
+
+    async function deleteNonAdminUsers() {
+      const confirmation = document.getElementById('deleteNonAdminConfirmInput').value.trim();
+      
+      if (confirmation !== 'DELETE NON-ADMIN') {
+        alert('Please type "DELETE NON-ADMIN" to confirm');
+        return;
+      }
+      
+      if (!confirm('⚠️ DELETE NON-ADMIN USERS\n\nThis will delete all users except admins.\n\nAdmin accounts will be preserved.\nCampaigns will be preserved.\n\nAre you sure?')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/testing/delete-non-admin-users`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ confirmation }),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          showTestingResults(data);
+          alert(`✅ Deleted ${data.data?.deletedUsers || 0} non-admin users!\n\nAdmin accounts and campaigns have been preserved.`);
+          document.getElementById('deleteNonAdminConfirmInput').value = '';
+          loadDeleteUsersStats();
+        } else {
+          alert('Failed to delete non-admin users: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Delete non-admin users error:', error);
+        alert('Error deleting non-admin users: ' + error.message);
+      }
+    }
+
     // Real-time Debug Logs with SSE
     let eventSource = null;
     let logs = [];
@@ -16616,7 +17634,7 @@
 
       const tunnelUrl = status.url || (status.tunnel_url && status.tunnel_url?.url);
       if (tunnelUrl) {
-        const fullUrl = `${tunnelUrl}/api/oa/webhook`;
+        const fullUrl = joinUrl(tunnelUrl, '/api/oa/webhook');
         if (urlValue) urlValue.value = fullUrl;
         if (urlSection) urlSection.style.display = 'block';
         
@@ -16983,8 +18001,8 @@
           if (result.tunnel_url?.url) {
             let tunnelUrl = result.tunnel_url.url;
             // Remove trailing /api/oa/webhook if present (for clean display)
-            const baseUrl = tunnelUrl.replace(/\/api\/oa\/webhook\/?$/, '');
-            const webhookUrl = `${baseUrl}/api/oa/webhook`;
+            const baseUrl = tunnelUrl.replace(/\/api\/oa\/webhook\/?$/, '').replace(/\/+$/, '');
+            const webhookUrl = joinUrl(baseUrl, '/api/oa/webhook');
             
             if (tunnelUrlDisplay) tunnelUrlDisplay.textContent = baseUrl;
             if (webhookUrlDisplay) webhookUrlDisplay.textContent = webhookUrl;
@@ -17170,7 +18188,7 @@
           // Update Webhook URL display
           const tunnelUrl = document.getElementById('currentTunnelUrlDisplay')?.textContent;
           if (tunnelUrl && tunnelUrl !== 'Not configured') {
-            updateDisplayField('wechatWebhookUrlDisplay', `${tunnelUrl}/api/oa/webhook`);
+            updateDisplayField('wechatWebhookUrlDisplay', joinUrl(tunnelUrl, '/api/oa/webhook'));
           } else {
             updateDisplayField('wechatWebhookUrlDisplay', 'Tunnel not configured');
           }
@@ -17609,6 +18627,628 @@
     let allCampaigns = [];
     let editingCampaignId = null;
     let rewardCounter = 0;
+    let currentWizardStep = 1;
+    let wizardRewards = [];
+
+    // ============================================
+    // Campaign Wizard Functions
+    // ============================================
+
+    function showCreateCampaignWizard() {
+      editingCampaignId = null;
+      currentWizardStep = 1;
+      wizardRewards = [];
+      
+      // Reset form
+      document.getElementById('wizardTitle').textContent = '创建活动';
+      document.getElementById('wizardCampaignId').value = '';
+      document.getElementById('wizardCampaignName').value = '';
+      document.getElementById('wizardPageStyle').value = 'red';
+      document.getElementById('wizardBrandEnabled').checked = false;
+      document.getElementById('wizardBrandLogo').value = '';
+      document.getElementById('wizardBrandName').value = '';
+      document.getElementById('brandFields').style.display = 'none';
+      
+      // Set default dates
+      const now = new Date();
+      const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      document.getElementById('wizardStartTime').value = formatDateTimeLocal(now);
+      document.getElementById('wizardEndTime').value = formatDateTimeLocal(endDate);
+      
+      // Reset poster settings
+      document.getElementById('wizardAvatarEnabled').checked = true;
+      document.getElementById('wizardAvatarShape').value = 'circle';
+      document.getElementById('wizardNicknameEnabled').checked = true;
+      document.getElementById('wizardNicknameFontSize').value = '24';
+      document.getElementById('wizardNicknameColor').value = '#333333';
+      document.getElementById('wizardPosterBackground').value = '';
+      document.getElementById('wizardRecommendEnabled').checked = false;
+      document.getElementById('wizardRecommendText').value = '';
+      document.getElementById('recommendTextGroup').style.display = 'none';
+      document.getElementById('posterPreviewBox').innerHTML = '<div class="poster-upload-placeholder"><span>🖼️</span><div>海报预览</div></div>';
+      
+      // Reset style selections
+      document.querySelectorAll('.style-option[data-style]').forEach(el => {
+        el.classList.remove('selected');
+        if (el.dataset.style === 'red') el.classList.add('selected');
+      });
+      document.querySelectorAll('.style-option[data-shape]').forEach(el => {
+        el.classList.remove('selected');
+        if (el.dataset.shape === 'circle') el.classList.add('selected');
+      });
+      
+      // Add default rewards
+      wizardRewards = [
+        { reward_name: '基础资源包', total_quantity: 100, helpers_required: 0, reward_image_url: '', claim_method: 'link', claim_link: '', claim_text: '' },
+        { reward_name: '进阶资源包', total_quantity: 50, helpers_required: 3, reward_image_url: '', claim_method: 'link', claim_link: '', claim_text: '' },
+      ];
+      renderWizardRewards();
+      
+      // Reset message templates
+      resetMessageTemplates();
+      
+      // Show wizard and set step
+      updateWizardStep(1);
+      document.getElementById('campaignWizard').classList.add('active');
+    }
+
+    function showEditCampaignWizard(campaignId) {
+      editingCampaignId = campaignId;
+      currentWizardStep = 1;
+      
+      document.getElementById('wizardTitle').textContent = '编辑活动';
+      
+      // Load campaign data
+      loadCampaignForEdit(campaignId);
+      
+      // Show wizard
+      document.getElementById('campaignWizard').classList.add('active');
+    }
+
+    async function loadCampaignForEdit(campaignId) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/campaigns/admin/${campaignId}/full`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          const campaign = data.data.campaign;
+          const rewards = data.data.rewards || [];
+          
+          // Populate form fields
+          document.getElementById('wizardCampaignId').value = campaign.id;
+          document.getElementById('wizardCampaignName').value = campaign.name || '';
+          document.getElementById('wizardPageStyle').value = campaign.page_style || 'red';
+          selectPageStyle(campaign.page_style || 'red');
+          
+          document.getElementById('wizardBrandEnabled').checked = campaign.brand_enabled || false;
+          document.getElementById('wizardBrandLogo').value = campaign.brand_logo_url || '';
+          document.getElementById('wizardBrandName').value = campaign.brand_name || '';
+          toggleBrandFields();
+          
+          document.getElementById('wizardStartTime').value = campaign.start_time ? formatDateTimeLocal(new Date(campaign.start_time)) : '';
+          document.getElementById('wizardEndTime').value = campaign.end_time ? formatDateTimeLocal(new Date(campaign.end_time)) : '';
+          
+          // Poster settings
+          document.getElementById('wizardAvatarEnabled').checked = campaign.poster_avatar_enabled !== false;
+          document.getElementById('wizardAvatarShape').value = campaign.poster_avatar_shape || 'circle';
+          selectAvatarShape(campaign.poster_avatar_shape || 'circle');
+          document.getElementById('wizardNicknameEnabled').checked = campaign.poster_nickname_enabled !== false;
+          document.getElementById('wizardNicknameFontSize').value = campaign.poster_nickname_font_size || '24';
+          document.getElementById('wizardNicknameColor').value = campaign.poster_nickname_color || '#333333';
+          document.getElementById('wizardPosterBackground').value = campaign.poster_background_url || '';
+          if (campaign.poster_background_url) {
+            document.getElementById('posterPreviewBox').innerHTML = `<img src="${campaign.poster_background_url}" alt="Poster Preview">`;
+          }
+          document.getElementById('wizardRecommendEnabled').checked = campaign.poster_recommend_enabled || false;
+          document.getElementById('wizardRecommendText').value = campaign.poster_recommend_text || '';
+          toggleRecommendText();
+          
+          // Message templates
+          document.getElementById('wizardMsgRule').value = campaign.msg_rule || '';
+          document.getElementById('wizardMsgHelperSuccess').value = campaign.msg_helper_success || '';
+          document.getElementById('wizardMsgDuplicateHelp').value = campaign.msg_duplicate_help || '';
+          document.getElementById('wizardMsgCampaignEnded').value = campaign.msg_campaign_ended || '';
+          document.getElementById('wizardMsgCampaignEndedImage').value = campaign.msg_campaign_ended_image_url || '';
+          document.getElementById('wizardMsgToSharer').value = campaign.message_to_sharer || '';
+          
+          // Rewards
+          wizardRewards = rewards.map(r => ({
+            id: r.id,
+            reward_name: r.reward_name || '',
+            total_quantity: r.total_quantity || 100,
+            helpers_required: r.helpers_required || 0,
+            reward_image_url: r.reward_image_url || '',
+            claim_method: r.claim_method || 'link',
+            claim_link: r.claim_link || '',
+            claim_text: r.claim_text || '',
+            activation_codes_stats: r.activation_codes_stats || null,
+          }));
+          renderWizardRewards();
+          
+          updateWizardStep(1);
+        }
+      } catch (error) {
+        console.error('Load campaign for edit error:', error);
+        alert('加载活动数据失败');
+      }
+    }
+
+    function closeCampaignWizard() {
+      document.getElementById('campaignWizard').classList.remove('active');
+      editingCampaignId = null;
+    }
+
+    function updateWizardStep(step) {
+      currentWizardStep = step;
+      
+      // Update step indicators
+      for (let i = 1; i <= 4; i++) {
+        const stepEl = document.getElementById(`wizardStep${i}`);
+        const panelEl = document.getElementById(`wizardPanel${i}`);
+        
+        stepEl.classList.remove('active', 'completed');
+        panelEl.classList.remove('active');
+        
+        if (i < step) {
+          stepEl.classList.add('completed');
+        } else if (i === step) {
+          stepEl.classList.add('active');
+          panelEl.classList.add('active');
+        }
+      }
+      
+      // Update buttons
+      document.getElementById('btnWizardPrev').style.display = step === 1 ? 'none' : 'inline-block';
+      document.getElementById('btnWizardNext').style.display = step === 4 ? 'none' : 'inline-block';
+      document.getElementById('btnWizardSave').style.display = step === 4 ? 'inline-block' : 'none';
+      
+      // Update hint
+      const hints = {
+        1: '填写完基本信息后继续下一步',
+        2: '设置海报样式和背景图',
+        3: '自定义各场景的消息文案',
+        4: '配置奖品领取方式后保存发布',
+      };
+      document.getElementById('wizardFooterHint').textContent = hints[step];
+      
+      // Step 4: Render claim methods
+      if (step === 4) {
+        renderClaimMethods();
+      }
+    }
+
+    function wizardNextStep() {
+      // Validate current step
+      if (currentWizardStep === 1) {
+        const name = document.getElementById('wizardCampaignName').value.trim();
+        if (!name) {
+          alert('请输入活动名称');
+          return;
+        }
+        if (wizardRewards.length === 0) {
+          alert('请至少添加一个奖品');
+          return;
+        }
+      }
+      
+      if (currentWizardStep < 4) {
+        updateWizardStep(currentWizardStep + 1);
+      }
+    }
+
+    function wizardPrevStep() {
+      if (currentWizardStep > 1) {
+        updateWizardStep(currentWizardStep - 1);
+      }
+    }
+
+    function selectPageStyle(style) {
+      document.querySelectorAll('.style-option[data-style]').forEach(el => {
+        el.classList.remove('selected');
+        if (el.dataset.style === style) el.classList.add('selected');
+      });
+      document.getElementById('wizardPageStyle').value = style;
+    }
+
+    function selectAvatarShape(shape) {
+      document.querySelectorAll('.style-option[data-shape]').forEach(el => {
+        el.classList.remove('selected');
+        if (el.dataset.shape === shape) el.classList.add('selected');
+      });
+      document.getElementById('wizardAvatarShape').value = shape;
+    }
+
+    function toggleBrandFields() {
+      const enabled = document.getElementById('wizardBrandEnabled').checked;
+      document.getElementById('brandFields').style.display = enabled ? 'block' : 'none';
+    }
+
+    function toggleRecommendText() {
+      const enabled = document.getElementById('wizardRecommendEnabled').checked;
+      document.getElementById('recommendTextGroup').style.display = enabled ? 'block' : 'none';
+    }
+
+    function resetMessageTemplates() {
+      document.getElementById('wizardMsgRule').value = `@{{user_nickname}}，您好呀，快来参与本次福利活动~
+
+点击下方链接，生成个人专属海报
+分享海报，邀请好友扫码助力，即可领取奖品！
+
+奖品数量有限，快去参加吧👇`;
+
+      document.getElementById('wizardMsgHelperSuccess').value = `@{{user_nickname}}，很高兴认识您，您已为{{sharer_name}}助力成功！
+同时，诚邀您一起参与本次福利活动~
+
+点击下方链接，生成个人专属海报
+分享海报，邀请好友扫码助力，即可领取奖品！`;
+
+      document.getElementById('wizardMsgDuplicateHelp').value = `@{{user_nickname}}，您已经为好友助力过，不能重复助力哟~
+诚邀您一起参与本次福利活动~`;
+
+      document.getElementById('wizardMsgCampaignEnded').value = `活动已结束，感谢您的参与！敬请期待下次活动~`;
+      document.getElementById('wizardMsgCampaignEndedImage').value = '';
+
+      document.getElementById('wizardMsgToSharer').value = `🎉 好消息！
+
+有人刚刚为你助力了！
+
+📊 当前进度：{{helper_count}}/{{max_helpers}} 人
+🎁 还差 {{remaining}} 人即可领取奖励
+
+继续分享给更多好友吧！`;
+    }
+
+    function insertVariable(textareaId, variable) {
+      const textarea = document.getElementById(textareaId);
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      textarea.value = text.substring(0, start) + variable + text.substring(end);
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + variable.length;
+    }
+
+    function handlePosterUpload(input) {
+      const file = input.files[0];
+      if (file) {
+        // For now, just show a preview. In production, upload to storage.
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('posterPreviewBox').innerHTML = `<img src="${e.target.result}" alt="Poster Preview">`;
+          // In production, upload and get URL
+          // For now, store as data URL (not recommended for production)
+          document.getElementById('wizardPosterBackground').value = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Wizard Rewards Management
+    function renderWizardRewards() {
+      const tbody = document.getElementById('wizardRewardsBody');
+      tbody.innerHTML = wizardRewards.map((reward, index) => `
+        <tr data-index="${index}">
+          <td>
+            <div class="reward-image-upload" onclick="uploadRewardImage(${index})">
+              ${reward.reward_image_url ? `<img src="${reward.reward_image_url}" alt="">` : '📷'}
+            </div>
+            <input type="file" id="rewardImageInput${index}" accept="image/*" style="display:none" onchange="handleRewardImageUpload(${index}, this)">
+          </td>
+          <td>
+            <input type="text" value="${reward.reward_name}" placeholder="奖品名称" onchange="updateWizardReward(${index}, 'reward_name', this.value)">
+          </td>
+          <td>
+            <input type="number" value="${reward.total_quantity}" min="1" onchange="updateWizardReward(${index}, 'total_quantity', parseInt(this.value))">
+          </td>
+          <td>
+            <input type="number" value="${reward.helpers_required}" min="0" onchange="updateWizardReward(${index}, 'helpers_required', parseInt(this.value))">
+          </td>
+          <td>
+            <button type="button" class="btn-remove-reward" onclick="removeWizardReward(${index})">×</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function addWizardReward() {
+      if (wizardRewards.length >= 3) {
+        alert('最多只能添加3个奖品');
+        return;
+      }
+      const maxHelpers = Math.max(...wizardRewards.map(r => r.helpers_required), 0);
+      wizardRewards.push({
+        reward_name: '',
+        total_quantity: 50,
+        helpers_required: maxHelpers + 3,
+        reward_image_url: '',
+        claim_method: 'link',
+        claim_link: '',
+        claim_text: '',
+      });
+      renderWizardRewards();
+    }
+
+    function removeWizardReward(index) {
+      if (wizardRewards.length <= 1) {
+        alert('至少需要保留一个奖品');
+        return;
+      }
+      wizardRewards.splice(index, 1);
+      renderWizardRewards();
+    }
+
+    function updateWizardReward(index, field, value) {
+      wizardRewards[index][field] = value;
+    }
+
+    function uploadRewardImage(index) {
+      document.getElementById(`rewardImageInput${index}`).click();
+    }
+
+    function handleRewardImageUpload(index, input) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          wizardRewards[index].reward_image_url = e.target.result;
+          renderWizardRewards();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Claim Methods for Step 4
+    function renderClaimMethods() {
+      const container = document.getElementById('claimMethodsContainer');
+      container.innerHTML = wizardRewards.map((reward, index) => `
+        <div class="wizard-section" style="padding: 16px; margin-bottom: 12px;">
+          <div style="font-weight: 500; margin-bottom: 12px;">🎁 ${reward.reward_name || `奖品 ${index + 1}`}</div>
+          <div class="claim-method-options">
+            <div class="claim-method-option ${reward.claim_method === 'link' ? 'selected' : ''}" onclick="selectClaimMethod(${index}, 'link')">
+              <span>🔗 跳转链接</span>
+              <small>打开指定URL</small>
+            </div>
+            <div class="claim-method-option ${reward.claim_method === 'text' ? 'selected' : ''}" onclick="selectClaimMethod(${index}, 'text')">
+              <span>📝 显示文字</span>
+              <small>展示说明文字</small>
+            </div>
+            <div class="claim-method-option ${reward.claim_method === 'activation_code' ? 'selected' : ''}" onclick="selectClaimMethod(${index}, 'activation_code')">
+              <span>🎟️ 激活码</span>
+              <small>发放唯一码</small>
+            </div>
+          </div>
+          
+          <div id="claimMethodFields${index}">
+            ${renderClaimMethodFields(index, reward)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderClaimMethodFields(index, reward) {
+      switch (reward.claim_method) {
+        case 'link':
+          return `
+            <div class="wizard-form-group" style="margin-top: 12px;">
+              <label>跳转链接</label>
+              <input type="url" value="${reward.claim_link || ''}" placeholder="https://..." onchange="updateWizardReward(${index}, 'claim_link', this.value)">
+            </div>
+          `;
+        case 'text':
+          return `
+            <div class="wizard-form-group" style="margin-top: 12px;">
+              <label>显示内容</label>
+              <textarea rows="3" placeholder="恭喜您获得奖励！请添加微信..." onchange="updateWizardReward(${index}, 'claim_text', this.value)" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px;">${reward.claim_text || ''}</textarea>
+            </div>
+          `;
+        case 'activation_code':
+          const stats = reward.activation_codes_stats;
+          return `
+            <div style="margin-top: 12px;">
+              <div class="activation-codes-upload" onclick="showActivationCodesModal(${index})">
+                <div style="font-size: 24px; margin-bottom: 8px;">📤</div>
+                <div>点击导入激活码 (CSV)</div>
+              </div>
+              ${stats ? `
+                <div class="activation-codes-stats">
+                  <div class="activation-stat">
+                    <div class="activation-stat-value">${stats.total}</div>
+                    <div class="activation-stat-label">总数</div>
+                  </div>
+                  <div class="activation-stat">
+                    <div class="activation-stat-value">${stats.used}</div>
+                    <div class="activation-stat-label">已使用</div>
+                  </div>
+                  <div class="activation-stat">
+                    <div class="activation-stat-value">${stats.available}</div>
+                    <div class="activation-stat-label">可用</div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        default:
+          return '';
+      }
+    }
+
+    function selectClaimMethod(index, method) {
+      wizardRewards[index].claim_method = method;
+      renderClaimMethods();
+    }
+
+    function showActivationCodesModal(rewardIndex) {
+      // For now, use a simple prompt to input codes
+      const codes = prompt('请输入激活码，每行一个:');
+      if (codes && codes.trim()) {
+        const codeList = codes.split('\\n').map(c => c.trim()).filter(c => c);
+        if (codeList.length > 0) {
+          // Store temporarily
+          wizardRewards[rewardIndex].pending_codes = codeList;
+          alert(`已准备 ${codeList.length} 个激活码，保存活动后将自动导入`);
+        }
+      }
+    }
+
+    async function saveCampaignWizard() {
+      // Collect all data
+      const campaignData = {
+        name: document.getElementById('wizardCampaignName').value.trim(),
+        description: '',
+        page_style: document.getElementById('wizardPageStyle').value,
+        brand_enabled: document.getElementById('wizardBrandEnabled').checked,
+        brand_name: document.getElementById('wizardBrandName').value.trim(),
+        brand_logo_url: document.getElementById('wizardBrandLogo').value.trim(),
+        start_time: document.getElementById('wizardStartTime').value ? new Date(document.getElementById('wizardStartTime').value).toISOString() : null,
+        end_time: document.getElementById('wizardEndTime').value ? new Date(document.getElementById('wizardEndTime').value).toISOString() : null,
+        
+        // Poster settings
+        poster_background_url: document.getElementById('wizardPosterBackground').value,
+        poster_avatar_enabled: document.getElementById('wizardAvatarEnabled').checked,
+        poster_avatar_shape: document.getElementById('wizardAvatarShape').value,
+        poster_nickname_enabled: document.getElementById('wizardNicknameEnabled').checked,
+        poster_nickname_font_size: parseInt(document.getElementById('wizardNicknameFontSize').value),
+        poster_nickname_color: document.getElementById('wizardNicknameColor').value,
+        poster_recommend_enabled: document.getElementById('wizardRecommendEnabled').checked,
+        poster_recommend_text: document.getElementById('wizardRecommendText').value.trim(),
+        
+        // Message templates
+        msg_rule: document.getElementById('wizardMsgRule').value.trim(),
+        msg_helper_success: document.getElementById('wizardMsgHelperSuccess').value.trim(),
+        msg_duplicate_help: document.getElementById('wizardMsgDuplicateHelp').value.trim(),
+        msg_campaign_ended: document.getElementById('wizardMsgCampaignEnded').value.trim(),
+        msg_campaign_ended_image_url: document.getElementById('wizardMsgCampaignEndedImage').value.trim(),
+        message_to_sharer: document.getElementById('wizardMsgToSharer').value.trim(),
+        messages_enabled: true,
+        
+        // Rewards
+        rewards: wizardRewards.map((r, index) => ({
+          tier_level: index,
+          helpers_required: r.helpers_required || 0,
+          reward_name: r.reward_name || `奖品${index + 1}`,
+          reward_description: '',
+          reward_type: 'digital',
+          reward_content: r.claim_link ? { download_url: r.claim_link } : {},
+          stock: r.total_quantity || 100,
+          reward_image_url: r.reward_image_url,
+          total_quantity: r.total_quantity || 100,
+          remaining_quantity: r.total_quantity || 100,
+          claim_method: r.claim_method || 'link',
+          claim_link: r.claim_link,
+          claim_text: r.claim_text,
+        })),
+      };
+
+      if (!campaignData.name) {
+        alert('请输入活动名称');
+        updateWizardStep(1);
+        return;
+      }
+
+      try {
+        const url = editingCampaignId 
+          ? `${API_BASE_URL}/campaigns/admin/${editingCampaignId}`
+          : `${API_BASE_URL}/campaigns/admin/create`;
+        
+        const res = await fetch(url, {
+          method: editingCampaignId ? 'PUT' : 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(campaignData),
+        });
+        
+        if (res.ok) {
+          const result = await res.json();
+          const campaignId = result.data?.campaign?.id;
+          
+          // Close wizard and refresh list immediately
+          closeCampaignWizard();
+          loadCampaignList();
+          loadCampaignSelectOptions();
+          
+          // Import activation codes if any (in background, don't block)
+          if (campaignId) {
+            for (let i = 0; i < wizardRewards.length; i++) {
+              const reward = wizardRewards[i];
+              if (reward.pending_codes && reward.pending_codes.length > 0) {
+                try {
+                  const rewardsRes = await fetch(`${API_BASE_URL}/campaigns/${campaignId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                  });
+                  if (rewardsRes.ok) {
+                    const rewardsData = await rewardsRes.json();
+                    const savedReward = rewardsData.data?.rewards?.[i];
+                    if (savedReward) {
+                      await fetch(`${API_BASE_URL}/campaigns/admin/${campaignId}/rewards/${savedReward.id}/activation-codes`, {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ codes: reward.pending_codes }),
+                      });
+                    }
+                  }
+                } catch (codeError) {
+                  console.warn('Failed to import activation codes:', codeError);
+                }
+              }
+            }
+          }
+          
+          alert(editingCampaignId ? '活动已更新' : '活动已创建');
+        } else {
+          const error = await res.json();
+          alert(error.error || '保存失败');
+        }
+      } catch (error) {
+        console.error('Save campaign wizard error:', error);
+        alert('保存失败: ' + error.message);
+      }
+    }
+
+    function saveCampaignDraft() {
+      // Save as draft (same as save but with status = draft)
+      saveCampaignWizard();
+    }
+
+    // Copy Campaign
+    async function copyCampaign(campaignId, campaignName) {
+      const newName = prompt('请输入新活动名称:', `${campaignName} (副本)`);
+      if (!newName) return;
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/campaigns/${campaignId}/copy`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: newName }),
+        });
+        
+        if (res.ok) {
+          loadCampaignList();
+          loadCampaignSelectOptions();
+          alert('活动复制成功');
+        } else {
+          const error = await res.json();
+          alert(error.error || '复制失败');
+        }
+      } catch (error) {
+        console.error('Copy campaign error:', error);
+        alert('复制失败: ' + error.message);
+      }
+    }
+
+    // Alias for backward compatibility
+    function showCreateCampaignModal() {
+      showCreateCampaignWizard();
+    }
 
     async function loadCampaignSelectOptions() {
       const select = document.getElementById('campaignSelect');
@@ -17653,7 +19293,7 @@
       const contentEl = document.getElementById('campaignDebugContent');
       
       if (!campaignId) {
-        contentEl.innerHTML = '<div class="empty-state">Select a campaign to view debug data</div>';
+        contentEl.innerHTML = '<div class="empty-state">请选择活动查看调试数据</div>';
         return;
       }
       
@@ -17744,22 +19384,40 @@
           const data = await res.json();
           allCampaigns = data.data?.campaigns || [];
           
+          // Fetch stats for each campaign
+          const campaignsWithStats = await Promise.all(allCampaigns.map(async (campaign) => {
+            try {
+              const statsRes = await fetch(`${API_BASE_URL}/campaigns/${campaign.id}/stats`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+              });
+              if (statsRes.ok) {
+                const statsData = await statsRes.json();
+                return { ...campaign, stats: statsData.data };
+              }
+            } catch (e) {}
+            return { ...campaign, stats: null };
+          }));
+          
           // Render table
-          tableBody.innerHTML = allCampaigns.map(campaign => {
-            const endDate = new Date(campaign.end_time);
-            const endDateStr = endDate.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+          tableBody.innerHTML = campaignsWithStats.map(campaign => {
+            const endDate = campaign.end_time ? new Date(campaign.end_time) : null;
+            const endDateStr = endDate ? endDate.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }) : '-';
+            const participants = campaign.stats?.totalParticipants || 0;
+            const helpers = campaign.stats?.totalHelpers || 0;
             
             return `
               <tr>
                 <td><strong>${campaign.name}</strong></td>
                 <td><span class="campaign-status ${campaign.status}">${getStatusText(campaign.status)}</span></td>
-                <td>-</td>
-                <td>-</td>
+                <td>${participants}</td>
+                <td>${helpers}</td>
                 <td>${endDateStr}</td>
                 <td class="campaign-actions">
-                  <button onclick="editCampaign('${campaign.id}')">编辑</button>
-                  <button onclick="toggleCampaignStatus('${campaign.id}', '${campaign.status}')">${campaign.status === 'active' ? '暂停' : '激活'}</button>
-                  <button class="btn-delete" onclick="deleteCampaign('${campaign.id}', '${campaign.name.replace(/'/g, "\\'")}')">删除</button>
+                  <button onclick="showEditCampaignWizard('${campaign.id}')" title="编辑">✏️</button>
+                  <button onclick="copyCampaign('${campaign.id}', '${campaign.name.replace(/'/g, "\\'")}')" title="复制">📋</button>
+                  <button onclick="viewCampaignData('${campaign.id}')" title="数据">📊</button>
+                  <button onclick="toggleCampaignStatus('${campaign.id}', '${campaign.status}')" title="${campaign.status === 'active' ? '暂停' : '激活'}">${campaign.status === 'active' ? '⏸️' : '▶️'}</button>
+                  <button class="btn-delete" onclick="deleteCampaign('${campaign.id}', '${campaign.name.replace(/'/g, "\\'")}')" title="删除">🗑️</button>
                 </td>
               </tr>
             `;
@@ -17773,6 +19431,13 @@
         loadingEl.textContent = 'Failed to load campaigns';
       }
     }
+    
+    function viewCampaignData(campaignId) {
+      // Switch to Debug tab and select this campaign
+      switchCampaignTab('debug');
+      document.getElementById('campaignSelect').value = campaignId;
+      loadCampaignDebug();
+    }
 
     function getStatusText(status) {
       const statusMap = {
@@ -17784,30 +19449,8 @@
       return statusMap[status] || status;
     }
 
-    function showCreateCampaignModal() {
-      editingCampaignId = null;
-      document.getElementById('campaignModalTitle').textContent = '创建活动';
-      document.getElementById('campaignForm').reset();
-      document.getElementById('rewardsListEditor').innerHTML = '';
-      rewardCounter = 0;
-      
-      // Set default dates
-      const now = new Date();
-      const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-      document.getElementById('campaignStartTime').value = formatDateTimeLocal(now);
-      document.getElementById('campaignEndTime').value = formatDateTimeLocal(endDate);
-      
-      // Add default rewards
-      addRewardRow(0, '基础资源包', '', 'https://example.com/free-guide.pdf');
-      addRewardRow(3, '进阶资源包', '', 'https://example.com/advanced-guide.pdf');
-      addRewardRow(8, '专属咨询', '', 'https://calendly.com/your-link');
-      
-      document.getElementById('campaignModal').classList.add('active');
-    }
-
-    function closeCampaignModal() {
-      document.getElementById('campaignModal').classList.remove('active');
-    }
+    // Old modal functions removed - using wizard instead
+    // (showCreateCampaignModal is now an alias to showCreateCampaignWizard defined above)
 
     function formatDateTimeLocal(date) {
       const year = date.getFullYear();
@@ -17816,136 +19459,6 @@
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
       return `${year}-${month}-${day}T${hours}:${minutes}`;
-    }
-
-    function addRewardRow(helpersRequired = 0, name = '', description = '', downloadUrl = '') {
-      const container = document.getElementById('rewardsListEditor');
-      const rowId = `reward-${rewardCounter++}`;
-      
-      const row = document.createElement('div');
-      row.className = 'reward-row';
-      row.id = rowId;
-      row.innerHTML = `
-        <input type="number" placeholder="人数" value="${helpersRequired}" min="0" class="reward-helpers" style="width: 60px;">
-        <input type="text" placeholder="奖品名称" value="${name}" class="reward-name">
-        <input type="text" placeholder="下载/预约链接" value="${downloadUrl}" class="reward-url">
-        <button type="button" class="remove-reward" onclick="removeRewardRow('${rowId}')">&times;</button>
-      `;
-      
-      container.appendChild(row);
-    }
-
-    function removeRewardRow(rowId) {
-      const row = document.getElementById(rowId);
-      if (row) {
-        row.remove();
-      }
-    }
-
-    async function saveCampaign() {
-      const form = document.getElementById('campaignForm');
-      const name = document.getElementById('campaignName').value.trim();
-      
-      if (!name) {
-        alert('请输入活动名称');
-        return;
-      }
-      
-      // Collect rewards
-      const rewardRows = document.querySelectorAll('.reward-row');
-      const rewards = [];
-      rewardRows.forEach((row, index) => {
-        const helpers = parseInt(row.querySelector('.reward-helpers').value) || 0;
-        const rewardName = row.querySelector('.reward-name').value.trim();
-        const rewardUrl = row.querySelector('.reward-url')?.value.trim() || '';
-        
-        if (rewardName) {
-          rewards.push({
-            tier_level: index,
-            helpers_required: helpers,
-            reward_name: rewardName,
-            reward_description: '',
-            reward_type: 'digital',
-            reward_content: rewardUrl ? { download_url: rewardUrl } : {},
-          });
-        }
-      });
-      
-      const campaignData = {
-        name,
-        description: document.getElementById('campaignDescription').value.trim(),
-        cover_image_url: document.getElementById('campaignCover').value.trim() || null,
-        start_time: document.getElementById('campaignStartTime').value ? new Date(document.getElementById('campaignStartTime').value).toISOString() : null,
-        end_time: document.getElementById('campaignEndTime').value ? new Date(document.getElementById('campaignEndTime').value).toISOString() : null,
-        rewards,
-      };
-      
-      try {
-        const url = editingCampaignId 
-          ? `${API_BASE_URL}/campaigns/admin/${editingCampaignId}`
-          : `${API_BASE_URL}/campaigns/admin/create`;
-        
-        const res = await fetch(url, {
-          method: editingCampaignId ? 'PUT' : 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(campaignData),
-        });
-        
-        if (res.ok) {
-          closeCampaignModal();
-          loadCampaignList();
-          loadCampaigns(); // Refresh dropdown
-          alert(editingCampaignId ? '活动已更新' : '活动已创建');
-        } else {
-          const error = await res.json();
-          alert(error.error || '保存失败');
-        }
-      } catch (error) {
-        console.error('Save campaign error:', error);
-        alert('保存失败: ' + error.message);
-      }
-    }
-
-    async function editCampaign(campaignId) {
-      const campaign = allCampaigns.find(c => c.id === campaignId);
-      if (!campaign) return;
-      
-      editingCampaignId = campaignId;
-      document.getElementById('campaignModalTitle').textContent = '编辑活动';
-      document.getElementById('campaignId').value = campaignId;
-      document.getElementById('campaignName').value = campaign.name || '';
-      document.getElementById('campaignDescription').value = campaign.description || '';
-      document.getElementById('campaignCover').value = campaign.cover_image_url || '';
-      document.getElementById('campaignStartTime').value = campaign.start_time ? formatDateTimeLocal(new Date(campaign.start_time)) : '';
-      document.getElementById('campaignEndTime').value = campaign.end_time ? formatDateTimeLocal(new Date(campaign.end_time)) : '';
-      
-      // Load rewards
-      document.getElementById('rewardsListEditor').innerHTML = '';
-      rewardCounter = 0;
-      
-      // Fetch campaign rewards
-      try {
-        const res = await fetch(`${API_BASE_URL}/campaigns/${campaignId}`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          const rewards = data.data?.rewards || [];
-          
-          rewards.forEach(reward => {
-            const downloadUrl = reward.reward_content?.download_url || reward.reward_content?.booking_url || '';
-            addRewardRow(reward.helpers_required, reward.reward_name, reward.reward_description, downloadUrl);
-          });
-        }
-      } catch (error) {
-        console.error('Load campaign rewards error:', error);
-      }
-      
-      document.getElementById('campaignModal').classList.add('active');
     }
 
     async function toggleCampaignStatus(campaignId, currentStatus) {
@@ -18042,7 +19555,7 @@
       const contentEl = document.getElementById('campaignDebugContent');
       
       if (!campaignId) {
-        contentEl.innerHTML = '<div class="empty-state">Select a campaign to view debug data</div>';
+        contentEl.innerHTML = '<div class="empty-state">请选择活动查看调试数据</div>';
         return;
       }
       
@@ -18296,7 +19809,11 @@
                       <tr class="${h.is_valid ? '' : 'invalid-row'}">
                         <td>
                           <div class="helper-info">
-                            <code class="helper-openid">${h.helper_openid?.substring(0, 12)}...</code>
+                            ${h.avatar_url ? `<img src="${h.avatar_url}" class="helper-avatar-small" alt="">` : '<span class="helper-avatar-placeholder-small">👤</span>'}
+                            <div class="helper-name-cell">
+                              <span class="helper-display-name">${h.display_name || '微信用户'}</span>
+                              <code class="helper-openid-small">${h.helper_openid?.substring(0, 12)}...</code>
+                            </div>
                           </div>
                         </td>
                         <td>
@@ -18773,39 +20290,39 @@
                   <div class="contact-id" title="${contact.unionid}">${contact.unionid}</div>
                 </div>
               ` : ''}
-              ${!contact.openid && !contact.openid_oa && !contact.unionid ? '<div class="contact-detail muted">No IDs</div>' : ''}
+              ${!contact.openid && !contact.openid_oa && !contact.unionid ? '<div class="contact-detail muted">无微信标识</div>' : ''}
             </td>
             <td class="col-engagement">
-              <div class="engagement-stat">🎯 <span class="value">${contact.engagement?.campaigns_joined || 0}</span> campaigns</div>
-              <div class="engagement-stat">🤝 <span class="value">${contact.engagement?.total_helpers || 0}</span> helpers</div>
-              <div class="engagement-stat">🎁 <span class="value">${contact.engagement?.rewards_claimed || 0}</span> rewards</div>
+              <div class="engagement-stat">🎯 <span class="value">${contact.engagement?.campaigns_joined || 0}</span> 活动</div>
+              <div class="engagement-stat">🤝 <span class="value">${contact.engagement?.total_helpers || 0}</span> 助力</div>
+              <div class="engagement-stat">🎁 <span class="value">${contact.engagement?.rewards_claimed || 0}</span> 奖励</div>
               ${contact.engagement?.oa_following !== null ? `
-                <div class="engagement-stat">${contact.engagement.oa_following ? '✅ Following OA' : '❌ Not following'}</div>
+                <div class="engagement-stat">${contact.engagement.oa_following ? '✅ 已关注公众号' : '❌ 未关注'}</div>
               ` : ''}
             </td>
             <td class="col-source">
               <span class="source-badge ${sourceClass}">${hasMP}${hasOA}</span>
               <div class="status-indicator ${contact.status || 'active'}">
-                ${contact.status === 'blocked' ? '🚫 Blocked' : contact.status === 'deleted' ? '🗑️ Deleted' : '✅ Active'}
+                ${contact.status === 'blocked' ? '🚫 已禁用' : contact.status === 'deleted' ? '🗑️ 已删除' : '✅ 正常'}
               </div>
             </td>
             <td class="col-actions">
               <div class="contact-actions-menu">
                 <button class="btn-actions" onclick="toggleActionsMenu('${contact.id}')">⋮</button>
                 <div class="actions-dropdown" id="actions-${contact.id}">
-                  <button onclick="viewContactDetail('${contact.id}')">👁️ View Details</button>
-                  <button onclick="editContact('${contact.id}')">✏️ Edit</button>
+                  <button onclick="viewContactDetail('${contact.id}')">👁️ 查看详情</button>
+                  <button onclick="editContact('${contact.id}')">✏️ 编辑</button>
                   ${contact.is_admin 
-                    ? `<button onclick="removeAdmin('${contact.id}')">👤 Remove Admin</button>`
-                    : `<button onclick="makeAdmin('${contact.id}')">👑 Make Admin</button>`
+                    ? `<button onclick="removeAdmin('${contact.id}')">👤 取消管理员</button>`
+                    : `<button onclick="makeAdmin('${contact.id}')">👑 设为管理员</button>`
                   }
                   ${contact.status === 'blocked'
-                    ? `<button onclick="unblockContact('${contact.id}')">✅ Unblock</button>`
-                    : `<button class="danger" onclick="blockContact('${contact.id}')">🚫 Block</button>`
+                    ? `<button onclick="unblockContact('${contact.id}')">✅ 解除禁用</button>`
+                    : `<button class="danger" onclick="blockContact('${contact.id}')">🚫 禁用</button>`
                   }
-                  <button onclick="resetContact('${contact.id}')">🔄 Reset Data</button>
-                  <button class="danger" onclick="deleteContact('${contact.id}')">🗑️ Delete</button>
-                  <button class="danger" onclick="deleteContact('${contact.id}', true)">⚠️ Hard Delete</button>
+                  <button onclick="resetContact('${contact.id}')">🔄 重置数据</button>
+                  <button class="danger" onclick="deleteContact('${contact.id}')">🗑️ 删除</button>
+                  <button class="danger" onclick="deleteContact('${contact.id}', true)">⚠️ 彻底删除</button>
                 </div>
               </div>
             </td>
@@ -19432,57 +20949,376 @@
     }, 1500);
   </script>
 
-  <!-- Create/Edit Campaign Modal -->
-  <div class="modal-overlay" id="campaignModal">
-    <div class="modal">
-      <div class="modal-header">
-        <span class="modal-title" id="campaignModalTitle">创建活动</span>
-        <button class="modal-close" onclick="closeCampaignModal()">&times;</button>
+  <!-- ============================================ -->
+  <!-- Campaign Wizard (Full Page) -->
+  <!-- ============================================ -->
+  <div class="campaign-wizard-overlay" id="campaignWizard">
+    <!-- Header -->
+    <div class="wizard-header">
+      <div class="wizard-header-left">
+        <button type="button" class="wizard-back" onclick="closeCampaignWizard()">
+          ← 返回列表
+        </button>
+        <span class="wizard-title" id="wizardTitle">创建活动</span>
       </div>
-      <div class="modal-body">
-        <form id="campaignForm">
-          <input type="hidden" id="campaignId" name="id">
-          
-          <div class="form-group">
-            <label>活动名称 *</label>
-            <input type="text" id="campaignName" name="name" required placeholder="例如：新年邀请活动">
+      <div class="wizard-actions">
+        <button type="button" class="btn-save-draft" onclick="saveCampaignDraft()">保存草稿</button>
+      </div>
+    </div>
+
+    <!-- Step Progress -->
+    <div class="wizard-steps">
+      <div class="wizard-step active" id="wizardStep1">
+        <span class="step-number">1</span>
+        <span class="step-label">基本信息</span>
+      </div>
+      <div class="wizard-step" id="wizardStep2">
+        <span class="step-number">2</span>
+        <span class="step-label">活动海报</span>
+      </div>
+      <div class="wizard-step" id="wizardStep3">
+        <span class="step-number">3</span>
+        <span class="step-label">提醒文案</span>
+      </div>
+      <div class="wizard-step" id="wizardStep4">
+        <span class="step-number">4</span>
+        <span class="step-label">高级功能</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="wizard-content">
+      <input type="hidden" id="wizardCampaignId">
+
+      <!-- Step 1: Basic Info -->
+      <div class="wizard-panel active" id="wizardPanel1">
+        <!-- Campaign Name -->
+        <div class="wizard-section">
+          <div class="wizard-section-title">📝 活动名称</div>
+          <div class="wizard-form-group">
+            <label>活动名称 <span class="required">*</span></label>
+            <input type="text" id="wizardCampaignName" placeholder="请输入活动名称" maxlength="32">
+            <div class="wizard-form-hint">用于运营人员标记活动，用户不可见 (0/32)</div>
           </div>
-          
-          <div class="form-group">
-            <label>活动描述</label>
-            <textarea id="campaignDescription" name="description" placeholder="描述活动内容和奖励..."></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>封面图片URL</label>
-            <input type="url" id="campaignCover" name="cover_image_url" placeholder="https://...">
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>开始时间</label>
-              <input type="datetime-local" id="campaignStartTime" name="start_time">
-            </div>
-            <div class="form-group">
-              <label>结束时间</label>
-              <input type="datetime-local" id="campaignEndTime" name="end_time">
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>奖品设置</label>
-            <div class="rewards-editor">
-              <div class="rewards-list-editor" id="rewardsListEditor">
-                <!-- Reward rows will be added here -->
+        </div>
+
+        <!-- Page Style -->
+        <div class="wizard-section">
+          <div class="wizard-section-title">🎨 活动页面风格</div>
+          <div class="wizard-form-group">
+            <label>选择主题色</label>
+            <div class="style-options">
+              <div class="style-option selected" data-style="red" onclick="selectPageStyle('red')">
+                <div class="style-color red"></div>
+                <span>红色</span>
               </div>
-              <button type="button" class="add-reward-btn" onclick="addRewardRow()">+ 添加奖品</button>
+              <div class="style-option" data-style="blue" onclick="selectPageStyle('blue')">
+                <div class="style-color blue"></div>
+                <span>蓝色</span>
+              </div>
+              <div class="style-option" data-style="green" onclick="selectPageStyle('green')">
+                <div class="style-color green"></div>
+                <span>绿色</span>
+              </div>
+              <div class="style-option" data-style="orange" onclick="selectPageStyle('orange')">
+                <div class="style-color orange"></div>
+                <span>橙色</span>
+              </div>
+            </div>
+            <input type="hidden" id="wizardPageStyle" value="red">
+          </div>
+        </div>
+
+        <!-- Rewards -->
+        <div class="wizard-section">
+          <div class="wizard-section-title">🎁 活动奖品设置</div>
+          <table class="rewards-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">图片</th>
+                <th>奖品名称</th>
+                <th style="width: 80px;">总数量</th>
+                <th style="width: 80px;">助力人数</th>
+                <th style="width: 50px;"></th>
+              </tr>
+            </thead>
+            <tbody id="wizardRewardsBody">
+              <!-- Reward rows will be added here -->
+            </tbody>
+          </table>
+          <button type="button" class="btn-add-reward" onclick="addWizardReward()">+ 添加奖品 (最多3个)</button>
+          <div class="wizard-form-hint" style="margin-top: 12px;">💡 提示: 助力人数越高，奖品价值应该越大，形成阶梯激励</div>
+        </div>
+
+        <!-- Brand Info (Optional) -->
+        <div class="wizard-section">
+          <div class="wizard-section-title">🏢 品牌展示 (可选)</div>
+          <div class="toggle-group">
+            <div class="toggle-info">
+              <div class="toggle-label">品牌信息</div>
+              <div class="toggle-hint">开启后，活动页面将展示企业品牌Logo和名称</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="wizardBrandEnabled" onchange="toggleBrandFields()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div id="brandFields" style="display: none; margin-top: 16px;">
+            <div class="wizard-form-group">
+              <label>品牌Logo URL</label>
+              <input type="url" id="wizardBrandLogo" placeholder="https://...">
+            </div>
+            <div class="wizard-form-group">
+              <label>品牌名称</label>
+              <input type="text" id="wizardBrandName" placeholder="您的品牌名称">
             </div>
           </div>
-        </form>
+        </div>
+
+        <!-- Activity Time -->
+        <div class="wizard-section">
+          <div class="wizard-section-title">⏰ 活动时间</div>
+          <div style="display: flex; gap: 16px;">
+            <div class="wizard-form-group" style="flex: 1;">
+              <label>开始时间</label>
+              <input type="datetime-local" id="wizardStartTime">
+            </div>
+            <div class="wizard-form-group" style="flex: 1;">
+              <label>结束时间 <span class="required">*</span></label>
+              <input type="datetime-local" id="wizardEndTime">
+            </div>
+          </div>
+          <div class="wizard-form-hint">⚠️ 奖品发完或时间到达，活动自动结束</div>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeCampaignModal()">取消</button>
-        <button class="btn-submit" onclick="saveCampaign()">保存</button>
+
+      <!-- Step 2: Poster Settings -->
+      <div class="wizard-panel" id="wizardPanel2">
+        <div class="wizard-section">
+          <div class="wizard-section-title">🖼️ 海报设置</div>
+          <div class="poster-preview-container">
+            <div class="poster-settings">
+              <!-- Avatar Toggle -->
+              <div class="toggle-group">
+                <div class="toggle-info">
+                  <div class="toggle-label">用户头像</div>
+                  <div class="toggle-hint">在海报上显示用户微信头像</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="wizardAvatarEnabled" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div id="avatarShapeGroup" class="wizard-form-group" style="margin-top: 12px;">
+                <label>头像形状</label>
+                <div class="style-options">
+                  <div class="style-option selected" data-shape="circle" onclick="selectAvatarShape('circle')">
+                    <span>⭕ 圆形</span>
+                  </div>
+                  <div class="style-option" data-shape="square" onclick="selectAvatarShape('square')">
+                    <span>⬜ 方形</span>
+                  </div>
+                </div>
+                <input type="hidden" id="wizardAvatarShape" value="circle">
+              </div>
+
+              <!-- Nickname Toggle -->
+              <div class="toggle-group" style="margin-top: 16px;">
+                <div class="toggle-info">
+                  <div class="toggle-label">用户昵称</div>
+                  <div class="toggle-hint">在海报上显示用户微信昵称</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="wizardNicknameEnabled" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div id="nicknameStyleGroup" style="margin-top: 12px; display: flex; gap: 16px;">
+                <div class="wizard-form-group" style="flex: 1;">
+                  <label>字体大小</label>
+                  <select id="wizardNicknameFontSize">
+                    <option value="18">18px</option>
+                    <option value="20">20px</option>
+                    <option value="24" selected>24px</option>
+                    <option value="28">28px</option>
+                    <option value="32">32px</option>
+                  </select>
+                </div>
+                <div class="wizard-form-group" style="flex: 1;">
+                  <label>字体颜色</label>
+                  <input type="color" id="wizardNicknameColor" value="#333333" style="height: 38px; padding: 4px;">
+                </div>
+              </div>
+
+              <!-- Poster Background -->
+              <div class="wizard-form-group" style="margin-top: 20px;">
+                <label>上传海报背景 <span class="required">*</span></label>
+                <div class="activation-codes-upload" onclick="document.getElementById('posterBgInput').click()">
+                  <div style="font-size: 32px; margin-bottom: 8px;">📷</div>
+                  <div>点击上传图片</div>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">建议尺寸: 720 × 1280</div>
+                </div>
+                <input type="file" id="posterBgInput" accept="image/*" style="display: none;" onchange="handlePosterUpload(this)">
+                <input type="hidden" id="wizardPosterBackground">
+                <div class="wizard-form-hint" style="margin-top: 8px;">
+                  ⚠️ 请在海报背景上预留头像、昵称、二维码的位置空间
+                </div>
+              </div>
+
+              <!-- Recommend Text Toggle -->
+              <div class="toggle-group" style="margin-top: 20px;">
+                <div class="toggle-info">
+                  <div class="toggle-label">推荐语</div>
+                  <div class="toggle-hint">用户分享海报时可一键复制的推荐语</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="wizardRecommendEnabled" onchange="toggleRecommendText()">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div id="recommendTextGroup" style="display: none; margin-top: 12px;">
+                <textarea id="wizardRecommendText" placeholder="我正在参加xxx活动，快来帮我助力吧！" rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;"></textarea>
+              </div>
+            </div>
+
+            <div class="poster-preview">
+              <div class="poster-preview-box" id="posterPreviewBox">
+                <div class="poster-upload-placeholder">
+                  <span>🖼️</span>
+                  <div>海报预览</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Message Templates -->
+      <div class="wizard-panel" id="wizardPanel3">
+        <div class="wizard-section">
+          <div class="wizard-section-title">💬 裂变规则文案</div>
+          <div class="wizard-form-hint" style="margin-bottom: 12px;">当用户扫码关注后，自动发送此文案</div>
+          <div class="message-template">
+            <textarea id="wizardMsgRule" rows="6">@{{user_nickname}}，您好呀，快来参与本次福利活动~
+
+点击下方链接，生成个人专属海报
+分享海报，邀请好友扫码助力，即可领取奖品！
+
+奖品数量有限，快去参加吧👇</textarea>
+            <div class="message-variables">
+              <span class="message-variable" onclick="insertVariable('wizardMsgRule', '{{user_nickname}}')">{{user_nickname}}</span>
+              <span class="message-variable" onclick="insertVariable('wizardMsgRule', '{{reward_remaining}}')">{{reward_remaining}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-section">
+          <div class="wizard-section-title">✅ 成功助力好友推送文案</div>
+          <div class="wizard-form-hint" style="margin-bottom: 12px;">当B用户助力了A用户时，B用户收到的微信推送文案</div>
+          <div class="message-template">
+            <textarea id="wizardMsgHelperSuccess" rows="6">@{{user_nickname}}，很高兴认识您，您已为{{sharer_name}}助力成功！
+同时，诚邀您一起参与本次福利活动~
+
+点击下方链接，生成个人专属海报
+分享海报，邀请好友扫码助力，即可领取奖品！</textarea>
+            <div class="message-variables">
+              <span class="message-variable" onclick="insertVariable('wizardMsgHelperSuccess', '{{user_nickname}}')">{{user_nickname}}</span>
+              <span class="message-variable" onclick="insertVariable('wizardMsgHelperSuccess', '{{sharer_name}}')">{{sharer_name}}</span>
+              <span class="message-variable" onclick="insertVariable('wizardMsgHelperSuccess', '{{reward_remaining}}')">{{reward_remaining}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-section">
+          <div class="wizard-section-title">🔄 用户重复助力提醒文案</div>
+          <div class="wizard-form-hint" style="margin-bottom: 12px;">当用户多次助力同一好友时，推送此提醒</div>
+          <div class="message-template">
+            <textarea id="wizardMsgDuplicateHelp" rows="4">@{{user_nickname}}，您已经为好友助力过，不能重复助力哟~
+诚邀您一起参与本次福利活动~</textarea>
+            <div class="message-variables">
+              <span class="message-variable" onclick="insertVariable('wizardMsgDuplicateHelp', '{{user_nickname}}')">{{user_nickname}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-section">
+          <div class="wizard-section-title">⏱️ 活动结束文案</div>
+          <div class="wizard-form-hint" style="margin-bottom: 12px;">活动结束后，用户扫码时发送此提醒</div>
+          <div class="message-template">
+            <textarea id="wizardMsgCampaignEnded" rows="3">活动已结束，感谢您的参与！敬请期待下次活动~</textarea>
+          </div>
+          <div class="wizard-form-group" style="margin-top: 12px;">
+            <label>活动结束图片 (可选)</label>
+            <input type="url" id="wizardMsgCampaignEndedImage" placeholder="https://... (可留空)">
+          </div>
+        </div>
+
+        <!-- Message to Sharer -->
+        <div class="wizard-section">
+          <div class="wizard-section-title">📣 助力通知 - 发送给分享者</div>
+          <div class="wizard-form-hint" style="margin-bottom: 12px;">当有人为分享者助力时，分享者收到的消息</div>
+          <div class="message-template">
+            <textarea id="wizardMsgToSharer" rows="6">🎉 好消息！
+
+有人刚刚为你助力了！
+
+📊 当前进度：{{helper_count}}/{{max_helpers}} 人
+🎁 还差 {{remaining}} 人即可领取奖励
+
+继续分享给更多好友吧！</textarea>
+            <div class="message-variables">
+              <span class="message-variable" onclick="insertVariable('wizardMsgToSharer', '{{helper_count}}')">{{helper_count}}</span>
+              <span class="message-variable" onclick="insertVariable('wizardMsgToSharer', '{{max_helpers}}')">{{max_helpers}}</span>
+              <span class="message-variable" onclick="insertVariable('wizardMsgToSharer', '{{remaining}}')">{{remaining}}</span>
+              <span class="message-variable" onclick="insertVariable('wizardMsgToSharer', '{{helper_name}}')">{{helper_name}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Advanced Features -->
+      <div class="wizard-panel" id="wizardPanel4">
+        <div class="wizard-section">
+          <div class="wizard-section-title">🏆 领奖方式配置</div>
+          <div class="wizard-form-hint" style="margin-bottom: 16px;">为每个奖品设置用户领取奖品的方式</div>
+          <div id="claimMethodsContainer">
+            <!-- Will be populated dynamically -->
+          </div>
+        </div>
+
+        <div class="wizard-section">
+          <div class="wizard-section-title">📧 邮件通知 (可选)</div>
+          <div class="toggle-group">
+            <div class="toggle-info">
+              <div class="toggle-label">发送激活码到邮箱</div>
+              <div class="toggle-hint">如果用户填写了邮箱，同时将激活码发送到用户邮箱</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="wizardSendToEmail">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="wizard-footer">
+      <div class="wizard-footer-left">
+        <span id="wizardFooterHint">填写完基本信息后继续下一步</span>
+      </div>
+      <div class="wizard-footer-right">
+        <button type="button" class="btn-wizard btn-wizard-prev" id="btnWizardPrev" onclick="wizardPrevStep()" style="display: none;">
+          ← 上一步
+        </button>
+        <button type="button" class="btn-wizard btn-wizard-next" id="btnWizardNext" onclick="wizardNextStep()">
+          下一步 →
+        </button>
+        <button type="button" class="btn-wizard btn-wizard-save" id="btnWizardSave" onclick="saveCampaignWizard()" style="display: none;">
+          保存并发布
+        </button>
       </div>
     </div>
   </div>

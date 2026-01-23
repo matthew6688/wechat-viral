@@ -1,10 +1,10 @@
 // pages/profile/index.js
 const app = getApp();
-const api = require('../../services/api').api;
 
 Page({
   data: {
     user: null,
+    showProfileModal: false,
     points: 0,
     referralCode: '',
   },
@@ -15,8 +15,7 @@ Page({
 
   onShow() {
     this.loadUser();
-    this.loadPoints();
-    this.loadReferralCode();
+    this.checkProfileAuthorization();
   },
 
   loadUser() {
@@ -28,51 +27,96 @@ Page({
     }
   },
 
-  async loadPoints() {
+  /**
+   * Check if user has authorized their profile, prompt if not
+   */
+  checkProfileAuthorization() {
+    setTimeout(() => {
+      const hasProfile = app.hasUserProfile();
+      const hasSkipped = wx.getStorageSync('profile_auth_skipped');
+      
+      if (!hasProfile && !hasSkipped) {
+        this.setData({ showProfileModal: true });
+      }
+    }, 500);
+  },
+
+  /**
+   * User taps "Authorize" button in modal
+   */
+  async authorizeProfile() {
+    this.setData({ showProfileModal: false });
+    
     try {
-      const response = await api.get('/points/balance');
-      const balance = (response.data && response.data.data && response.data.data.balance) ? response.data.data.balance : 
-                     (response.data && response.data.balance) ? response.data.balance : 0;
-      this.setData({ points: balance });
+      const result = await app.getUserProfile();
+      if (result) {
+        wx.showToast({
+          title: '授权成功',
+          icon: 'success',
+        });
+        // Refresh user data
+        this.loadUser();
+      }
     } catch (error) {
-      console.error('Load points error:', error);
+      console.error('Authorize profile error:', error);
+      wx.showToast({
+        title: '授权失败',
+        icon: 'none',
+      });
     }
   },
 
-  async loadReferralCode() {
-    try {
-      const response = await api.get('/referrals/my-code');
-      let shortCode = '';
-      if (response && response.data) {
-        if (typeof response.data === 'string') {
-          shortCode = response.data;
-        } else if (response.data.data && response.data.data.shortCode) {
-          shortCode = response.data.data.shortCode;
-        } else if (response.data.shortCode) {
-          shortCode = response.data.shortCode;
-        }
-      }
-      this.setData({ referralCode: shortCode });
-    } catch (error) {
-      console.error('Load referral code error:', error);
-    }
+  /**
+   * User taps "Skip" button in modal
+   */
+  skipProfile() {
+    this.setData({ showProfileModal: false });
+    wx.setStorageSync('profile_auth_skipped', true);
+  },
+
+  preventTouchMove() {
+    return false;
   },
 
   goToAdmin() {
     wx.navigateTo({ url: '/pages/admin/index' });
   },
 
+  /**
+   * Manual button to update profile (tap on avatar)
+   */
+  async updateProfile() {
+    try {
+      const result = await app.getUserProfile();
+      if (result) {
+        wx.showToast({
+          title: '更新成功',
+          icon: 'success',
+        });
+        this.loadUser();
+      }
+    } catch (error) {
+      console.error('Update profile error:', error);
+      wx.showToast({
+        title: '授权失败',
+        icon: 'none',
+      });
+    }
+  },
+
   logout() {
     wx.showModal({
-      title: 'Sign Out',
-      content: 'Are you sure you want to sign out?',
-      confirmText: 'Sign Out',
-      cancelText: 'Cancel',
+      title: '确认退出',
+      content: '确定要退出登录吗？',
+      confirmText: '退出',
+      cancelText: '取消',
       success: (res) => {
         if (res.confirm) {
           app.globalData.user = null;
           app.globalData.token = null;
           wx.removeStorageSync('token');
+          wx.removeStorageSync('user');
+          wx.removeStorageSync('profile_auth_skipped');
           wx.redirectTo({ url: '/pages/landing/index' });
         }
       },

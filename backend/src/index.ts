@@ -2,8 +2,10 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load .env from backend directory
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+// Load .env from backend directory (use __dirname to ensure correct path)
+const envPath = path.resolve(__dirname, '..', '.env');
+dotenv.config({ path: envPath });
+console.log('Loading .env from:', envPath);
 
 // Debug: Log env vars to verify they're loaded
 console.log('ENV Check - SUPABASE_URL:', process.env.SUPABASE_URL ? 'SET' : 'NOT SET');

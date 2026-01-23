@@ -1871,6 +1871,152 @@ router.post('/testing/nuclear-reset', authenticate, requireAdmin, async (req: Au
   }
 });
 
+/**
+ * POST /api/admin/testing/delete-all-users
+ * Delete all users while keeping campaigns (requires confirmation)
+ */
+router.post('/testing/delete-all-users', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { confirmation } = req.body;
+
+    if (confirmation !== 'DELETE USERS') {
+      return res.status(400).json({ error: 'Invalid confirmation. Type "DELETE USERS" to confirm.' });
+    }
+
+    const results: Record<string, number | string> = {};
+
+    // Count users before deletion
+    const { count: totalUsers } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true });
+
+    // Delete user-related data in order of dependencies
+    const userRelatedTables = [
+      'campaign_reward_claims',
+      'campaign_helpers',
+      'campaign_participants',
+      'event_logs',
+      'invites',
+      'oa_qrcodes',
+    ];
+
+    for (const table of userRelatedTables) {
+      try {
+        const { count } = await supabase
+          .from(table)
+          .select('*', { count: 'exact', head: true });
+        
+        await supabase
+          .from(table)
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000');
+        
+        results[`${table}_deleted`] = count || 0;
+      } catch (err: any) {
+        console.warn(`Failed to delete from ${table}:`, err.message);
+        results[`${table}_error`] = err.message;
+      }
+    }
+
+    // Delete all users
+    await supabase
+      .from('users')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    results.deletedUsers = totalUsers || 0;
+    results.currentUserDeleted = true;
+
+    res.json({
+      success: true,
+      message: `✅ Deleted ${totalUsers || 0} users. Campaigns preserved.`,
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Delete all users error:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete users' });
+  }
+});
+
+/**
+ * POST /api/admin/testing/delete-non-admin-users
+ * Delete all non-admin users while keeping admin accounts and campaigns (requires confirmation)
+ */
+router.post('/testing/delete-non-admin-users', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { confirmation } = req.body;
+
+    if (confirmation !== 'DELETE NON-ADMIN') {
+      return res.status(400).json({ error: 'Invalid confirmation. Type "DELETE NON-ADMIN" to confirm.' });
+    }
+
+    const results: Record<string, number | string> = {};
+
+    // Get non-admin user IDs
+    const { data: nonAdminUsers, count: totalNonAdmin } = await supabase
+      .from('users')
+      .select('id', { count: 'exact' })
+      .eq('is_admin', false);
+
+    const nonAdminIds = nonAdminUsers?.map(u => u.id) || [];
+
+    if (nonAdminIds.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No non-admin users to delete.',
+        data: { deletedUsers: 0 },
+      });
+    }
+
+    // Delete user-related data for non-admin users
+    const userRelatedTables = [
+      { table: 'campaign_reward_claims', column: 'user_id' },
+      { table: 'campaign_helpers', column: 'helper_user_id' },
+      { table: 'campaign_participants', column: 'user_id' },
+      { table: 'event_logs', column: 'user_id' },
+      { table: 'invites', column: 'inviter_id' },
+      { table: 'invites', column: 'invitee_id' },
+      { table: 'oa_qrcodes', column: 'user_id' },
+    ];
+
+    for (const { table, column } of userRelatedTables) {
+      try {
+        const { count } = await supabase
+          .from(table)
+          .select('*', { count: 'exact', head: true })
+          .in(column, nonAdminIds);
+        
+        await supabase
+          .from(table)
+          .delete()
+          .in(column, nonAdminIds);
+        
+        results[`${table}_${column}_deleted`] = count || 0;
+      } catch (err: any) {
+        console.warn(`Failed to delete from ${table}.${column}:`, err.message);
+        results[`${table}_${column}_error`] = err.message;
+      }
+    }
+
+    // Delete non-admin users
+    await supabase
+      .from('users')
+      .delete()
+      .eq('is_admin', false);
+
+    results.deletedUsers = totalNonAdmin || 0;
+
+    res.json({
+      success: true,
+      message: `✅ Deleted ${totalNonAdmin || 0} non-admin users. Admin accounts and campaigns preserved.`,
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Delete non-admin users error:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete non-admin users' });
+  }
+});
+
 // ============================================
 // CONTACTS MANAGEMENT ENDPOINTS
 // ============================================

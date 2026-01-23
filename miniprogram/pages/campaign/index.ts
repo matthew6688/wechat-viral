@@ -47,6 +47,9 @@ Page({
     nextReward: null as CampaignReward | null,
     showDebug: false, // Set to true for debugging
     showProfileModal: false, // Profile authorization modal
+    refreshing: false, // Manual refresh state
+    pollTimer: null as any, // Smart polling timer
+    lastPollTime: 0, // Track last poll time
   },
 
   onLoad(options: { id?: string; from?: string }) {
@@ -68,6 +71,87 @@ Page({
     
     // Check if user needs to authorize profile
     this.checkProfileAuthorization();
+    
+    // Start smart polling for real-time updates
+    this.startSmartPolling(campaignId);
+  },
+
+  onShow() {
+    // Refresh data when page becomes visible
+    const campaignId = (this.data.campaign as Campaign)?.id;
+    if (campaignId) {
+      this.loadProgress(campaignId);
+      // Restart polling if it was stopped
+      this.startSmartPolling(campaignId);
+    }
+  },
+
+  onHide() {
+    // Stop polling when page is hidden
+    this.stopPolling();
+  },
+
+  onUnload() {
+    // Clean up polling timer when leaving page
+    this.stopPolling();
+  },
+
+  /**
+   * Start smart polling - refresh every 5 seconds
+   */
+  startSmartPolling(campaignId: string) {
+    this.stopPolling(); // Clear any existing timer
+    
+    const pollInterval = 5000; // 5 seconds
+    const maxPollDuration = 10 * 60 * 1000; // Stop after 10 minutes of inactivity
+    
+    this.setData({ lastPollTime: Date.now() });
+    
+    const timer = setInterval(() => {
+      // Stop polling after max duration
+      if (Date.now() - this.data.lastPollTime > maxPollDuration) {
+        console.log('Stopping polling due to inactivity');
+        this.stopPolling();
+        return;
+      }
+      
+      // Silently refresh progress
+      this.loadProgress(campaignId);
+    }, pollInterval);
+    
+    this.setData({ pollTimer: timer });
+    console.log('Smart polling started (5s interval)');
+  },
+
+  /**
+   * Stop polling
+   */
+  stopPolling() {
+    if (this.data.pollTimer) {
+      clearInterval(this.data.pollTimer);
+      this.setData({ pollTimer: null });
+      console.log('Polling stopped');
+    }
+  },
+
+  /**
+   * Manual refresh triggered by user
+   */
+  async refreshProgress() {
+    const campaignId = (this.data.campaign as Campaign)?.id;
+    if (!campaignId || this.data.refreshing) return;
+    
+    this.setData({ refreshing: true, lastPollTime: Date.now() });
+    
+    try {
+      await this.loadProgress(campaignId);
+      wx.showToast({ title: '已刷新', icon: 'success', duration: 1000 });
+    } catch (error) {
+      console.error('Refresh error:', error);
+      wx.showToast({ title: '刷新失败', icon: 'none', duration: 1000 });
+    } finally {
+      this.setData({ refreshing: false });
+    }
   },
   
   /**

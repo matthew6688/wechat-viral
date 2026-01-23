@@ -14,6 +14,7 @@ import {
   invalidateHelper,
   getCampaign,
 } from './campaign-service';
+import { sendHelpNotifications, MessageContext } from './oa-message';
 
 const parseXML = promisify(parseString);
 
@@ -486,6 +487,50 @@ async function handleCampaignSubscribe(
 
   console.log('Help Result:', helpResult);
 
+  // Send notification messages if help was successful
+  if (helpResult.success && helpResult.isNew) {
+    // Get sharer's OA OpenID
+    const { data: sharerUser } = await supabase
+      .from('users')
+      .select('openid_oa, wechat_nickname, name')
+      .eq('id', participant.user_id)
+      .single();
+
+    // Get max helpers from campaign rewards
+    const { data: maxReward } = await supabase
+      .from('campaign_rewards')
+      .select('helpers_required')
+      .eq('campaign_id', campaignId)
+      .order('helpers_required', { ascending: false })
+      .limit(1)
+      .single();
+
+    const maxHelpers = maxReward?.helpers_required || 8;
+    const helperName = userInfo.nickname || '微信用户';
+    const sharerName = sharerUser?.wechat_nickname || sharerUser?.name || '好友';
+
+    const messageContext: MessageContext = {
+      helper_count: helpResult.helperCount || 1,
+      max_helpers: maxHelpers,
+      remaining: Math.max(0, maxHelpers - (helpResult.helperCount || 1)),
+      helper_name: helperName,
+      sharer_name: sharerName,
+      campaign_name: campaign.name,
+    };
+
+    // Send messages asynchronously (don't block the response)
+    sendHelpNotifications(
+      campaign,
+      sharerUser?.openid_oa || null,
+      openid,
+      messageContext
+    ).then(result => {
+      console.log('[Campaign Subscribe] Notification results:', result);
+    }).catch(err => {
+      console.error('[Campaign Subscribe] Notification error:', err);
+    });
+  }
+
   // Record follow event
   await recordFollowEvent(openid, userInfo.unionid, sceneStr, participant.user_id);
 
@@ -787,6 +832,50 @@ async function handleCampaignScan(
   );
 
   console.log('Help Result:', helpResult);
+
+  // Send notification messages if help was successful
+  if (helpResult.success && helpResult.isNew) {
+    // Get sharer's OA OpenID
+    const { data: sharerUser } = await supabase
+      .from('users')
+      .select('openid_oa, wechat_nickname, name')
+      .eq('id', participant.user_id)
+      .single();
+
+    // Get max helpers from campaign rewards
+    const { data: maxReward } = await supabase
+      .from('campaign_rewards')
+      .select('helpers_required')
+      .eq('campaign_id', campaignId)
+      .order('helpers_required', { ascending: false })
+      .limit(1)
+      .single();
+
+    const maxHelpers = maxReward?.helpers_required || 8;
+    const helperName = userInfo.nickname || '微信用户';
+    const sharerName = sharerUser?.wechat_nickname || sharerUser?.name || '好友';
+
+    const messageContext: MessageContext = {
+      helper_count: helpResult.helperCount || 1,
+      max_helpers: maxHelpers,
+      remaining: Math.max(0, maxHelpers - (helpResult.helperCount || 1)),
+      helper_name: helperName,
+      sharer_name: sharerName,
+      campaign_name: campaign.name,
+    };
+
+    // Send messages asynchronously (don't block the response)
+    sendHelpNotifications(
+      campaign,
+      sharerUser?.openid_oa || null,
+      openid,
+      messageContext
+    ).then(result => {
+      console.log('[Campaign Scan] Notification results:', result);
+    }).catch(err => {
+      console.error('[Campaign Scan] Notification error:', err);
+    });
+  }
 
   // Log scan_qr event (existing follower scanned campaign QR)
   await logEvent({

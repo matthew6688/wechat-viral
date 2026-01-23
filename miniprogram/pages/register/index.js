@@ -18,6 +18,7 @@ Page({
       unionid: null,
       openid: null,
     },
+    showAuthModal: false,
   },
 
   onLoad() {
@@ -62,9 +63,13 @@ Page({
     });
   },
 
+  /**
+   * Main registration handler - checks for profile authorization first
+   */
   async onRegister() {
-    const { formData, wechatIds } = this.data;
+    const { formData } = this.data;
     
+    // Validate required fields
     if (!formData.name || !formData.phone) {
       wx.showToast({
         title: '请填写姓名和手机号',
@@ -73,6 +78,70 @@ Page({
       return;
     }
 
+    // Check if user has authorized their profile
+    if (!app.hasUserProfile() && !this.data.formData.avatarUrl) {
+      // Show authorization modal
+      this.setData({ showAuthModal: true });
+      return;
+    }
+
+    // Proceed with registration
+    await this.submitRegistration();
+  },
+
+  /**
+   * User taps "Authorize and Submit" in the modal
+   */
+  async authorizeAndSubmit() {
+    this.setData({ showAuthModal: false });
+    
+    try {
+      const result = await app.getUserProfile();
+      if (result) {
+        // Update form data with authorized profile
+        this.setData({
+          'formData.avatarUrl': result.avatarUrl,
+          'formData.nickname': result.nickName,
+        });
+        
+        // Now submit registration
+        await this.submitRegistration();
+      } else {
+        wx.showToast({
+          title: '需要授权才能注册',
+          icon: 'none',
+        });
+      }
+    } catch (error) {
+      console.error('Authorization error:', error);
+      wx.showToast({
+        title: '授权失败',
+        icon: 'none',
+      });
+    }
+  },
+
+  /**
+   * User taps "Cancel" in the modal
+   */
+  cancelAuth() {
+    this.setData({ showAuthModal: false });
+    wx.showToast({
+      title: '需要授权才能注册',
+      icon: 'none',
+    });
+  },
+
+  preventTouchMove() {
+    return false;
+  },
+
+  /**
+   * Actually submit the registration to the server
+   */
+  async submitRegistration() {
+    const { formData, wechatIds } = this.data;
+    
     wx.showLoading({ title: '注册中...' });
 
     try {
@@ -80,6 +149,7 @@ Page({
       await app.login();
       console.log('Login successful, proceeding with registration');
       
+      // Try to get user info if we don't have it yet
       if (!this.data.formData.avatarUrl || !this.data.formData.nickname) {
         try {
           const userInfo = await new Promise((resolve, reject) => {
@@ -112,11 +182,11 @@ Page({
       const referralCode = app.globalData.sceneContext?.referralCode;
       
       const registerData = {
-        ...formData,
+        ...this.data.formData,
         unionid: this.data.wechatIds.unionid || app.globalData.user?.unionid || null,
         openid: this.data.wechatIds.openid || app.globalData.user?.openid || null,
-        wechat_avatar: formData.avatarUrl || null,
-        wechat_nickname: formData.nickname || null,
+        wechat_avatar: this.data.formData.avatarUrl || null,
+        wechat_nickname: this.data.formData.nickname || null,
       };
       
       if (referralCode) {

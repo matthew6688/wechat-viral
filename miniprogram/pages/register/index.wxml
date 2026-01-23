@@ -120,4 +120,22 @@
     <!-- Submit Button -->
     <button class="register-btn-submit" form-type="submit">Complete Registration</button>
   </form>
+
+  <!-- Authorization Modal -->
+  <view wx:if="{{showAuthModal}}" class="auth-modal-overlay" catchtouchmove="preventTouchMove">
+    <view class="auth-modal">
+      <view class="auth-modal-header">
+        <text class="auth-modal-title">完善注册信息</text>
+      </view>
+      <view class="auth-modal-body">
+        <view class="auth-modal-icon">👤</view>
+        <text class="auth-modal-text">授权微信头像和昵称</text>
+        <text class="auth-modal-hint">让好友更容易认出您</text>
+      </view>
+      <view class="auth-modal-footer">
+        <button class="btn-cancel" bindtap="cancelAuth">取消</button>
+        <button class="btn-auth-submit" bindtap="authorizeAndSubmit">授权并提交</button>
+      </view>
+    </view>
+  </view>
 </view>

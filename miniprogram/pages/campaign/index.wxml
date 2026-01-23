@@ -172,7 +172,12 @@
     <view class="section-card helpers-section">
       <view class="section-header">
         <text class="section-title">助力好友</text>
-        <text class="helper-total">共 {{helpers.length || 0}} 人</text>
+        <view class="header-right">
+          <text class="helper-total">共 {{helpers.length || 0}} 人</text>
+          <button class="refresh-btn {{refreshing ? 'refreshing' : ''}}" bindtap="refreshProgress" disabled="{{refreshing}}">
+            <text class="refresh-icon">🔄</text>
+          </button>
+        </view>
       </view>
       <view wx:if="{{helpers && helpers.length > 0}}" class="helpers-list">
         <view wx:for="{{helpers}}" wx:key="id" class="helper-item">

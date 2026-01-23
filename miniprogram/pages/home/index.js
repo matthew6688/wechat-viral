@@ -8,6 +8,7 @@ Page({
     points: 0,
     tasks: null,
     logs: null,
+    showProfileModal: false,
   },
 
   onLoad() {
@@ -18,9 +19,61 @@ Page({
     if (app.globalData.user) {
       this.setData({ user: app.globalData.user });
       this.loadData();
+      this.checkProfileAuthorization();
     } else {
       wx.redirectTo({ url: '/pages/landing/index' });
     }
+  },
+
+  /**
+   * Check if user has authorized their profile, prompt if not
+   */
+  checkProfileAuthorization() {
+    setTimeout(() => {
+      const hasProfile = app.hasUserProfile();
+      const hasSkipped = wx.getStorageSync('profile_auth_skipped_home');
+      
+      if (!hasProfile && !hasSkipped) {
+        this.setData({ showProfileModal: true });
+      }
+    }, 800); // Delay a bit to let the page load first
+  },
+
+  /**
+   * User taps "Authorize" button in modal
+   */
+  async authorizeProfile() {
+    this.setData({ showProfileModal: false });
+    
+    try {
+      const result = await app.getUserProfile();
+      if (result) {
+        wx.showToast({
+          title: '授权成功',
+          icon: 'success',
+        });
+        // Refresh user data
+        this.setData({ user: app.globalData.user });
+      }
+    } catch (error) {
+      console.error('Authorize profile error:', error);
+      wx.showToast({
+        title: '授权失败',
+        icon: 'none',
+      });
+    }
+  },
+
+  /**
+   * User taps "Skip" button in modal
+   */
+  skipProfile() {
+    this.setData({ showProfileModal: false });
+    wx.setStorageSync('profile_auth_skipped_home', true);
+  },
+
+  preventTouchMove() {
+    return false;
   },
 
   formatDate(dateStr) {

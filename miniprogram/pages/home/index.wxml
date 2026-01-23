@@ -3,11 +3,11 @@
   <view class="user-header">
     <view class="user-info">
       <view class="avatar-container">
-        <image wx:if="{{user && user.avatar_url}}" class="avatar-image" src="{{user.avatar_url}}" mode="aspectFill" />
+        <image wx:if="{{user && (user.wechat_avatar_url || user.avatar_url)}}" class="avatar-image" src="{{user.wechat_avatar_url || user.avatar_url}}" mode="aspectFill" />
         <view wx:else class="avatar-badge">{{user && user.name ? user.name.charAt(0) : 'U'}}</view>
       </view>
       <view class="user-details">
-        <text class="user-name">{{user && (user.nickname || user.name) ? (user.nickname || user.name) : '用户'}}</text>
+        <text class="user-name">{{user && (user.wechat_nickname || user.nickname || user.name) ? (user.wechat_nickname || user.nickname || user.name) : '用户'}}</text>
         <text class="user-phone">{{user && user.phone ? user.phone : ''}}</text>
       </view>
     </view>
@@ -70,6 +70,24 @@
       </view>
       <view wx:if="{{!logs || logs.length === 0}}" class="empty-state">
         <text>No activity yet</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Profile Authorization Modal -->
+  <view wx:if="{{showProfileModal}}" class="modal-overlay" catchtouchmove="preventTouchMove">
+    <view class="modal-container">
+      <view class="modal-header">
+        <text class="modal-title">完善个人信息</text>
+      </view>
+      <view class="modal-body">
+        <view class="modal-icon">👤</view>
+        <text class="modal-text">授权您的微信头像和昵称</text>
+        <text class="modal-hint">让好友更容易认出您</text>
+      </view>
+      <view class="modal-footer">
+        <button class="btn-skip" bindtap="skipProfile">暂不授权</button>
+        <button class="btn-authorize" bindtap="authorizeProfile">立即授权</button>
       </view>
     </view>
   </view>

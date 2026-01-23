@@ -456,11 +456,14 @@ router.get('/:id/debug', authenticate, requireAdmin, async (req: AuthRequest, re
       claimedTiers: (claimsByParticipant[p.id] || []).map((c: any) => c.reward?.tier_level),
     }));
 
-    // Get all helpers with participant info
+    // Get all helpers with participant info AND helper user info
     const { data: helpers } = await supabase
       .from('campaign_helpers')
       .select(`
         *,
+        helper_user:users!campaign_helpers_helper_user_id_fkey(
+          id, name, wechat_nickname, wechat_avatar_url
+        ),
         participant:campaign_participants(
           id,
           referral_code,
@@ -470,6 +473,13 @@ router.get('/:id/debug', authenticate, requireAdmin, async (req: AuthRequest, re
       .eq('campaign_id', campaignId)
       .order('created_at', { ascending: false })
       .limit(200);
+
+    // Transform helpers to include display names
+    const transformedHelpers = (helpers || []).map((h: any) => ({
+      ...h,
+      display_name: h.helper_user?.wechat_nickname || h.helper_user?.name || '微信用户',
+      avatar_url: h.helper_user?.wechat_avatar_url || null,
+    }));
 
     // Get leaderboard (top 10 performers)
     const leaderboard = (enhancedParticipants || []).slice(0, 10).map((p: any, index: number) => ({
@@ -506,7 +516,7 @@ router.get('/:id/debug', authenticate, requireAdmin, async (req: AuthRequest, re
         stats,
         events,
         participants: enhancedParticipants,
-        helpers: helpers || [],
+        helpers: transformedHelpers,
         leaderboard,
         health,
         rewardClaims: rewardClaims || [],
@@ -993,10 +1003,12 @@ router.get('/admin/all', authenticate, requireAdmin, async (req: AuthRequest, re
 /**
  * POST /api/campaigns/admin/create
  * Create a new campaign with rewards (admin only)
+ * Supports 4-step wizard setup fields
  */
 router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
     const {
+      // Step 1: Basic Info
       name,
       description,
       cover_image_url,
@@ -1006,11 +1018,69 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
       rules = {},
       anti_cheat_settings = {},
       rewards = [],
+      page_style = 'red',
+      brand_enabled = false,
+      brand_name,
+      brand_logo_url,
+      activity_info_enabled = false,
+      activity_info,
+      // Step 2: Poster Settings
+      poster_background_url,
+      poster_avatar_enabled = true,
+      poster_avatar_shape = 'circle',
+      poster_nickname_enabled = true,
+      poster_nickname_font_size = 24,
+      poster_nickname_color = '#333333',
+      poster_recommend_enabled = false,
+      poster_recommend_text,
+      // Step 3: Message Templates
+      messages_enabled = true,
+      message_to_sharer,
+      message_to_helper,
+      msg_rule,
+      msg_helper_success,
+      msg_duplicate_help,
+      msg_campaign_ended,
+      msg_campaign_ended_image_url,
     } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Campaign name is required' });
     }
+
+    // Default message templates
+    const defaultSharerMessage = `🎉 好消息！
+
+有人刚刚为你助力了！
+
+📊 当前进度：{{helper_count}}/{{max_helpers}} 人
+🎁 还差 {{remaining}} 人即可领取奖励
+
+继续分享给更多好友吧！`;
+
+    const defaultHelperMessage = `✅ 助力成功！
+
+你已成功帮助好友完成助力任务。
+
+感谢你的支持！🙏`;
+
+    const defaultRuleMessage = `@{{user_nickname}}，您好呀，快来参与本次福利活动~
+
+点击下方链接，生成个人专属海报
+分享海报，邀请好友扫码助力，即可领取奖品！
+
+奖品数量有限，快去参加吧👇`;
+
+    const defaultHelperSuccessMessage = `@{{user_nickname}}，很高兴认识您，您已为好友助力成功！
+同时，诚邀您一起参与本次福利活动~
+
+点击下方链接，生成个人专属海报
+分享海报，邀请好友扫码助力，即可领取奖品！`;
+
+    const defaultDuplicateHelpMessage = `@{{user_nickname}}，您已经为好友助力过，不能重复助力哟~
+诚邀您一起参与本次福利活动~`;
+
+    const defaultCampaignEndedMessage = `活动已结束，感谢您的参与！敬请期待下次活动~`;
 
     // Create campaign
     const { data: campaignData, error } = await supabase
@@ -1020,11 +1090,36 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
         description,
         cover_image_url,
         entry_type,
-        status: 'active', // Default to active for easier testing
+        status: 'active',
         start_time: start_time || new Date().toISOString(),
         end_time: end_time || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         rules,
         anti_cheat_settings,
+        // Step 1 fields
+        page_style,
+        brand_enabled,
+        brand_name,
+        brand_logo_url,
+        activity_info_enabled,
+        activity_info,
+        // Step 2 fields
+        poster_background_url,
+        poster_avatar_enabled,
+        poster_avatar_shape,
+        poster_nickname_enabled,
+        poster_nickname_font_size,
+        poster_nickname_color,
+        poster_recommend_enabled,
+        poster_recommend_text,
+        // Step 3 fields
+        messages_enabled,
+        message_to_sharer: message_to_sharer || defaultSharerMessage,
+        message_to_helper: message_to_helper || defaultHelperMessage,
+        msg_rule: msg_rule || defaultRuleMessage,
+        msg_helper_success: msg_helper_success || defaultHelperSuccessMessage,
+        msg_duplicate_help: msg_duplicate_help || defaultDuplicateHelpMessage,
+        msg_campaign_ended: msg_campaign_ended || defaultCampaignEndedMessage,
+        msg_campaign_ended_image_url,
       } as Record<string, any>)
       .select()
       .single();
@@ -1044,6 +1139,16 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
         reward_type: reward.reward_type || 'digital',
         reward_content: reward.reward_content || {},
         stock: reward.stock ?? -1,
+        // New fields for Step 4
+        reward_image_url: reward.reward_image_url,
+        total_quantity: reward.total_quantity ?? 100,
+        remaining_quantity: reward.remaining_quantity ?? reward.total_quantity ?? 100,
+        claim_method: reward.claim_method || 'link',
+        claim_link: reward.claim_link,
+        claim_text: reward.claim_text,
+        claim_button_text: reward.claim_button_text || '领取奖品',
+        activation_source: reward.activation_source || 'manual',
+        send_to_email: reward.send_to_email || false,
       }));
 
       const { error: rewardsError } = await supabase
@@ -1052,7 +1157,6 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
 
       if (rewardsError) {
         console.error('Create rewards error:', rewardsError);
-        // Don't fail the whole request, just log the error
       }
     }
 
@@ -1080,34 +1184,91 @@ router.post('/admin/create', authenticate, requireAdmin, async (req: AuthRequest
 /**
  * PUT /api/campaigns/admin/:id
  * Update campaign details (admin only)
+ * Supports 4-step wizard setup fields
  */
 router.put('/admin/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
     const campaignId = req.params.id;
     const {
+      // Step 1: Basic Info
       name,
       description,
       cover_image_url,
       start_time,
       end_time,
       rewards = [],
+      page_style,
+      brand_enabled,
+      brand_name,
+      brand_logo_url,
+      activity_info_enabled,
+      activity_info,
+      // Step 2: Poster Settings
+      poster_background_url,
+      poster_avatar_enabled,
+      poster_avatar_shape,
+      poster_nickname_enabled,
+      poster_nickname_font_size,
+      poster_nickname_color,
+      poster_recommend_enabled,
+      poster_recommend_text,
+      // Step 3: Message Templates
+      messages_enabled,
+      message_to_sharer,
+      message_to_helper,
+      msg_rule,
+      msg_helper_success,
+      msg_duplicate_help,
+      msg_campaign_ended,
+      msg_campaign_ended_image_url,
     } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Campaign name is required' });
     }
 
+    // Build update object (only include defined fields)
+    const updateData: Record<string, any> = {
+      name,
+      description,
+      cover_image_url,
+      start_time,
+      end_time,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Step 1 fields
+    if (page_style !== undefined) updateData.page_style = page_style;
+    if (brand_enabled !== undefined) updateData.brand_enabled = brand_enabled;
+    if (brand_name !== undefined) updateData.brand_name = brand_name;
+    if (brand_logo_url !== undefined) updateData.brand_logo_url = brand_logo_url;
+    if (activity_info_enabled !== undefined) updateData.activity_info_enabled = activity_info_enabled;
+    if (activity_info !== undefined) updateData.activity_info = activity_info;
+
+    // Step 2 fields
+    if (poster_background_url !== undefined) updateData.poster_background_url = poster_background_url;
+    if (poster_avatar_enabled !== undefined) updateData.poster_avatar_enabled = poster_avatar_enabled;
+    if (poster_avatar_shape !== undefined) updateData.poster_avatar_shape = poster_avatar_shape;
+    if (poster_nickname_enabled !== undefined) updateData.poster_nickname_enabled = poster_nickname_enabled;
+    if (poster_nickname_font_size !== undefined) updateData.poster_nickname_font_size = poster_nickname_font_size;
+    if (poster_nickname_color !== undefined) updateData.poster_nickname_color = poster_nickname_color;
+    if (poster_recommend_enabled !== undefined) updateData.poster_recommend_enabled = poster_recommend_enabled;
+    if (poster_recommend_text !== undefined) updateData.poster_recommend_text = poster_recommend_text;
+
+    // Step 3 fields
+    if (messages_enabled !== undefined) updateData.messages_enabled = messages_enabled;
+    if (message_to_sharer !== undefined) updateData.message_to_sharer = message_to_sharer;
+    if (message_to_helper !== undefined) updateData.message_to_helper = message_to_helper;
+    if (msg_rule !== undefined) updateData.msg_rule = msg_rule;
+    if (msg_helper_success !== undefined) updateData.msg_helper_success = msg_helper_success;
+    if (msg_duplicate_help !== undefined) updateData.msg_duplicate_help = msg_duplicate_help;
+    if (msg_campaign_ended !== undefined) updateData.msg_campaign_ended = msg_campaign_ended;
+    if (msg_campaign_ended_image_url !== undefined) updateData.msg_campaign_ended_image_url = msg_campaign_ended_image_url;
+
     // Update campaign
     const { data: campaignData, error } = await supabase
       .from('campaigns')
-      .update({
-        name,
-        description,
-        cover_image_url,
-        start_time,
-        end_time,
-        updated_at: new Date().toISOString(),
-      } as Record<string, any>)
+      .update(updateData)
       .eq('id', campaignId)
       .select()
       .single();
@@ -1116,7 +1277,7 @@ router.put('/admin/:id', authenticate, requireAdmin, async (req: AuthRequest, re
 
     // Update rewards if provided
     if (rewards.length > 0) {
-      // Delete existing rewards
+      // Delete existing rewards (and their activation codes will cascade)
       await supabase
         .from('campaign_rewards')
         .delete()
@@ -1132,6 +1293,16 @@ router.put('/admin/:id', authenticate, requireAdmin, async (req: AuthRequest, re
         reward_type: reward.reward_type || 'digital',
         reward_content: reward.reward_content || {},
         stock: reward.stock ?? -1,
+        // New fields for Step 4
+        reward_image_url: reward.reward_image_url,
+        total_quantity: reward.total_quantity ?? 100,
+        remaining_quantity: reward.remaining_quantity ?? reward.total_quantity ?? 100,
+        claim_method: reward.claim_method || 'link',
+        claim_link: reward.claim_link,
+        claim_text: reward.claim_text,
+        claim_button_text: reward.claim_button_text || '领取奖品',
+        activation_source: reward.activation_source || 'manual',
+        send_to_email: reward.send_to_email || false,
       }));
 
       const { error: rewardsError } = await supabase
@@ -1290,6 +1461,362 @@ router.delete('/:id', authenticate, requireAdmin, async (req: AuthRequest, res) 
   } catch (error: any) {
     console.error('Delete campaign error:', error);
     res.status(500).json({ error: error.message || 'Failed to delete campaign' });
+  }
+});
+
+/**
+ * POST /api/campaigns/:id/copy
+ * Copy a campaign with all its settings and rewards (admin only)
+ */
+router.post('/:id/copy', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const campaignId = req.params.id;
+    const { name: newName } = req.body;
+
+    // Get the original campaign
+    const { data: originalCampaign, error: fetchError } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('id', campaignId)
+      .single();
+
+    if (fetchError || !originalCampaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    // Get original rewards
+    const { data: originalRewards } = await supabase
+      .from('campaign_rewards')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .order('tier_level', { ascending: true });
+
+    // Create new campaign (copy all fields except id, created_at, updated_at)
+    const { id, created_at, updated_at, ...campaignFields } = originalCampaign;
+    
+    const { data: newCampaign, error: createError } = await supabase
+      .from('campaigns')
+      .insert({
+        ...campaignFields,
+        name: newName || `${originalCampaign.name} (副本)`,
+        status: 'draft', // New campaign starts as draft
+        start_time: new Date().toISOString(),
+        end_time: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      } as Record<string, any>)
+      .select()
+      .single();
+
+    if (createError) throw createError;
+
+    // Copy rewards if any
+    if (originalRewards && originalRewards.length > 0) {
+      const rewardsToInsert = originalRewards.map((reward: any) => {
+        const { id, campaign_id, created_at, claimed_count, ...rewardFields } = reward;
+        return {
+          ...rewardFields,
+          campaign_id: (newCampaign as any).id,
+          claimed_count: 0,
+          remaining_quantity: rewardFields.total_quantity || 100,
+        };
+      });
+
+      const { error: rewardsError } = await supabase
+        .from('campaign_rewards')
+        .insert(rewardsToInsert as Record<string, any>[]);
+
+      if (rewardsError) {
+        console.error('Copy rewards error:', rewardsError);
+      }
+    }
+
+    // Log event
+    await logEvent({
+      event_type: 'campaign_copied',
+      user_id: req.userId!,
+      event_data: {
+        original_campaign_id: campaignId,
+        new_campaign_id: (newCampaign as any).id,
+        original_name: originalCampaign.name,
+        new_name: (newCampaign as any).name,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'Campaign copied successfully',
+      data: { campaign: newCampaign },
+    });
+  } catch (error: any) {
+    console.error('Copy campaign error:', error);
+    res.status(500).json({ error: error.message || 'Failed to copy campaign' });
+  }
+});
+
+/**
+ * POST /api/campaigns/admin/:id/rewards/:rewardId/activation-codes
+ * Import activation codes for a reward (admin only)
+ */
+router.post('/admin/:id/rewards/:rewardId/activation-codes', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { id: campaignId, rewardId } = req.params;
+    const { codes } = req.body; // Array of code strings
+
+    if (!codes || !Array.isArray(codes) || codes.length === 0) {
+      return res.status(400).json({ error: 'Please provide an array of activation codes' });
+    }
+
+    // Verify reward exists and belongs to campaign
+    const { data: reward, error: rewardError } = await supabase
+      .from('campaign_rewards')
+      .select('id, campaign_id, reward_name')
+      .eq('id', rewardId)
+      .eq('campaign_id', campaignId)
+      .single();
+
+    if (rewardError || !reward) {
+      return res.status(404).json({ error: 'Reward not found' });
+    }
+
+    // Clean and deduplicate codes
+    const cleanedCodes = [...new Set(codes.map((c: string) => c.trim()).filter((c: string) => c.length > 0))];
+
+    // Check for existing codes
+    const { data: existingCodes } = await supabase
+      .from('activation_codes')
+      .select('code')
+      .eq('reward_id', rewardId)
+      .in('code', cleanedCodes);
+
+    const existingCodeSet = new Set((existingCodes || []).map((c: any) => c.code));
+    const newCodes = cleanedCodes.filter(code => !existingCodeSet.has(code));
+
+    if (newCodes.length === 0) {
+      return res.json({
+        success: true,
+        message: 'All codes already exist',
+        data: {
+          imported: 0,
+          duplicates: cleanedCodes.length,
+          total: 0,
+        },
+      });
+    }
+
+    // Insert new codes
+    const codesToInsert = newCodes.map(code => ({
+      campaign_id: campaignId,
+      reward_id: rewardId,
+      code,
+      is_used: false,
+    }));
+
+    const { error: insertError } = await supabase
+      .from('activation_codes')
+      .insert(codesToInsert);
+
+    if (insertError) throw insertError;
+
+    // Update reward remaining quantity
+    const { count: totalUnused } = await supabase
+      .from('activation_codes')
+      .select('*', { count: 'exact', head: true })
+      .eq('reward_id', rewardId)
+      .eq('is_used', false);
+
+    await supabase
+      .from('campaign_rewards')
+      .update({ remaining_quantity: totalUnused || 0 })
+      .eq('id', rewardId);
+
+    // Log event
+    await logEvent({
+      event_type: 'activation_codes_imported',
+      user_id: req.userId!,
+      event_data: {
+        campaign_id: campaignId,
+        reward_id: rewardId,
+        imported_count: newCodes.length,
+        duplicate_count: cleanedCodes.length - newCodes.length,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: `Successfully imported ${newCodes.length} activation codes`,
+      data: {
+        imported: newCodes.length,
+        duplicates: cleanedCodes.length - newCodes.length,
+        total: totalUnused || 0,
+      },
+    });
+  } catch (error: any) {
+    console.error('Import activation codes error:', error);
+    res.status(500).json({ error: error.message || 'Failed to import activation codes' });
+  }
+});
+
+/**
+ * GET /api/campaigns/admin/:id/rewards/:rewardId/activation-codes
+ * Get activation codes for a reward (admin only)
+ */
+router.get('/admin/:id/rewards/:rewardId/activation-codes', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { id: campaignId, rewardId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const showUsed = req.query.show_used === 'true';
+
+    // Get codes
+    let query = supabase
+      .from('activation_codes')
+      .select(`
+        *,
+        used_by_user:users!activation_codes_used_by_fkey(id, name, wechat_nickname)
+      `, { count: 'exact' })
+      .eq('reward_id', rewardId)
+      .eq('campaign_id', campaignId)
+      .order('created_at', { ascending: false })
+      .range((page - 1) * limit, page * limit - 1);
+
+    if (!showUsed) {
+      query = query.eq('is_used', false);
+    }
+
+    const { data: codes, count, error } = await query;
+
+    if (error) throw error;
+
+    // Get stats
+    const { count: totalCount } = await supabase
+      .from('activation_codes')
+      .select('*', { count: 'exact', head: true })
+      .eq('reward_id', rewardId);
+
+    const { count: usedCount } = await supabase
+      .from('activation_codes')
+      .select('*', { count: 'exact', head: true })
+      .eq('reward_id', rewardId)
+      .eq('is_used', true);
+
+    res.json({
+      success: true,
+      data: {
+        codes: codes || [],
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          pages: Math.ceil((count || 0) / limit),
+        },
+        stats: {
+          total: totalCount || 0,
+          used: usedCount || 0,
+          available: (totalCount || 0) - (usedCount || 0),
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Get activation codes error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get activation codes' });
+  }
+});
+
+/**
+ * DELETE /api/campaigns/admin/:id/rewards/:rewardId/activation-codes
+ * Delete all unused activation codes for a reward (admin only)
+ */
+router.delete('/admin/:id/rewards/:rewardId/activation-codes', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { id: campaignId, rewardId } = req.params;
+
+    const { data: deleted, error } = await supabase
+      .from('activation_codes')
+      .delete()
+      .eq('reward_id', rewardId)
+      .eq('campaign_id', campaignId)
+      .eq('is_used', false)
+      .select('id');
+
+    if (error) throw error;
+
+    // Update reward remaining quantity to 0
+    await supabase
+      .from('campaign_rewards')
+      .update({ remaining_quantity: 0 })
+      .eq('id', rewardId);
+
+    res.json({
+      success: true,
+      message: `Deleted ${deleted?.length || 0} unused activation codes`,
+      data: { deleted_count: deleted?.length || 0 },
+    });
+  } catch (error: any) {
+    console.error('Delete activation codes error:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete activation codes' });
+  }
+});
+
+/**
+ * GET /api/campaigns/admin/:id/full
+ * Get full campaign data including all wizard settings (admin only)
+ */
+router.get('/admin/:id/full', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const campaignId = req.params.id;
+
+    // Get campaign with all fields
+    const { data: campaign, error } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('id', campaignId)
+      .single();
+
+    if (error || !campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    // Get rewards with all fields
+    const { data: rewards } = await supabase
+      .from('campaign_rewards')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .order('tier_level', { ascending: true });
+
+    // Get activation code stats for each reward
+    const rewardsWithStats = await Promise.all(
+      (rewards || []).map(async (reward: any) => {
+        const { count: totalCodes } = await supabase
+          .from('activation_codes')
+          .select('*', { count: 'exact', head: true })
+          .eq('reward_id', reward.id);
+
+        const { count: usedCodes } = await supabase
+          .from('activation_codes')
+          .select('*', { count: 'exact', head: true })
+          .eq('reward_id', reward.id)
+          .eq('is_used', true);
+
+        return {
+          ...reward,
+          activation_codes_stats: {
+            total: totalCodes || 0,
+            used: usedCodes || 0,
+            available: (totalCodes || 0) - (usedCodes || 0),
+          },
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      data: {
+        campaign,
+        rewards: rewardsWithStats,
+      },
+    });
+  } catch (error: any) {
+    console.error('Get full campaign error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get campaign' });
   }
 });
 

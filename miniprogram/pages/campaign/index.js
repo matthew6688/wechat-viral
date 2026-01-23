@@ -18,6 +18,9 @@ Page({
     nextReward: null,
     showDebug: false, // Set to true for debugging
     claimedRewardIds: [], // IDs of claimed rewards
+    showProfileModal: false,
+    refreshing: false,
+    refreshTimer: null,
   },
 
   onLoad(options) {
@@ -43,6 +46,124 @@ Page({
     const campaignId = this.data.campaign.id;
     if (campaignId) {
       this.loadProgress(campaignId);
+      this.startAutoRefresh();
+    }
+    
+    // Check profile authorization
+    this.checkProfileAuthorization();
+  },
+
+  onHide() {
+    this.stopAutoRefresh();
+  },
+
+  onUnload() {
+    this.stopAutoRefresh();
+  },
+
+  /**
+   * Check if user has authorized their profile, prompt if not
+   */
+  checkProfileAuthorization() {
+    setTimeout(() => {
+      const hasProfile = app.hasUserProfile();
+      const hasSkipped = wx.getStorageSync('profile_auth_skipped_campaign');
+      
+      if (!hasProfile && !hasSkipped) {
+        this.setData({ showProfileModal: true });
+      }
+    }, 1000);
+  },
+
+  /**
+   * User taps "Authorize" button in modal
+   */
+  async authorizeProfile() {
+    this.setData({ showProfileModal: false });
+    
+    try {
+      const result = await app.getUserProfile();
+      if (result) {
+        wx.showToast({
+          title: '授权成功',
+          icon: 'success',
+        });
+      }
+    } catch (error) {
+      console.error('Authorize profile error:', error);
+    }
+  },
+
+  /**
+   * User taps "Skip" button in modal
+   */
+  skipProfile() {
+    this.setData({ showProfileModal: false });
+    wx.setStorageSync('profile_auth_skipped_campaign', true);
+  },
+
+  preventTouchMove() {
+    return false;
+  },
+
+  /**
+   * Start auto-refresh polling (every 5 seconds)
+   */
+  startAutoRefresh() {
+    this.stopAutoRefresh(); // Clear any existing timer
+    
+    const campaignId = this.data.campaign.id;
+    if (!campaignId) return;
+    
+    // Auto-refresh every 5 seconds
+    const timer = setInterval(() => {
+      console.log('Auto-refreshing progress...');
+      this.loadProgress(campaignId);
+      this.loadClaimableRewards(campaignId);
+    }, 5000);
+    
+    this.setData({ refreshTimer: timer });
+    
+    // Stop after 10 minutes to save resources
+    setTimeout(() => {
+      this.stopAutoRefresh();
+    }, 10 * 60 * 1000);
+  },
+
+  /**
+   * Stop auto-refresh polling
+   */
+  stopAutoRefresh() {
+    if (this.data.refreshTimer) {
+      clearInterval(this.data.refreshTimer);
+      this.setData({ refreshTimer: null });
+    }
+  },
+
+  /**
+   * Manual refresh button handler
+   */
+  async refreshProgress() {
+    const campaignId = this.data.campaign.id;
+    if (!campaignId || this.data.refreshing) return;
+    
+    this.setData({ refreshing: true });
+    
+    try {
+      await Promise.all([
+        this.loadProgress(campaignId),
+        this.loadClaimableRewards(campaignId),
+      ]);
+      
+      wx.showToast({
+        title: '刷新成功',
+        icon: 'success',
+        duration: 1000,
+      });
+    } catch (error) {
+      console.error('Refresh error:', error);
+    } finally {
+      this.setData({ refreshing: false });
     }
   },
 
@@ -79,6 +200,9 @@ Page({
 
       // Join campaign and load progress
       await this.joinAndLoadProgress(campaignId);
+      
+      // Start auto-refresh
+      this.startAutoRefresh();
 
     } catch (error) {
       console.error('Load campaign error:', error);

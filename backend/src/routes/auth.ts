@@ -41,8 +41,8 @@ router.post('/login', async (req, res) => {
 
     if (userError && userError.code === 'PGRST116') {
       // User not found, create new user
-      // Generate unique phone number to avoid unique constraint violation
-      const uniquePhone = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Generate unique phone number to avoid unique constraint violation (max 20 chars)
+      const uniquePhone = `mp_${session.openid.slice(-12)}`; // mp_ + last 12 chars of openid = 15 chars
       
       const { data: newUser, error: createError } = await supabase
         .from('users')
