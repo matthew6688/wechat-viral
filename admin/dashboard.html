@@ -16219,7 +16219,7 @@
           const campaigns = data.data?.campaigns || [];
           
           // Populate dropdown
-          select.innerHTML = '<option value="">Choose a campaign...</option>' + 
+          select.innerHTML = '<option value="">选择活动...</option>' + 
             campaigns.map(c => `<option value="${c.id}">${c.name} (${c.status})</option>`).join('');
           
           // Populate quick campaign buttons (show active first, then recent)
@@ -16266,8 +16266,8 @@
         contentEl.innerHTML = `
           <div class="report-placeholder">
             <div class="placeholder-icon">📑</div>
-            <h3>Select a Campaign</h3>
-            <p>Choose a campaign from the dropdown above to generate a comprehensive performance report.</p>
+            <h3>请选择活动</h3>
+            <p>从上方下拉菜单选择活动，生成完整的运营报表。</p>
           </div>
         `;
         actionsEl.style.display = 'none';
