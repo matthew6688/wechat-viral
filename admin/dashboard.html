@@ -10238,43 +10238,43 @@
               <div class="comparison-item">
                 <label>活动 A:</label>
                 <select id="campaignA" onchange="updateComparison()" class="filter-select">
-                  <option value="">Select campaign...</option>
+                  <option value="">选择活动...</option>
                 </select>
               </div>
               <div class="comparison-vs">VS</div>
               <div class="comparison-item">
-                <label>Campaign B:</label>
+                <label>活动 B:</label>
                 <select id="campaignB" onchange="updateComparison()" class="filter-select">
-                  <option value="">Select campaign...</option>
+                  <option value="">选择活动...</option>
                 </select>
               </div>
             </div>
             
             <!-- Comparison Results -->
             <div id="comparisonResults" class="comparison-results">
-              <div class="empty-state">Select two campaigns to compare</div>
+              <div class="empty-state">选择两个活动进行对比</div>
             </div>
             
             <!-- All Campaigns Table -->
             <div class="section-divider">
-              <span>All Campaigns Overview</span>
+              <span>全部活动概览</span>
             </div>
             <div class="campaigns-overview-table">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Campaign</th>
-                    <th>Status</th>
-                    <th>Health</th>
-                    <th>Participants</th>
-                    <th>Helpers</th>
-                    <th>Conversion</th>
-                    <th>Retention</th>
-                    <th>Rewards</th>
+                    <th>活动</th>
+                    <th>状态</th>
+                    <th>健康</th>
+                    <th>参与</th>
+                    <th>助力</th>
+                    <th>转化</th>
+                    <th>留存</th>
+                    <th>奖品</th>
                   </tr>
                 </thead>
                 <tbody id="campaignsOverviewBody">
-                  <tr><td colspan="8" class="loading">Loading campaigns...</td></tr>
+                  <tr><td colspan="8" class="loading">加载中...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -10284,23 +10284,23 @@
           <div class="analytics-panel hidden" id="analyticsSourcesPanel">
             <div class="analytics-panel-header">
               <div>
-                <h4>🎯 Traffic Sources</h4>
-                <p class="panel-subtitle">Where are your users coming from?</p>
+                <h4>🎯 流量来源</h4>
+                <p class="panel-subtitle">用户从哪里来？</p>
               </div>
               <div class="panel-controls">
                 <select id="sourcePeriod" onchange="loadSourceAnalytics()" class="filter-select">
-                  <option value="7">Last 7 days</option>
-                  <option value="30" selected>Last 30 days</option>
-                  <option value="90">Last 90 days</option>
+                  <option value="7">最近7天</option>
+                  <option value="30" selected>最近30天</option>
+                  <option value="90">最近90天</option>
                 </select>
-                <button class="btn-secondary btn-sm" onclick="loadSourceAnalytics()">🔄 Refresh</button>
+                <button class="btn-secondary btn-sm" onclick="loadSourceAnalytics()">🔄 刷新</button>
               </div>
             </div>
             
             <div class="sources-grid">
               <!-- Source Breakdown -->
               <div class="source-section">
-                <h5>📊 Source Breakdown</h5>
+                <h5>📊 来源分布</h5>
                 <div class="source-chart" id="sourceChart">
                   <!-- Pie chart rendered here -->
                 </div>
@@ -10311,7 +10311,7 @@
               
               <!-- Geographic Distribution -->
               <div class="source-section">
-                <h5>📍 Geographic Distribution</h5>
+                <h5>📍 地域分布</h5>
                 <div class="geo-bars" id="geoBars">
                   <!-- Location bars -->
                 </div>
@@ -10319,7 +10319,7 @@
               
               <!-- Device Breakdown -->
               <div class="source-section">
-                <h5>📱 Device Breakdown</h5>
+                <h5>📱 设备分布</h5>
                 <div class="device-bars" id="deviceBars">
                   <!-- Device bars -->
                 </div>
@@ -10339,38 +10339,38 @@
           <div class="analytics-panel hidden" id="analyticsTrendsPanel">
             <div class="analytics-panel-header">
               <div>
-                <h4>📅 Trends & Growth</h4>
-                <p class="panel-subtitle">Track your growth over time</p>
+                <h4>📅 趋势与增长</h4>
+                <p class="panel-subtitle">追踪您的增长数据</p>
               </div>
               <div class="panel-controls">
                 <div class="metric-toggles">
-                  <label><input type="checkbox" id="showHelpers" checked onchange="updateTrendsChart()"> Helpers</label>
-                  <label><input type="checkbox" id="showParticipants" checked onchange="updateTrendsChart()"> Participants</label>
-                  <label><input type="checkbox" id="showUnfollows" onchange="updateTrendsChart()"> Unfollows</label>
+                  <label><input type="checkbox" id="showHelpers" checked onchange="updateTrendsChart()"> 助力</label>
+                  <label><input type="checkbox" id="showParticipants" checked onchange="updateTrendsChart()"> 参与</label>
+                  <label><input type="checkbox" id="showUnfollows" onchange="updateTrendsChart()"> 取关</label>
                 </div>
                 <select id="trendsPeriod" onchange="loadTrendsData()" class="filter-select">
-                  <option value="7">Last 7 days</option>
-                  <option value="30" selected>Last 30 days</option>
-                  <option value="90">Last 90 days</option>
+                  <option value="7">最近7天</option>
+                  <option value="30" selected>最近30天</option>
+                  <option value="90">最近90天</option>
                 </select>
-                <button class="btn-secondary btn-sm" onclick="loadTrendsData()">🔄 Refresh</button>
+                <button class="btn-secondary btn-sm" onclick="loadTrendsData()">🔄 刷新</button>
               </div>
             </div>
             
             <!-- Growth Summary -->
             <div class="growth-summary">
               <div class="growth-card">
-                <span class="growth-period">Today vs Yesterday</span>
+                <span class="growth-period">今日对比昨日</span>
                 <span class="growth-value" id="growthToday">-</span>
                 <span class="growth-change" id="growthTodayPct">-</span>
               </div>
               <div class="growth-card">
-                <span class="growth-period">This Week</span>
+                <span class="growth-period">本周</span>
                 <span class="growth-value" id="growthWeek">-</span>
                 <span class="growth-change" id="growthWeekPct">-</span>
               </div>
               <div class="growth-card">
-                <span class="growth-period">This Month</span>
+                <span class="growth-period">本月</span>
                 <span class="growth-value" id="growthMonth">-</span>
                 <span class="growth-change" id="growthMonthPct">-</span>
               </div>
@@ -10385,15 +10385,15 @@
             
             <!-- Activity Heatmap -->
             <div class="heatmap-section">
-              <h5>🔥 Activity Heatmap (By Day & Hour)</h5>
+              <h5>🔥 活动热力图 (按日期和时间)</h5>
               <div class="heatmap" id="activityHeatmap">
                 <!-- Heatmap rendered here -->
               </div>
               <div class="heatmap-legend">
-                <span class="legend-item"><span class="heat-low"></span> Low</span>
-                <span class="legend-item"><span class="heat-medium"></span> Medium</span>
-                <span class="legend-item"><span class="heat-high"></span> High</span>
-                <span class="legend-item"><span class="heat-peak"></span> Peak</span>
+                <span class="legend-item"><span class="heat-low"></span> 低</span>
+                <span class="legend-item"><span class="heat-medium"></span> 中</span>
+                <span class="legend-item"><span class="heat-high"></span> 高</span>
+                <span class="legend-item"><span class="heat-peak"></span> 峰值</span>
               </div>
             </div>
           </div>
@@ -10402,11 +10402,11 @@
           <div class="analytics-panel hidden" id="analyticsGoalsPanel">
             <div class="analytics-panel-header">
               <div>
-                <h4>🎯 Goals & Milestones</h4>
-                <p class="panel-subtitle">Track progress towards your campaign goals</p>
+                <h4>🎯 目标与里程碑</h4>
+                <p class="panel-subtitle">追踪活动目标进度</p>
               </div>
               <div class="panel-controls">
-                <button class="btn-primary btn-sm" onclick="showAddGoalModal()">+ Add Goal</button>
+                <button class="btn-primary btn-sm" onclick="showAddGoalModal()">+ 添加目标</button>
               </div>
             </div>
             
@@ -10676,7 +10676,7 @@
                       </tr>
                       <tr>
                         <td><strong>Debug Tools</strong></td>
-                        <td>Copy Scene String, Download QR, View Raw JSON</td>
+                        <td>复制场景值、下载二维码、查看原始数据</td>
                       </tr>
                       <tr>
                         <td><strong>Leaderboard</strong></td>
@@ -10707,7 +10707,7 @@
               <!-- Data Flow Reference -->
               <div class="reference-section">
                 <h5 class="reference-title" onclick="toggleReferenceSection(this)">
-                  <span>🔄 Data Flow & Architecture</span>
+                  <span>🔄 数据流与架构</span>
                   <span class="toggle-icon">▼</span>
                 </h5>
                 <div class="reference-body">
@@ -12664,38 +12664,38 @@
           <div class="infra-tab-content" id="infra-tab-data-flow">
             <!-- Data Flow Diagram -->
             <div class="tunnel-section">
-              <h4>🔄 Complete Data Flow</h4>
-              <p class="section-desc">Understanding how data flows through your viral marketing system</p>
+              <h4>🔄 完整数据流</h4>
+              <p class="section-desc">了解数据如何在裂变营销系统中流转</p>
 
               <div class="flow-diagram">
                 <!-- Phase 1: QR Code Scan -->
                 <div class="flow-phase">
                   <div class="flow-phase-title">
                     <span class="flow-phase-number">1</span>
-                    <span>QR Code Scan & Follow</span>
+                    <span>扫码关注流程</span>
                   </div>
                   <div class="flow-steps">
                     <div class="flow-step">
                       <div class="flow-step-icon">👤</div>
                       <div class="flow-step-content">
-                        <strong>User B scans QR code</strong>
-                        <p>QR contains: <code>camp_{campaignId}_ref_{userA_code}</code></p>
+                        <strong>用户B扫描二维码</strong>
+                        <p>二维码包含: <code>camp_{campaignId}_ref_{userA_code}</code></p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">➕</div>
                       <div class="flow-step-content">
-                        <strong>User B follows Official Account</strong>
-                        <p>WeChat triggers "subscribe" event</p>
+                        <strong>用户B关注公众号</strong>
+                        <p>微信触发 "subscribe" 事件</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">📡</div>
                       <div class="flow-step-content">
-                        <strong>Webhook Event</strong>
-                        <p>WeChat → Cloudflare Tunnel → Backend</p>
+                        <strong>Webhook 事件</strong>
+                        <p>微信 → Cloudflare 隧道 → 后端</p>
                         <code>POST /api/oa/webhook</code>
                       </div>
                     </div>
@@ -12703,11 +12703,11 @@
                     <div class="flow-step">
                       <div class="flow-step-icon">💾</div>
                       <div class="flow-step-content">
-                        <strong>Record Helper</strong>
-                        <p>Save to <code>campaign_helpers</code> table:</p>
+                        <strong>记录助力</strong>
+                        <p>保存到 <code>campaign_helpers</code> 表:</p>
                         <ul style="font-size: 11px; margin: 4px 0 0 16px;">
-                          <li>helper_openid (User B)</li>
-                          <li>participant_id (User A)</li>
+                          <li>helper_openid (用户B)</li>
+                          <li>participant_id (用户A)</li>
                           <li>campaign_id</li>
                           <li>is_valid = true</li>
                           <li>source_channel = 'wechat_scan'</li>
@@ -12718,17 +12718,17 @@
                     <div class="flow-step">
                       <div class="flow-step-icon">📊</div>
                       <div class="flow-step-content">
-                        <strong>Update Progress</strong>
-                        <p>User A's <code>helper_count++</code></p>
-                        <p>Check if reward unlocked</p>
+                        <strong>更新进度</strong>
+                        <p>用户A的 <code>helper_count++</code></p>
+                        <p>检查是否解锁奖励</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">💬</div>
                       <div class="flow-step-content">
-                        <strong>Auto-Reply to User B</strong>
-                        <p>Send Mini Program link:</p>
+                        <strong>自动回复用户B</strong>
+                        <p>发送小程序链接:</p>
                         <code>pages/landing/index?ref={code}&from=oa</code>
                       </div>
                     </div>
@@ -12739,14 +12739,14 @@
                 <div class="flow-phase">
                   <div class="flow-phase-title">
                     <span class="flow-phase-number">2</span>
-                    <span>New User Registration</span>
+                    <span>新用户注册</span>
                   </div>
                   <div class="flow-steps">
                     <div class="flow-step">
                       <div class="flow-step-icon">📱</div>
                       <div class="flow-step-content">
-                        <strong>User B opens Mini Program</strong>
-                        <p>Landing page with referral code</p>
+                        <strong>用户B打开小程序</strong>
+                        <p>带邀请码的落地页</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
@@ -12754,7 +12754,7 @@
                       <div class="flow-step-icon">🔐</div>
                       <div class="flow-step-content">
                         <strong>wx.login()</strong>
-                        <p>Get WeChat code → Exchange for session</p>
+                        <p>获取微信code → 换取session</p>
                         <code>POST /api/auth/login</code>
                       </div>
                     </div>
@@ -12762,29 +12762,29 @@
                     <div class="flow-step">
                       <div class="flow-step-icon">✍️</div>
                       <div class="flow-step-content">
-                        <strong>Fill Registration Form</strong>
-                        <p>Name, phone, company, etc.</p>
+                        <strong>填写注册表单</strong>
+                        <p>姓名、电话、公司等</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">💾</div>
                       <div class="flow-step-content">
-                        <strong>Create User Record</strong>
-                        <p>Save to <code>users</code> table</p>
-                        <p>Link referral code to User A</p>
+                        <strong>创建用户记录</strong>
+                        <p>保存到 <code>users</code> 表</p>
+                        <p>关联邀请码到用户A</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">📝</div>
                       <div class="flow-step-content">
-                        <strong>Log Event</strong>
-                        <p>Save to <code>event_logs</code>:</p>
+                        <strong>记录事件</strong>
+                        <p>保存到 <code>event_logs</code>:</p>
                         <ul style="font-size: 11px; margin: 4px 0 0 16px;">
                           <li>event_type: 'register'</li>
-                          <li>user_id: User B</li>
-                          <li>referrer_id: User A</li>
+                          <li>user_id: 用户B</li>
+                          <li>referrer_id: 用户A</li>
                           <li>source: 'oa_scan'</li>
                         </ul>
                       </div>
@@ -12796,21 +12796,21 @@
                 <div class="flow-phase">
                   <div class="flow-phase-title">
                     <span class="flow-phase-number">3</span>
-                    <span>User B Becomes Sharer</span>
+                    <span>用户B成为分享者</span>
                   </div>
                   <div class="flow-steps">
                     <div class="flow-step">
                       <div class="flow-step-icon">🎯</div>
                       <div class="flow-step-content">
-                        <strong>User B joins campaign</strong>
-                        <p>Becomes a participant</p>
+                        <strong>用户B参与活动</strong>
+                        <p>成为参与者</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">🎫</div>
                       <div class="flow-step-content">
-                        <strong>Generate User B's QR code</strong>
+                        <strong>生成用户B的二维码</strong>
                         <code>POST /api/oa/scene</code>
                         <p>scene: <code>camp_{id}_ref_{userB_code}</code></p>
                       </div>
@@ -12819,8 +12819,8 @@
                     <div class="flow-step">
                       <div class="flow-step-icon">🖼️</div>
                       <div class="flow-step-content">
-                        <strong>Generate poster</strong>
-                        <p>User B's avatar + name + QR code</p>
+                        <strong>生成海报</strong>
+                        <p>用户B的头像 + 昵称 + 二维码</p>
                         <code>POST /api/campaigns/{id}/poster</code>
                       </div>
                     </div>
@@ -12828,17 +12828,17 @@
                     <div class="flow-step">
                       <div class="flow-step-icon">📤</div>
                       <div class="flow-step-content">
-                        <strong>User B shares poster</strong>
-                        <p>WeChat moments, groups, friends</p>
+                        <strong>用户B分享海报</strong>
+                        <p>朋友圈、群聊、好友</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">🔁</div>
                       <div class="flow-step-content">
-                        <strong>Cycle repeats</strong>
-                        <p>User C scans → Helps User B → Becomes sharer</p>
-                        <p><strong>Viral growth! 🚀</strong></p>
+                        <strong>循环继续</strong>
+                        <p>用户C扫码 → 助力用户B → 成为分享者</p>
+                        <p><strong>裂变增长！🚀</strong></p>
                       </div>
                     </div>
                   </div>
@@ -12848,42 +12848,42 @@
                 <div class="flow-phase">
                   <div class="flow-phase-title">
                     <span class="flow-phase-number">4</span>
-                    <span>Progress Tracking & Rewards</span>
+                    <span>进度追踪与奖励</span>
                   </div>
                   <div class="flow-steps">
                     <div class="flow-step">
                       <div class="flow-step-icon">📊</div>
                       <div class="flow-step-content">
-                        <strong>Real-time progress updates</strong>
-                        <p>Mini Program shows helper count</p>
-                        <p>Query <code>campaign_participants</code></p>
+                        <strong>实时进度更新</strong>
+                        <p>小程序显示助力人数</p>
+                        <p>查询 <code>campaign_participants</code></p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">🎁</div>
                       <div class="flow-step-content">
-                        <strong>Reward unlocked</strong>
+                        <strong>解锁奖励</strong>
                         <p>helper_count ≥ required_helpers</p>
-                        <p>Button: "Claim Reward"</p>
+                        <p>按钮："领取奖励"</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">✅</div>
                       <div class="flow-step-content">
-                        <strong>Claim reward</strong>
+                        <strong>领取奖励</strong>
                         <code>POST /api/campaigns/{id}/claim/{rewardId}</code>
-                        <p>Validates helper count (re-calculates valid helpers)</p>
+                        <p>验证助力数（重新计算有效助力）</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">📝</div>
                       <div class="flow-step-content">
-                        <strong>Record in database</strong>
-                        <p>Save to <code>campaign_reward_claims</code></p>
-                        <p>Log event: 'campaign_reward_claimed'</p>
+                        <strong>数据库记录</strong>
+                        <p>保存到 <code>campaign_reward_claims</code></p>
+                        <p>记录事件: 'campaign_reward_claimed'</p>
                       </div>
                     </div>
                   </div>
@@ -12893,18 +12893,18 @@
                 <div class="flow-phase">
                   <div class="flow-phase-title">
                     <span class="flow-phase-number">5</span>
-                    <span>Analytics & Tracking</span>
+                    <span>数据分析与追踪</span>
                   </div>
                   <div class="flow-steps">
                     <div class="flow-step">
                       <div class="flow-step-icon">📈</div>
                       <div class="flow-step-content">
-                        <strong>Continuous tracking</strong>
-                        <p>All events saved to <code>event_logs</code></p>
+                        <strong>持续追踪</strong>
+                        <p>所有事件保存到 <code>event_logs</code></p>
                         <ul style="font-size: 11px; margin: 4px 0 0 16px;">
-                          <li>User actions (login, register, scan)</li>
-                          <li>OA events (subscribe, unsubscribe)</li>
-                          <li>Campaign events (help, claim)</li>
+                          <li>用户行为（登录、注册、扫码）</li>
+                          <li>公众号事件（关注、取关）</li>
+                          <li>活动事件（助力、领奖）</li>
                         </ul>
                       </div>
                     </div>
@@ -12912,28 +12912,28 @@
                     <div class="flow-step">
                       <div class="flow-step-icon">🎯</div>
                       <div class="flow-step-content">
-                        <strong>Attribution tracking</strong>
-                        <p><code>source_channel</code>: wechat_scan, h5_share, etc.</p>
-                        <p><code>referrer_id</code>: Who invited this user</p>
-                        <p><code>campaign_id</code>: Which campaign</p>
+                        <strong>来源追踪</strong>
+                        <p><code>source_channel</code>: wechat_scan, h5_share 等</p>
+                        <p><code>referrer_id</code>: 谁邀请的用户</p>
+                        <p><code>campaign_id</code>: 哪个活动</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">👑</div>
                       <div class="flow-step-content">
-                        <strong>Influencer leaderboard</strong>
-                        <p>Calculate <code>influence_score</code></p>
-                        <p>Direct referrals + secondary referrals</p>
+                        <strong>影响力排行榜</strong>
+                        <p>计算 <code>influence_score</code></p>
+                        <p>直接邀请 + 二级邀请</p>
                       </div>
                     </div>
                     <div class="flow-arrow">↓</div>
                     <div class="flow-step">
                       <div class="flow-step-icon">📊</div>
                       <div class="flow-step-content">
-                        <strong>Admin Dashboard</strong>
-                        <p>Real-time metrics, charts, debug logs</p>
-                        <p>Monitor campaign performance</p>
+                        <strong>管理后台</strong>
+                        <p>实时指标、图表、调试日志</p>
+                        <p>监控活动表现</p>
                       </div>
                     </div>
                   </div>
@@ -12944,7 +12944,7 @@
             <!-- Anti-Cheat System -->
             <div class="tunnel-section">
               <div class="section-header-row">
-                <h4>🛡️ Anti-Cheat & Edge Cases</h4>
+                <h4>🛡️ 防作弊与边界情况</h4>
               </div>
               <div class="explainer-details">
                 <div class="detail-item">
@@ -13460,7 +13460,7 @@
 
         <!-- Management Tab -->
         <div class="main-tab-panel" id="campaignManagementPanel">
-          <div class="loading" id="campaignListLoading">Loading campaigns...</div>
+          <div class="loading" id="campaignListLoading">加载中...</div>
           <div id="campaignListContent" style="display: none;">
             <table class="campaign-table">
               <thead>
@@ -13483,7 +13483,7 @@
         <div class="main-tab-panel hidden" id="campaignDebugPanel">
           <div style="display: flex; gap: 8px; margin-bottom: 16px;">
             <select id="campaignSelect" onchange="loadCampaignDebug()" style="padding: 6px 12px; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; flex: 1;">
-              <option value="">Select Campaign...</option>
+              <option value="">选择活动...</option>
             </select>
             <button class="btn-secondary" onclick="refreshCampaignDebug()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
           </div>
@@ -13544,7 +13544,7 @@
               onkeyup="filterEvents()" class="event-search-input">
             <button class="btn-secondary" onclick="refreshEvents()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
           </div>
-          <div class="loading" id="eventsLoading">Loading events...</div>
+          <div class="loading" id="eventsLoading">加载事件中...</div>
           <div class="events-list" id="eventsList"></div>
           <div class="empty-state" id="emptyState" style="display: none;">No events yet</div>
         </div>
@@ -13876,7 +13876,7 @@
 
         <!-- Debug Settings Tab -->
         <div class="main-tab-panel hidden" id="settingsDebugPanel">
-          <div class="loading" id="debugSettingsLoading">Loading settings...</div>
+          <div class="loading" id="debugSettingsLoading">加载设置中...</div>
           <div id="debugSettingsForm" style="display: none;">
             <form id="debugSettingsFormElement">
               <div class="settings-grid">
@@ -14632,7 +14632,7 @@
             filterEvents();
           }
         } else {
-          if (loadingEl) loadingEl.textContent = 'Failed to load events';
+          if (loadingEl) loadingEl.textContent = '加载事件失败';
         }
       } catch (error) {
         console.error('Load events error:', error);
@@ -15282,7 +15282,7 @@
       } catch (error) {
         console.error('Error loading overview stats:', error);
         if (lastUpdatedEl) {
-          lastUpdatedEl.textContent = 'Failed to load stats';
+          lastUpdatedEl.textContent = '加载统计失败';
         }
       } finally {
         if (refreshBtn) {
@@ -15320,7 +15320,7 @@
           filterEvents();
         } else {
           const eventsLoadingEl = document.getElementById('eventsLoading');
-          if (eventsLoadingEl) eventsLoadingEl.textContent = 'Failed to load events';
+          if (eventsLoadingEl) eventsLoadingEl.textContent = '加载事件失败';
         }
 
       } catch (error) {
@@ -15492,7 +15492,7 @@
         const influencers = data.data?.influencers || [];
 
         if (influencers.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" class="loading">No data yet</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" class="loading">暂无数据</td></tr>';
           return;
         }
 
@@ -15771,7 +15771,7 @@
       const campaignBSelect = document.getElementById('campaignB');
       
       if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="8" class="loading">Loading campaigns...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="loading">加载中...</td></tr>';
       }
 
       try {
@@ -15787,8 +15787,8 @@
         // Populate dropdowns
         if (campaignASelect && campaignBSelect) {
           const options = campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-          campaignASelect.innerHTML = '<option value="">Select campaign...</option>' + options;
-          campaignBSelect.innerHTML = '<option value="">Select campaign...</option>' + options;
+          campaignASelect.innerHTML = '<option value="">选择活动...</option>' + options;
+          campaignBSelect.innerHTML = '<option value="">选择活动...</option>' + options;
         }
 
         if (campaigns.length === 0) {
@@ -16042,7 +16042,7 @@
       const chartEl = document.getElementById('trendsChart');
       const heatmapEl = document.getElementById('activityHeatmap');
 
-      if (chartEl) chartEl.innerHTML = '<div class="loading">Loading trends...</div>';
+      if (chartEl) chartEl.innerHTML = '<div class="loading">加载趋势数据...</div>';
 
       try {
         const days = document.getElementById('trendsPeriod')?.value || 30;
@@ -16115,21 +16115,21 @@
 
       const last30 = daily.reduce((sum, d) => sum + (d.new_helpers || 0), 0);
 
-      updateElementText('growthToday', `+${today} helpers`);
+      updateElementText('growthToday', `+${today} 助力`);
       const todayPctEl = document.getElementById('growthTodayPct');
       if (todayPctEl) {
         todayPctEl.textContent = `${todayPct >= 0 ? '📈' : '📉'} ${todayPct}%`;
         todayPctEl.className = `growth-change ${todayPct >= 0 ? 'positive' : 'negative'}`;
       }
 
-      updateElementText('growthWeek', `+${last7} helpers`);
+      updateElementText('growthWeek', `+${last7} 助力`);
       const weekPctEl = document.getElementById('growthWeekPct');
       if (weekPctEl) {
         weekPctEl.textContent = `${weekPct >= 0 ? '📈' : '📉'} ${weekPct}%`;
         weekPctEl.className = `growth-change ${weekPct >= 0 ? 'positive' : 'negative'}`;
       }
 
-      updateElementText('growthMonth', `+${last30} helpers`);
+      updateElementText('growthMonth', `+${last30} 助力`);
       const monthPctEl = document.getElementById('growthMonthPct');
       if (monthPctEl) {
         monthPctEl.textContent = '📈 --';
@@ -16313,27 +16313,27 @@
       
       // Format dates
       const formatDate = (dateStr) => {
-        if (!dateStr) return 'N/A';
-        return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        if (!dateStr) return '未设置';
+        return new Date(dateStr).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
       };
 
       // Determine viral status
       const viralK = parseFloat(kpis.viralCoefficient) || 0;
       let viralStatus = 'declining';
-      let viralStatusText = '📉 Declining';
-      let viralStatusTip = 'K < 1 means growth will eventually stop';
+      let viralStatusText = '📉 衰退';
+      let viralStatusTip = 'K < 1 意味着增长将逐渐停止';
       if (viralK >= 2) {
         viralStatus = 'viral';
-        viralStatusText = '🚀 Explosive Growth';
-        viralStatusTip = 'Amazing! Each user brings 2+ new users';
+        viralStatusText = '🚀 爆发式增长';
+        viralStatusTip = '太棒了！每个用户带来2+新用户';
       } else if (viralK >= 1) {
         viralStatus = 'viral';
-        viralStatusText = '📈 Viral Growth';
-        viralStatusTip = 'Great! Sustainable exponential growth';
+        viralStatusText = '📈 病毒式增长';
+        viralStatusTip = '很好！可持续的指数增长';
       } else if (viralK >= 0.5) {
         viralStatus = 'growing';
-        viralStatusText = '➡️ Moderate';
-        viralStatusTip = 'Getting there! Aim for K > 1';
+        viralStatusText = '➡️ 适中';
+        viralStatusTip = '继续努力！目标是 K > 1';
       }
       
       let html = `
@@ -16345,7 +16345,7 @@
               <span class="campaign-status ${executiveSummary.status}">${executiveSummary.status.toUpperCase()}</span>
               <p style="margin: 8px 0 0 0; opacity: 0.8; font-size: 13px;">
                 ${formatDate(executiveSummary.startDate)} - ${formatDate(executiveSummary.endDate)}
-                ${executiveSummary.daysRemaining !== null ? ` • ${executiveSummary.daysRemaining} days remaining` : ''}
+                ${executiveSummary.daysRemaining !== null ? ` • 剩余 ${executiveSummary.daysRemaining} 天` : ''}
               </p>
             </div>
             <div class="health-score-circle grade-${executiveSummary.healthGrade.toLowerCase()}">
@@ -16355,63 +16355,63 @@
           <div class="executive-stats">
             <div class="executive-stat">
               <span class="stat-value">${executiveSummary.totalReach.toLocaleString()}</span>
-              <span class="stat-label">Total Reach</span>
+              <span class="stat-label">总触达</span>
             </div>
             <div class="executive-stat">
               <span class="stat-value">${kpis.viralCoefficient}x</span>
-              <span class="stat-label">Viral Coefficient</span>
+              <span class="stat-label">裂变系数</span>
             </div>
             <div class="executive-stat">
               <span class="stat-value">${kpis.retentionRate}%</span>
-              <span class="stat-label">Retention Rate</span>
+              <span class="stat-label">留存率</span>
             </div>
             <div class="executive-stat">
               <span class="stat-value">${executiveSummary.healthGrade}</span>
-              <span class="stat-label">Health Grade</span>
+              <span class="stat-label">健康等级</span>
             </div>
           </div>
         </div>
         
         <!-- Enhanced KPIs with Icons -->
         <div class="report-section">
-          <h3 class="report-section-title">📊 Key Performance Indicators</h3>
+          <h3 class="report-section-title">📊 关键绩效指标</h3>
           <div class="kpi-grid">
             <div class="kpi-card">
               <span class="kpi-icon">👥</span>
               <div class="kpi-value highlight">${kpis.totalParticipants}</div>
-              <div class="kpi-label">Participants</div>
-              <div class="kpi-change positive">+${kpis.avgParticipantsPerDay}/day avg</div>
+              <div class="kpi-label">参与人数</div>
+              <div class="kpi-change positive">+${kpis.avgParticipantsPerDay}/天 平均</div>
             </div>
             <div class="kpi-card">
               <span class="kpi-icon">🤝</span>
               <div class="kpi-value success">${kpis.validHelpers}</div>
-              <div class="kpi-label">Valid Helpers</div>
-              <div class="kpi-change positive">+${kpis.avgHelpersPerDay}/day avg</div>
+              <div class="kpi-label">有效助力</div>
+              <div class="kpi-change positive">+${kpis.avgHelpersPerDay}/天 平均</div>
             </div>
             <div class="kpi-card">
               <span class="kpi-icon">🎁</span>
               <div class="kpi-value">${kpis.totalClaims}</div>
-              <div class="kpi-label">Rewards Claimed</div>
-              <div class="kpi-change neutral">${kpis.totalParticipants > 0 ? ((kpis.totalClaims / kpis.totalParticipants) * 100).toFixed(0) : 0}% claim rate</div>
+              <div class="kpi-label">已领奖品</div>
+              <div class="kpi-change neutral">${kpis.totalParticipants > 0 ? ((kpis.totalClaims / kpis.totalParticipants) * 100).toFixed(0) : 0}% 领取率</div>
             </div>
             <div class="kpi-card">
               <span class="kpi-icon">📤</span>
               <div class="kpi-value ${kpis.invalidHelpers > 0 ? 'warning' : ''}">${kpis.invalidHelpers}</div>
-              <div class="kpi-label">Unfollowed</div>
-              <div class="kpi-change negative">${kpis.totalHelpers > 0 ? ((kpis.invalidHelpers / kpis.totalHelpers) * 100).toFixed(1) : 0}% churn</div>
+              <div class="kpi-label">已取关</div>
+              <div class="kpi-change negative">${kpis.totalHelpers > 0 ? ((kpis.invalidHelpers / kpis.totalHelpers) * 100).toFixed(1) : 0}% 流失</div>
             </div>
           </div>
         </div>
 
         <!-- Viral Coefficient Deep Dive -->
         <div class="report-section">
-          <h3 class="report-section-title">🔬 Viral Coefficient Analysis</h3>
+          <h3 class="report-section-title">🔬 裂变系数分析</h3>
           <div class="kpi-grid" style="grid-template-columns: 1fr 2fr;">
             <!-- Big Viral K Card -->
             <div class="kpi-card viral-coefficient-card">
               <span class="kpi-icon">🧬</span>
               <div class="kpi-value">${kpis.viralCoefficient}x</div>
-              <div class="kpi-label">K-Factor</div>
+              <div class="kpi-label">K系数</div>
               <div class="viral-status ${viralStatus}">${viralStatusText}</div>
               <div class="viral-tip" onclick="toggleViralTips()">${viralStatusTip}</div>
             </div>
@@ -16421,70 +16421,70 @@
               <div class="kpi-card">
                 <span class="kpi-icon">📨</span>
                 <div class="kpi-value" style="font-size: 32px;">${kpis.avgHelpersPerParticipant || (kpis.totalParticipants > 0 ? (kpis.validHelpers / kpis.totalParticipants).toFixed(1) : '0')}</div>
-                <div class="kpi-label">Helpers per User</div>
+                <div class="kpi-label">人均助力</div>
               </div>
               <div class="kpi-card">
                 <span class="kpi-icon">🔄</span>
                 <div class="kpi-value" style="font-size: 32px;">${funnel.scanToFollowRate || 0}%</div>
-                <div class="kpi-label">Scan → Follow</div>
+                <div class="kpi-label">扫码→关注</div>
               </div>
               <div class="kpi-card">
                 <span class="kpi-icon">✅</span>
                 <div class="kpi-value" style="font-size: 32px;">${kpis.retentionRate}%</div>
-                <div class="kpi-label">Retention</div>
+                <div class="kpi-label">留存率</div>
               </div>
             </div>
           </div>
           
           <!-- Viral Tips Panel -->
           <div class="viral-tips-panel" id="viralTipsPanel" style="display: none;">
-            <h4>💡 How to Improve Your Viral Coefficient</h4>
+            <h4>💡 如何提升裂变系数</h4>
             
             <div class="viral-formula">
-              <strong>Formula:</strong> K = <code>Invitations Sent</code> × <code>Conversion Rate</code> = <code>Valid Helpers</code> / <code>Participants</code>
+              <strong>公式:</strong> K = <code>发送邀请数</code> × <code>转化率</code> = <code>有效助力</code> / <code>参与人数</code>
               <br><br>
-              <strong>Your numbers:</strong> K = ${kpis.validHelpers} / ${kpis.totalParticipants} = <code>${kpis.viralCoefficient}</code>
+              <strong>您的数据:</strong> K = ${kpis.validHelpers} / ${kpis.totalParticipants} = <code>${kpis.viralCoefficient}</code>
             </div>
             
             <div class="viral-benchmark">
               <div class="viral-benchmark-item declining">
                 <div class="value" style="color: #ef4444;">< 1.0</div>
-                <div class="label">Declining</div>
+                <div class="label">衰退</div>
               </div>
               <div class="viral-benchmark-item stable">
                 <div class="value" style="color: #f59e0b;">= 1.0</div>
-                <div class="label">Stable</div>
+                <div class="label">稳定</div>
               </div>
               <div class="viral-benchmark-item viral">
                 <div class="value" style="color: #10b981;">> 1.0</div>
-                <div class="label">Viral! 🎉</div>
+                <div class="label">病毒式！🎉</div>
               </div>
             </div>
             
             <div class="viral-tips-grid">
               <div class="viral-tip-card">
-                <h5>🎁 Better Rewards</h5>
-                <p>Offer more valuable rewards at each tier. Make Tier 1 achievable with just 1-2 helpers to encourage participation.</p>
+                <h5>🎁 更好的奖励</h5>
+                <p>在每个等级提供更有价值的奖励。让第一级只需1-2人助力即可达成，鼓励参与。</p>
               </div>
               <div class="viral-tip-card">
-                <h5>⏰ Add Urgency</h5>
-                <p>Use countdown timers: "Only 3 days left!" Time pressure increases sharing motivation.</p>
+                <h5>⏰ 增加紧迫感</h5>
+                <p>使用倒计时："仅剩3天！" 时间压力能提升分享动力。</p>
               </div>
               <div class="viral-tip-card">
-                <h5>🖼️ Better Posters</h5>
-                <p>Personalize with user's avatar & name. Clear CTA: "Scan to get FREE [reward]"</p>
+                <h5>🖼️ 优化海报</h5>
+                <p>使用用户头像和昵称个性化。清晰的行动号召："扫码免费领取[奖品]"</p>
               </div>
               <div class="viral-tip-card">
-                <h5>📊 Show Progress</h5>
-                <p>Display "Just 2 more friends to unlock!" Makes goal feel achievable.</p>
+                <h5>📊 展示进度</h5>
+                <p>显示"再邀请2位好友即可解锁！" 让目标感觉可达成。</p>
               </div>
               <div class="viral-tip-card">
-                <h5>🏆 Leaderboards</h5>
-                <p>Public rankings create competition. "Zhang Wei just unlocked Tier 3!"</p>
+                <h5>🏆 排行榜</h5>
+                <p>公开排名创造竞争氛围。"张伟刚解锁了第3级奖励！"</p>
               </div>
               <div class="viral-tip-card">
-                <h5>📱 Multi-Channel</h5>
-                <p>Encourage sharing to Moments, Groups, and 1-on-1. Each channel has different conversion rates.</p>
+                <h5>📱 多渠道分享</h5>
+                <p>鼓励分享到朋友圈、群聊和私聊。不同渠道有不同的转化率。</p>
               </div>
             </div>
           </div>
@@ -16492,33 +16492,33 @@
         
         <!-- Funnel -->
         <div class="report-section">
-          <h3 class="report-section-title">🔄 Conversion Funnel</h3>
+          <h3 class="report-section-title">🔄 转化漏斗</h3>
           <div class="funnel-container">
             <div class="funnel-step">
               <div class="funnel-value">${funnel.qrScans.toLocaleString()}</div>
-              <div class="funnel-label">QR Scans</div>
+              <div class="funnel-label">扫码次数</div>
             </div>
             <div class="funnel-step">
               <div class="funnel-value">${funnel.follows.toLocaleString()}</div>
-              <div class="funnel-label">OA Follows</div>
-              <div class="funnel-rate">${funnel.scanToFollowRate}% conversion</div>
+              <div class="funnel-label">关注公众号</div>
+              <div class="funnel-rate">${funnel.scanToFollowRate}% 转化</div>
             </div>
             <div class="funnel-step">
               <div class="funnel-value">${funnel.validHelpers.toLocaleString()}</div>
-              <div class="funnel-label">Valid Helpers</div>
-              <div class="funnel-rate">${funnel.followToValidRate}% retention</div>
+              <div class="funnel-label">有效助力</div>
+              <div class="funnel-rate">${funnel.followToValidRate}% 留存</div>
             </div>
             <div class="funnel-step">
               <div class="funnel-value">${funnel.rewardsClaimed.toLocaleString()}</div>
-              <div class="funnel-label">Rewards Claimed</div>
-              <div class="funnel-rate">${funnel.validToClaimRate}% claim rate</div>
+              <div class="funnel-label">已领奖品</div>
+              <div class="funnel-rate">${funnel.validToClaimRate}% 领取率</div>
             </div>
           </div>
         </div>
         
         <!-- Growth Chart -->
         <div class="report-section">
-          <h3 class="report-section-title">📈 Growth Over Time</h3>
+          <h3 class="report-section-title">📈 增长趋势</h3>
           <div class="report-chart-container">
             <canvas id="reportGrowthChart"></canvas>
           </div>
@@ -16526,11 +16526,11 @@
 
         <!-- Geographic & Device Breakdown -->
         <div class="report-section breakdown-section">
-          <h3 class="report-section-title">🌍 Audience Breakdown</h3>
+          <h3 class="report-section-title">🌍 用户分布</h3>
           <div class="breakdown-grid">
             <!-- Geographic Distribution -->
             <div class="breakdown-card">
-              <h4>📍 Top Locations</h4>
+              <h4>📍 热门地区</h4>
               <div class="breakdown-list" id="geoBreakdownList">
                 ${renderGeoBreakdown(geoBreakdown)}
               </div>
@@ -16538,7 +16538,7 @@
             
             <!-- Device Distribution -->
             <div class="breakdown-card">
-              <h4>📱 Devices</h4>
+              <h4>📱 设备分布</h4>
               <div class="breakdown-list" id="deviceBreakdownList">
                 ${renderDeviceBreakdown(deviceBreakdown)}
               </div>
@@ -16549,7 +16549,7 @@
         <div class="report-two-col">
           <!-- Reward Distribution -->
           <div class="report-section">
-            <h3 class="report-section-title">🎁 Reward Distribution</h3>
+            <h3 class="report-section-title">🎁 奖品发放</h3>
             <div class="reward-distribution-list">
               ${rewardDistribution.map((r, i) => `
                 <div class="reward-distribution-item">
@@ -16585,7 +16585,7 @@
                     <div class="performer-code">${p.referralCode}</div>
                   </div>
                   <div class="performer-stats">
-                    <div class="performer-helpers">${p.helperCount} helpers</div>
+                    <div class="performer-helpers">${p.helperCount} 助力</div>
                     <div class="performer-influence">Score: ${p.influenceScore}</div>
                   </div>
                 </div>
@@ -19503,7 +19503,7 @@
           
           // Update dropdown
           if (select) {
-            select.innerHTML = '<option value="">Select Campaign...</option>' + 
+            select.innerHTML = '<option value="">选择活动...</option>' + 
               campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
           }
           
@@ -19774,7 +19774,7 @@
           const select = document.getElementById('campaignSelect');
           
           // Clear existing options except first
-          select.innerHTML = '<option value="">Select Campaign...</option>';
+          select.innerHTML = '<option value="">选择活动...</option>';
           
           campaigns.forEach(campaign => {
             const option = document.createElement('option');
@@ -19797,7 +19797,7 @@
         return;
       }
       
-      contentEl.innerHTML = '<div class="loading">Loading campaign debug data...</div>';
+      contentEl.innerHTML = '<div class="loading">加载活动调试数据...</div>';
       
       try {
         const res = await fetch(`${API_BASE_URL}/campaigns/${campaignId}/debug`, {
@@ -19833,7 +19833,7 @@
       ].filter(Boolean).length;
       const healthScore = Math.round((healthChecks / 5) * 100);
       const healthStatus = healthScore >= 80 ? 'healthy' : healthScore >= 50 ? 'warning' : 'critical';
-      const healthLabel = healthScore >= 80 ? '🟢 Healthy' : healthScore >= 50 ? '🟡 Needs Attention' : '🔴 Critical';
+      const healthLabel = healthScore >= 80 ? '🟢 健康' : healthScore >= 50 ? '🟡 需关注' : '🔴 异常';
       
       // Get max helpers required for progress calculation
       const maxHelpersRequired = Math.max(...(rewards || []).map(r => r.helpers_required || 0), 1);
@@ -19847,11 +19847,11 @@
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
         
-        if (diffMins < 1) return 'Just now';
-        if (diffMins < 60) return `${diffMins}m ago`;
-        if (diffHours < 24) return `${diffHours}h ago`;
-        if (diffDays < 7) return `${diffDays}d ago`;
-        return date.toLocaleDateString();
+        if (diffMins < 1) return '刚刚';
+        if (diffMins < 60) return `${diffMins}分钟前`;
+        if (diffHours < 24) return `${diffHours}小时前`;
+        if (diffDays < 7) return `${diffDays}天前`;
+        return date.toLocaleDateString('zh-CN');
       };
       
       // Get event icon and class
@@ -19869,11 +19869,11 @@
           <div class="campaign-debug-header">
             <div class="campaign-debug-info">
               <h3>${campaign?.name || 'Campaign'}</h3>
-              <p>${campaign?.description || 'No description'}</p>
+              <p>${campaign?.description || '暂无描述'}</p>
               <div class="campaign-debug-meta">
-                <span>📅 ${health?.daysRemaining !== null ? `${health.daysRemaining} days remaining` : 'No end date'}</span>
-                <span>🎁 ${rewards?.length || 0} reward tiers</span>
-                <span>📊 ${stats?.rewardsClaimed || 0} rewards claimed</span>
+                <span>📅 ${health?.daysRemaining !== null ? `剩余 ${health.daysRemaining} 天` : '无结束时间'}</span>
+                <span>🎁 ${rewards?.length || 0} 个奖品等级</span>
+                <span>📊 已领取 ${stats?.rewardsClaimed || 0} 个奖品</span>
               </div>
             </div>
             <div class="campaign-health-badge">
@@ -19881,9 +19881,9 @@
                 ${healthLabel}
               </div>
               <div class="health-checks">
-                <span class="health-check ${health?.isActive ? 'pass' : 'fail'}">${health?.isActive ? '✓' : '✗'} Active</span>
-                <span class="health-check ${health?.hasRecentActivity ? 'pass' : 'fail'}">${health?.hasRecentActivity ? '✓' : '✗'} Recent Activity</span>
-                <span class="health-check ${health?.retentionHealthy ? 'pass' : 'fail'}">${health?.retentionHealthy ? '✓' : '✗'} Retention</span>
+                <span class="health-check ${health?.isActive ? 'pass' : 'fail'}">${health?.isActive ? '✓' : '✗'} 活跃</span>
+                <span class="health-check ${health?.hasRecentActivity ? 'pass' : 'fail'}">${health?.hasRecentActivity ? '✓' : '✗'} 近期活动</span>
+                <span class="health-check ${health?.retentionHealthy ? 'pass' : 'fail'}">${health?.retentionHealthy ? '✓' : '✗'} 留存率</span>
               </div>
             </div>
           </div>
@@ -19892,47 +19892,47 @@
           <div class="campaign-debug-stats">
             <div class="mini-stat highlight">
               <span class="mini-stat-value">${stats?.totalParticipants || 0}</span>
-              <span class="mini-stat-label">Participants</span>
+              <span class="mini-stat-label">参与人数</span>
             </div>
             <div class="mini-stat">
               <span class="mini-stat-value">${stats?.validHelpers || 0}<small style="font-size: 14px; color: var(--text-muted);">/${stats?.totalHelpers || 0}</small></span>
-              <span class="mini-stat-label">Valid Helpers</span>
+              <span class="mini-stat-label">有效助力</span>
             </div>
             <div class="mini-stat">
               <span class="mini-stat-value ${stats?.invalidHelpers > 0 ? 'negative' : ''}">${stats?.invalidHelpers || 0}</span>
-              <span class="mini-stat-label">Unfollowed</span>
+              <span class="mini-stat-label">已取关</span>
             </div>
             <div class="mini-stat">
               <span class="mini-stat-value">${stats?.retentionRate || 100}%</span>
-              <span class="mini-stat-label">Retention</span>
+              <span class="mini-stat-label">留存率</span>
             </div>
             <div class="mini-stat">
               <span class="mini-stat-value">${stats?.rewardsClaimed || 0}</span>
-              <span class="mini-stat-label">Rewards Claimed</span>
+              <span class="mini-stat-label">已领奖品</span>
             </div>
             <div class="mini-stat">
               <span class="mini-stat-value ${stats?.helpersToday > 0 ? 'positive' : ''}">${stats?.helpersToday || 0}</span>
-              <span class="mini-stat-label">Today</span>
-              ${stats?.helpersThisWeek > 0 ? `<span class="mini-stat-trend up">+${stats.helpersThisWeek} week</span>` : ''}
+              <span class="mini-stat-label">今日</span>
+              ${stats?.helpersThisWeek > 0 ? `<span class="mini-stat-trend up">+${stats.helpersThisWeek} 本周</span>` : ''}
             </div>
           </div>
           
           <!-- Debug Tools -->
           <div class="debug-tools">
-            <button onclick="copySceneString('${campaign?.id}')">📋 Copy Scene String</button>
-            <button onclick="downloadCampaignQR('${campaign?.id}')">📥 Download QR</button>
-            <button onclick="viewRawData('${campaign?.id}')">🔍 View Raw JSON</button>
+            <button onclick="copySceneString('${campaign?.id}')">📋 复制场景值</button>
+            <button onclick="downloadCampaignQR('${campaign?.id}')">📥 下载二维码</button>
+            <button onclick="viewRawData('${campaign?.id}')">🔍 查看原始数据</button>
             <div class="debug-scene-string">
-              <span>Scene:</span>
+              <span>场景值:</span>
               <code>camp_${campaign?.id?.substring(0, 8)}_ref_{code}</code>
-              <button class="copy-btn-small" onclick="copyToClipboard('camp_${campaign?.id}_ref_{code}')">Copy</button>
+              <button class="copy-btn-small" onclick="copyToClipboard('camp_${campaign?.id}_ref_{code}')">复制</button>
             </div>
           </div>
           
           <!-- Leaderboard -->
           ${leaderboard && leaderboard.length > 0 ? `
           <div class="leaderboard-section">
-            <h4>🏆 Top Performers</h4>
+            <h4>🏆 排行榜</h4>
             <div class="leaderboard-list">
               ${leaderboard.slice(0, 5).map((p, i) => `
                 <div class="leaderboard-item">
@@ -19949,7 +19949,7 @@
                     </div>
                   </div>
                   <div class="leaderboard-stats">
-                    <span class="leaderboard-helpers">${p.helperCount} helpers</span>
+                    <span class="leaderboard-helpers">${p.helperCount} 助力</span>
                     <div class="leaderboard-tiers">
                       ${(rewards || []).map((r, ri) => `
                         <span class="tier-badge ${(p.claimedTiers || []).includes(r.tier_level) ? 'claimed' : 'unclaimed'}" title="Tier ${r.tier_level}: ${r.name}">
@@ -19968,16 +19968,16 @@
           <div class="debug-two-col">
             <!-- Participants Table -->
             <div class="campaign-debug-section">
-              <h4>👥 Participants (${participants?.length || 0})</h4>
+              <h4>👥 参与者 (${participants?.length || 0})</h4>
               <div class="debug-table">
                 <table>
                   <thead>
                     <tr>
-                      <th>User</th>
-                      <th>Code</th>
-                      <th>Progress</th>
-                      <th>Rewards</th>
-                      <th>Joined</th>
+                      <th>用户</th>
+                      <th>邀请码</th>
+                      <th>进度</th>
+                      <th>奖品</th>
+                      <th>加入时间</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -20007,7 +20007,7 @@
                               <div class="progress-bar">
                                 <div class="progress-bar-fill" style="width: ${progress}%"></div>
                               </div>
-                              <div class="progress-text">${p.helper_count || 0} helpers${nextReward ? ` (${helpersNeeded} to next)` : ' ✓'}</div>
+                              <div class="progress-text">${p.helper_count || 0} 助力${nextReward ? ` (还差${helpersNeeded}人)` : ' ✓'}</div>
                             </div>
                           </td>
                           <td>
@@ -20030,16 +20030,16 @@
             
             <!-- Recent Helpers Table -->
             <div class="campaign-debug-section">
-              <h4>🤝 Recent Helpers (${helpers?.length || 0})</h4>
+              <h4>🤝 最近助力 (${helpers?.length || 0})</h4>
               <div class="debug-table">
                 <table>
                   <thead>
                     <tr>
-                      <th>Helper</th>
-                      <th>Helped</th>
-                      <th>Source</th>
-                      <th>Status</th>
-                      <th>Time</th>
+                      <th>助力者</th>
+                      <th>被助力者</th>
+                      <th>来源</th>
+                      <th>状态</th>
+                      <th>时间</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -20055,21 +20055,21 @@
                           </div>
                         </td>
                         <td>
-                          ${h.participant?.user ? `
+                            ${h.participant?.user ? `
                             <div class="helper-helped">
-                              <strong>${h.participant.user.wechat_nickname || h.participant.user.name || 'Unknown'}</strong>
+                              <strong>${h.participant.user.wechat_nickname || h.participant.user.name || '未知'}</strong>
                               <br><code style="font-size: 10px;">${h.participant.referral_code || ''}</code>
                             </div>
                           ` : '<span style="color: var(--text-muted);">-</span>'}
                         </td>
                         <td>
                           <span class="helper-source">
-                            ${h.source_channel === 'wechat_scan' ? '📷 QR Scan' : h.source_channel || '📷 Scan'}
+                            ${h.source_channel === 'wechat_scan' ? '📷 扫码' : h.source_channel || '📷 扫码'}
                           </span>
                         </td>
                         <td>
                           <span class="status-pill ${h.is_valid ? 'valid' : 'invalid'}">
-                            ${h.is_valid ? '✓ Valid' : '✗ Invalid'}
+                            ${h.is_valid ? '✓ 有效' : '✗ 无效'}
                           </span>
                           ${h.invalidate_reason ? `<br><small style="color: var(--text-muted);">${h.invalidate_reason}</small>` : ''}
                         </td>
@@ -20084,7 +20084,7 @@
           
           <!-- Recent Events - Full Event History Style -->
           <div class="campaign-debug-section campaign-events-section">
-            <h4>📋 Recent Campaign Events (${events?.length || 0})</h4>
+            <h4>📋 最近活动事件 (${events?.length || 0})</h4>
             <div id="campaignEventsContainer" style="max-height: 500px; overflow-y: auto;">
               ${renderCampaignEventsTable(events || [])}
             </div>
@@ -20099,30 +20099,30 @@
     // Render campaign events table (same format as Event History)
     function renderCampaignEventsTable(events) {
       if (!events || events.length === 0) {
-        return '<div class="empty-state">No events yet</div>';
+        return '<div class="empty-state">暂无事件</div>';
       }
       
       // Event type mapping
       const eventTypes = {
-        'login': { icon: '🔑', name: 'Login' },
-        'login_email': { icon: '✉️', name: 'Email Login' },
-        'register': { icon: '📝', name: 'Register' },
-        'scan_qr': { icon: '📷', name: 'Scan QR' },
-        'oa_subscribe': { icon: '➕', name: 'follow_oa' },
-        'oa_scan': { icon: '📷', name: 'scan_oa' },
-        'oa_unsubscribe': { icon: '➖', name: 'unfollow_oa' },
-        'unfollow_oa': { icon: '➖', name: 'unfollow_oa' },
-        'follow_oa': { icon: '➕', name: 'follow_oa' },
-        'campaign_helper_recorded': { icon: '🤝', name: 'helper_recorded' },
-        'campaign_help': { icon: '🤝', name: 'help' },
-        'campaign_qr_created': { icon: '🎫', name: 'qr_created' },
+        'login': { icon: '🔑', name: '登录' },
+        'login_email': { icon: '✉️', name: '邮箱登录' },
+        'register': { icon: '📝', name: '注册' },
+        'scan_qr': { icon: '📷', name: '扫码' },
+        'oa_subscribe': { icon: '➕', name: '关注公众号' },
+        'oa_scan': { icon: '📷', name: '扫码公众号' },
+        'oa_unsubscribe': { icon: '➖', name: '取关公众号' },
+        'unfollow_oa': { icon: '➖', name: '取关公众号' },
+        'follow_oa': { icon: '➕', name: '关注公众号' },
+        'campaign_helper_recorded': { icon: '🤝', name: '记录助力' },
+        'campaign_help': { icon: '🤝', name: '助力' },
+        'campaign_qr_created': { icon: '🎫', name: '生成二维码' },
         'campaign_reward_claimed': { icon: '🎁', name: '领取奖励' },
-        'campaign_created': { icon: '📋', name: 'campaign_created' },
-        'campaign_updated': { icon: '✏️', name: 'campaign_updated' },
-        'campaign_status_changed': { icon: '🔄', name: 'status_changed' },
-        'campaign_join': { icon: '🎯', name: 'campaign_join' },
-        'invite': { icon: '👋', name: 'invite' },
-        'redeem': { icon: '🎁', name: 'redeem' },
+        'campaign_created': { icon: '📋', name: '创建活动' },
+        'campaign_updated': { icon: '✏️', name: '更新活动' },
+        'campaign_status_changed': { icon: '🔄', name: '状态变更' },
+        'campaign_join': { icon: '🎯', name: '参与活动' },
+        'invite': { icon: '👋', name: '邀请' },
+        'redeem': { icon: '🎁', name: '兑换' },
       };
       
       let tableHtml = `
@@ -20379,7 +20379,7 @@
         `;
         document.body.appendChild(modal);
       } else {
-        alert('No data loaded yet. Please select a campaign first.');
+        alert('数据未加载，请先选择活动。');
       }
     }
 

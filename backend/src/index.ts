@@ -40,7 +40,14 @@ app.use((req, res, next) => {
 });
 
 // Serve admin pages
-app.use('/admin', express.static(path.join(__dirname, '../../admin')));
+const adminPath = path.join(__dirname, '../../admin');
+console.log('Admin static path:', adminPath);
+app.use('/admin', express.static(adminPath));
+
+// Redirect root to admin dashboard
+app.get('/', (req, res) => {
+  res.redirect('/admin/dashboard.html');
+});
 
 // Health check
 app.get('/health', (req, res) => {
