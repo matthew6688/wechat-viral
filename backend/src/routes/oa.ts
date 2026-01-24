@@ -188,20 +188,55 @@ router.post('/wh', express.text({ type: 'text/xml' }), async (req, res) => {
 
     let reply = '';
 
-    // Handle different event types
-    switch (event.Event) {
-      case 'subscribe':
-        reply = await handleSubscribeEvent(event);
-        break;
-      case 'unsubscribe':
-        await handleUnsubscribeEvent(event);
-        reply = 'success';
-        break;
-      case 'SCAN':
-        reply = await handleScanEvent(event);
-        break;
-      default:
-        reply = 'success';
+    // Handle different event types and message types
+    if (event.Event) {
+      // Event-based (subscribe, unsubscribe, SCAN)
+      switch (event.Event) {
+        case 'subscribe':
+          reply = await handleSubscribeEvent(event);
+          break;
+        case 'unsubscribe':
+          await handleUnsubscribeEvent(event);
+          reply = 'success';
+          break;
+        case 'SCAN':
+          reply = await handleScanEvent(event);
+          break;
+        default:
+          reply = 'success';
+      }
+    } else if (event.MsgType === 'text') {
+      // Text message from user - this activates the 48-hour message window!
+      const openid = event.FromUserName;
+      console.log(`[OA Message] Received text from ${openid}: ${event.Content}`);
+      
+      // Record this interaction for notification activation
+      const { logEvent } = require('../services/event-logger');
+      await logEvent({
+        event_type: 'oa_message_received',
+        event_data: {
+          openid,
+          content: event.Content?.slice(0, 100), // Truncate for privacy
+          msg_type: 'text',
+        },
+      });
+      
+      // Send confirmation that notifications are activated
+      reply = `<xml>
+        <ToUserName><![CDATA[${openid}]]></ToUserName>
+        <FromUserName><![CDATA[${event.ToUserName}]]></FromUserName>
+        <CreateTime>${Math.floor(Date.now() / 1000)}</CreateTime>
+        <MsgType><![CDATA[text]]></MsgType>
+        <Content><![CDATA[✅ 通知已激活！
+
+当有好友为您助力时，您将收到实时提醒。
+
+━━━━━━━━━━━━━━━━
+📱 返回小程序继续分享，邀请更多好友助力！]]></Content>
+      </xml>`;
+    } else {
+      // Other message types
+      reply = 'success';
     }
 
     // If security mode, encrypt reply
@@ -356,20 +391,55 @@ router.post('/webhook', express.text({ type: 'text/xml' }), async (req, res) => 
 
     let reply = '';
 
-    // Handle different event types
-    switch (event.Event) {
-      case 'subscribe':
-        reply = await handleSubscribeEvent(event);
-        break;
-      case 'unsubscribe':
-        await handleUnsubscribeEvent(event);
-        reply = 'success';
-        break;
-      case 'SCAN':
-        reply = await handleScanEvent(event);
-        break;
-      default:
-        reply = 'success';
+    // Handle different event types and message types
+    if (event.Event) {
+      // Event-based (subscribe, unsubscribe, SCAN)
+      switch (event.Event) {
+        case 'subscribe':
+          reply = await handleSubscribeEvent(event);
+          break;
+        case 'unsubscribe':
+          await handleUnsubscribeEvent(event);
+          reply = 'success';
+          break;
+        case 'SCAN':
+          reply = await handleScanEvent(event);
+          break;
+        default:
+          reply = 'success';
+      }
+    } else if (event.MsgType === 'text') {
+      // Text message from user - this activates the 48-hour message window!
+      const openid = event.FromUserName;
+      console.log(`[OA Message] Received text from ${openid}: ${event.Content}`);
+      
+      // Record this interaction for notification activation
+      const { logEvent } = require('../services/event-logger');
+      await logEvent({
+        event_type: 'oa_message_received',
+        event_data: {
+          openid,
+          content: event.Content?.slice(0, 100),
+          msg_type: 'text',
+        },
+      });
+      
+      // Send confirmation that notifications are activated
+      reply = `<xml>
+        <ToUserName><![CDATA[${openid}]]></ToUserName>
+        <FromUserName><![CDATA[${event.ToUserName}]]></FromUserName>
+        <CreateTime>${Math.floor(Date.now() / 1000)}</CreateTime>
+        <MsgType><![CDATA[text]]></MsgType>
+        <Content><![CDATA[✅ 通知已激活！
+
+当有好友为您助力时，您将收到实时提醒。
+
+━━━━━━━━━━━━━━━━
+📱 返回小程序继续分享，邀请更多好友助力！]]></Content>
+      </xml>`;
+    } else {
+      // Other message types
+      reply = 'success';
     }
 
     // If security mode, encrypt reply
@@ -473,6 +543,37 @@ router.get('/qrcode/:userId', authenticate, async (req: AuthRequest, res) => {
   } catch (error: any) {
     console.error('Get QR code error:', error);
     res.status(500).json({ error: error.message || 'Failed to get QR code' });
+  }
+});
+
+/**
+ * GET /api/oa/linking-qrcode
+ * Get user-linking QR code for current user
+ * This QR code links the user's Mini Program account with their OA account
+ */
+router.get('/linking-qrcode', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    
+    // Import the function
+    const { createUserLinkingQRCode } = require('../services/oa-qrcode');
+    
+    const qrCode = await createUserLinkingQRCode(userId);
+
+    res.json({
+      success: true,
+      data: {
+        ticket: qrCode.ticket,
+        url: qrCode.url,
+        sceneStr: qrCode.sceneStr,
+      },
+    });
+  } catch (error: any) {
+    console.error('Get linking QR code error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to get linking QR code' 
+    });
   }
 });
 

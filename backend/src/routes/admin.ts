@@ -1623,18 +1623,27 @@ router.post('/testing/reset-campaign/:id', authenticate, requireAdmin, async (re
       .eq('campaign_id', campaignId) as any);
     results.participants_deleted = participantsCountBefore || 0;
 
-    // Count before delete for campaign-related event logs
-    const { count: eventsCountBefore } = await (supabase
+    // Count and delete campaign-related event logs
+    // Note: campaign_id is stored in event_data JSONB field, not a direct column
+    // First, get all events for this campaign
+    const { data: campaignEvents, error: eventsError } = await supabase
       .from('event_logs')
-      .select('*', { count: 'exact', head: true })
-      .eq('campaign_id', campaignId) as any);
+      .select('id')
+      .contains('event_data', { campaign_id: campaignId });
     
-    // Delete campaign-related event logs for this campaign
-    await (supabase
-      .from('event_logs')
-      .delete()
-      .eq('campaign_id', campaignId) as any);
-    results.events_deleted = eventsCountBefore || 0;
+    const eventsCountBefore = campaignEvents?.length || 0;
+    
+    // Delete campaign-related event logs
+    if (eventsCountBefore > 0) {
+      const eventIds = campaignEvents?.map((e: any) => e.id) || [];
+      if (eventIds.length > 0) {
+        await supabase
+          .from('event_logs')
+          .delete()
+          .in('id', eventIds);
+      }
+    }
+    results.events_deleted = eventsCountBefore;
 
     // Log this action
     const { logEvent } = require('../services/event-logger');
@@ -2626,6 +2635,106 @@ router.post('/contacts/:id/reset', async (req: AuthRequest, res) => {
 });
 
 /**
+ * POST /api/admin/contacts/:id/full-reset
+ * Full reset - clears campaign data AND OA linking (for testing)
+ */
+router.post('/contacts/:id/full-reset', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const results: Record<string, any> = {};
+
+    // First, do the standard reset
+    // Delete reward claims
+    const { count: claimsCount } = await supabase
+      .from('campaign_reward_claims')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', id);
+    
+    await (supabase
+      .from('campaign_reward_claims')
+      .delete()
+      .eq('user_id', id) as any);
+    results.reward_claims_deleted = claimsCount || 0;
+
+    // Delete campaign participations
+    const { count: participationsCount } = await supabase
+      .from('campaign_participants')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', id);
+
+    await (supabase
+      .from('campaign_participants')
+      .delete()
+      .eq('user_id', id) as any);
+    results.participations_deleted = participationsCount || 0;
+
+    // Delete helpers where this user was the helper
+    const { data: user } = await supabase
+      .from('users')
+      .select('openid, openid_oa')
+      .eq('id', id)
+      .single();
+
+    if (user?.openid) {
+      await (supabase
+        .from('campaign_helpers')
+        .delete()
+        .eq('helper_openid', user.openid) as any);
+    }
+    if (user?.openid_oa) {
+      await (supabase
+        .from('campaign_helpers')
+        .delete()
+        .eq('helper_openid', user.openid_oa) as any);
+    }
+
+    // Delete OA QR codes for this user
+    await (supabase
+      .from('oa_qrcodes')
+      .delete()
+      .eq('user_id', id) as any);
+    results.qrcodes_deleted = true;
+
+    // Clear OA linking - reset openid_oa, wechat info
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        openid_oa: null,
+        wechat_nickname: null,
+        wechat_avatar_url: null,
+        wechat_city: null,
+        wechat_province: null,
+        wechat_country: null,
+        wechat_gender: null,
+      })
+      .eq('id', id);
+
+    if (updateError) {
+      console.error('Failed to clear OA linking:', updateError);
+    }
+    results.oa_linking_cleared = !updateError;
+
+    // Log the action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_full_reset_user',
+      user_id: (req as any).user?.id,
+      related_user_id: id,
+      event_data: results,
+    });
+
+    res.json({
+      success: true,
+      message: 'User fully reset (campaign data + OA linking)',
+      data: results,
+    });
+  } catch (error: any) {
+    console.error('Full reset user error:', error);
+    res.status(500).json({ error: error.message || 'Failed to full reset user' });
+  }
+});
+
+/**
  * DELETE /api/admin/contacts/:id
  * Soft delete a user
  */
@@ -2901,6 +3010,34 @@ router.post('/contacts/bulk-action', async (req: AuthRequest, res) => {
   } catch (error: any) {
     console.error('Bulk action error:', error);
     res.status(500).json({ error: error.message || 'Failed to perform bulk action' });
+  }
+});
+
+/**
+ * Force refresh the OA access token
+ * Use this when getting token errors
+ */
+router.post('/testing/refresh-oa-token', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { clearAccessTokenCache, getOAAccessToken } = require('../services/oa-qrcode');
+    
+    // Clear the cache
+    clearAccessTokenCache();
+    
+    // Get a fresh token
+    const newToken = await getOAAccessToken(true);
+    
+    res.json({
+      success: true,
+      message: 'Token refreshed successfully',
+      data: {
+        token_preview: newToken.slice(0, 20) + '...' + newToken.slice(-10),
+        token_length: newToken.length,
+      },
+    });
+  } catch (error: any) {
+    console.error('Token refresh error:', error);
+    res.status(500).json({ error: error.message || 'Failed to refresh token' });
   }
 });
 

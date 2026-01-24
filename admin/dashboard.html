@@ -3054,226 +3054,125 @@
       cursor: pointer;
     }
 
-    /* Testing Tools Styles */
+    /* Testing Tools Styles - Redesigned */
     .testing-tools-container {
-      max-width: 1000px;
+      max-width: 900px;
     }
 
-    .testing-warning-banner {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 16px 20px;
-      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-      border: 1px solid #f59e0b;
-      border-radius: 12px;
-      margin-bottom: 24px;
-    }
-
-    .testing-warning-banner .warning-icon {
-      font-size: 24px;
-    }
-
-    .testing-warning-banner .warning-text strong {
-      color: #92400e;
-      font-size: 14px;
-    }
-
-    .testing-warning-banner .warning-text p {
-      color: #a16207;
-      font-size: 13px;
-      margin-top: 4px;
-    }
-
-    .testing-section {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
+    /* Quick Access Header */
+    .testing-quick-access {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-radius: 16px;
       padding: 24px;
       margin-bottom: 24px;
+      color: white;
     }
 
-    .testing-section-danger {
-      border-color: #fca5a5;
-      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    .quick-access-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
     }
 
-    .testing-section-warning {
-      border-color: #fcd34d;
-      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    }
-
-    .testing-card-warning {
-      border-color: #f59e0b;
-      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    }
-
-    .delete-users-stats {
-      margin: 12px 0;
-    }
-
-    .stat-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 12px;
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .delete-users-confirm {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .delete-users-confirm label {
-      display: block;
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-    }
-
-    .delete-users-confirm code {
-      background: rgba(0, 0, 0, 0.1);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: 'SF Mono', Monaco, monospace;
-    }
-
-    .testing-section-header {
+    .quick-access-header p {
+      font-size: 14px;
+      color: #94a3b8;
       margin-bottom: 20px;
     }
 
-    .testing-section-header h3 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 4px;
+    .quick-settings-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
     }
 
-    .testing-section-header p {
+    .quick-setting-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px 16px;
+      border-radius: 8px;
+    }
+
+    .quick-setting-label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .quick-setting-status {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    /* Main Grid Layout */
+    .testing-main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .testing-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Panel Cards */
+    .testing-panel-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .panel-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-card-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .panel-card-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      background: #10b981;
+      color: white;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    /* Test Account Section */
+    .test-account-section {
+      padding: 16px 20px;
+    }
+
+    .section-description {
+      margin-bottom: 16px;
+    }
+
+    .section-description p {
       font-size: 13px;
       color: var(--text-secondary);
-    }
-
-    .testing-cards {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    .testing-card {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 20px;
-    }
-
-    .testing-card-icon {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-
-    .testing-card h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 8px;
-    }
-
-    .testing-card p {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
       line-height: 1.5;
     }
 
-    .testing-select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      font-size: 13px;
-      margin-bottom: 12px;
-      background: white;
-    }
-
-    .testing-input {
-      padding: 10px 12px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      font-size: 13px;
-      background: white;
-    }
-
-    .testing-subsection {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .testing-subsection h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
-
-    .testing-hint {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-    }
-
-    .known-helpers-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
-      min-height: 40px;
-    }
-
-    .helper-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: white;
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      font-size: 12px;
-    }
-
-    .helper-chip .helper-id {
-      font-family: 'SF Mono', monospace;
-      color: var(--text-secondary);
-      max-width: 120px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .helper-chip .btn-reset-helper {
-      padding: 2px 8px;
-      font-size: 11px;
-      background: var(--error);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    .helper-chip .btn-reset-helper:hover {
-      background: #dc2626;
-    }
-
-    .saved-accounts-list {
+    .saved-accounts-compact {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+      max-height: 200px;
+      overflow-y: auto;
     }
 
     .saved-account-item {
@@ -3281,107 +3180,441 @@
       align-items: center;
       justify-content: space-between;
       padding: 10px 12px;
-      background: white;
+      background: var(--bg-secondary);
       border: 1px solid var(--border-color);
-      border-radius: 6px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .saved-account-item:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .saved-account-info {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 2px;
     }
 
     .saved-account-name {
-      font-weight: 500;
+      font-weight: 600;
+      font-size: 13px;
       color: var(--text-primary);
     }
 
     .saved-account-id {
       font-family: 'SF Mono', monospace;
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
     }
 
     .saved-account-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .add-test-account-form {
+    .saved-account-actions button {
+      padding: 5px 10px;
+      font-size: 11px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .saved-account-actions .btn-warning {
+      background: #fbbf24;
+      color: #78350f;
+      padding: 5px 10px;
+    }
+
+    .saved-account-actions .btn-danger {
+      background: #ef4444;
+      color: white;
+      padding: 5px 10px;
+    }
+
+    .saved-account-actions .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      padding: 5px 10px;
+    }
+
+    /* Add Account Form */
+    .add-account-compact {
       display: flex;
       gap: 8px;
       align-items: center;
     }
 
-    .add-test-account-form .testing-input {
+    .input-compact {
       flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 13px;
+      background: var(--bg-secondary);
     }
 
-    .manual-reset-form {
-      display: flex;
-      gap: 8px;
-      align-items: center;
+    .input-compact:focus {
+      outline: none;
+      border-color: var(--accent);
     }
 
-    .manual-reset-form .testing-input {
-      flex: 1;
+    .input-short {
+      max-width: 100px;
     }
 
-    .manual-reset-form .testing-select {
-      width: 200px;
+    .btn-add-compact {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-add-compact:hover {
+      background: #2563eb;
+      transform: scale(1.05);
+    }
+
+    .account-actions-help {
+      margin-top: 16px;
+    }
+
+    .account-actions-help details {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .account-actions-help summary {
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: var(--bg-secondary);
+    }
+
+    .account-actions-help summary:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .help-content {
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .help-content p {
+      margin-bottom: 6px;
+    }
+
+    .help-content p:last-child {
       margin-bottom: 0;
     }
 
-    .nuclear-option-card {
-      background: white;
-      border: 2px solid #ef4444;
+    /* Campaign Reset Section */
+    .campaign-reset-section {
+      padding: 16px 20px;
+    }
+
+    .reset-option {
+      padding: 16px;
+      background: var(--bg-secondary);
       border-radius: 8px;
-      padding: 20px;
     }
 
-    .nuclear-warning {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 16px;
+    .reset-option-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
     }
 
-    .nuclear-icon {
-      font-size: 32px;
+    .reset-option-info p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
     }
 
-    .nuclear-warning strong {
+    .select-compact {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 13px;
+      background: white;
+      margin-bottom: 12px;
+    }
+
+    .btn-reset-campaign {
+      width: 100%;
+      padding: 10px;
+      background: #f59e0b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-reset-campaign:hover {
+      background: #d97706;
+    }
+
+    .reset-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 16px 0;
+    }
+
+    .reset-option-danger {
+      border: 1px solid #fecaca;
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    }
+
+    .delete-stats-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 20px;
+      font-size: 12px;
       color: #dc2626;
+      margin-bottom: 12px;
+    }
+
+    .stat-count {
+      font-weight: 700;
       font-size: 14px;
     }
 
-    .nuclear-warning p {
-      color: #991b1b;
-      font-size: 12px;
-      margin-top: 4px;
+    .btn-delete-users {
+      width: 100%;
+      padding: 10px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
-    .nuclear-confirm {
+    .btn-delete-users:hover {
+      background: #dc2626;
+    }
+
+    /* Advanced Options Section */
+    .advanced-options-section {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .advanced-options-toggle {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: var(--bg-secondary);
+      transition: all 0.2s;
+    }
+
+    .advanced-options-toggle:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .advanced-options-toggle .toggle-icon {
+      transition: transform 0.2s;
+    }
+
+    .advanced-options-section[open] .toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .advanced-options-content {
+      padding: 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .advanced-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .advanced-option-card {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+    }
+
+    .advanced-option-icon {
+      font-size: 24px;
+    }
+
+    .advanced-option-content {
+      flex: 1;
+    }
+
+    .advanced-option-content h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .advanced-option-content p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .inline-form {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-sm {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 12px;
+      background: white;
+    }
+
+    /* Danger Zone Section */
+    .danger-zone-section {
+      background: white;
+      border: 2px solid #fecaca;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .danger-zone-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #dc2626;
+      cursor: pointer;
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    }
+
+    .danger-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      background: #ef4444;
+      color: white;
+      border-radius: 12px;
+    }
+
+    .danger-zone-content {
+      padding: 20px;
+      border-top: 1px solid #fecaca;
+    }
+
+    .danger-warning-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .danger-warning-banner p {
+      font-size: 13px;
+      color: #991b1b;
+    }
+
+    .danger-options {
+      display: flex;
+      flex-direction: column;
       gap: 12px;
     }
 
-    .nuclear-confirm label {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .nuclear-confirm code {
+    .danger-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px;
       background: #fef2f2;
-      color: #dc2626;
-      padding: 2px 6px;
-      border-radius: 4px;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
     }
 
-    .nuclear-confirm .testing-input {
-      width: 150px;
+    .danger-option-nuclear {
+      background: linear-gradient(135deg, #fef2f2 0%, #fce7f3 100%);
+      border-color: #f472b6;
+    }
+
+    .danger-option-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #991b1b;
+      margin-bottom: 2px;
+    }
+
+    .danger-option-info p {
+      font-size: 12px;
+      color: #b91c1c;
+    }
+
+    .danger-confirm {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .input-danger {
+      width: 140px;
+      padding: 8px 10px;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .input-danger:focus {
+      outline: none;
+      border-color: #ef4444;
+    }
+
+    /* Legacy styles for compatibility */
+    .testing-input {
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      background: white;
     }
 
     .btn-danger {
@@ -3400,6 +3633,11 @@
       background: #dc2626;
     }
 
+    .btn-danger.btn-sm {
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
     .btn-warning {
       padding: 10px 16px;
       background: #f59e0b;
@@ -3416,6 +3654,11 @@
       background: #d97706;
     }
 
+    .btn-warning.btn-sm {
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
     .btn-nuclear {
       padding: 10px 16px;
       background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
@@ -3430,6 +3673,11 @@
 
     .btn-nuclear:hover {
       transform: scale(1.02);
+    }
+
+    .btn-nuclear.btn-sm {
+      padding: 8px 12px;
+      font-size: 12px;
     }
 
     .testing-results {
@@ -3453,19 +3701,36 @@
       word-break: break-all;
     }
 
+    .loading-small {
+      padding: 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
     @media (max-width: 768px) {
-      .testing-cards {
+      .testing-main-grid {
         grid-template-columns: 1fr;
       }
 
-      .add-test-account-form,
-      .manual-reset-form,
-      .nuclear-confirm {
+      .advanced-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-settings-row {
+        flex-direction: column;
+      }
+
+      .danger-option {
         flex-direction: column;
         align-items: stretch;
       }
 
-      .manual-reset-form .testing-select {
+      .danger-confirm {
+        flex-direction: column;
+      }
+
+      .input-danger {
         width: 100%;
       }
     }
@@ -5027,6 +5292,27 @@
     /* Campaign Events Table - inherits from events-table */
     .campaign-events-section {
       grid-column: 1 / -1; /* Full width */
+    }
+    
+    .campaign-events-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    
+    .campaign-events-header h4 {
+      margin: 0;
+    }
+    
+    .event-actions-cell {
+      width: 60px;
+    }
+    
+    .event-action-buttons {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
     }
     
     .campaign-events-table {
@@ -7821,6 +8107,193 @@
       margin-bottom: 8px;
     }
 
+    /* Poster Preview Elements */
+    .poster-preview-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .poster-bg-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .poster-overlay-element {
+      position: absolute;
+      z-index: 10;
+      transition: all 0.2s ease;
+    }
+
+    .poster-avatar-overlay {
+      border: 2px dashed rgba(59, 130, 246, 0.6);
+      background: rgba(59, 130, 246, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .poster-avatar-overlay.circle {
+      border-radius: 50%;
+    }
+
+    .poster-avatar-overlay.square {
+      border-radius: 8px;
+    }
+
+    .poster-avatar-inner {
+      width: 80%;
+      height: 80%;
+      border-radius: inherit;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .poster-nickname-overlay {
+      background: rgba(16, 185, 129, 0.15);
+      border: 2px dashed rgba(16, 185, 129, 0.6);
+      border-radius: 4px;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .poster-nickname-text {
+      font-weight: 500;
+    }
+
+    .poster-qrcode-overlay {
+      background: rgba(245, 158, 11, 0.15);
+      border: 2px dashed rgba(245, 158, 11, 0.6);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .poster-qrcode-inner {
+      width: 70%;
+      height: 70%;
+      background: white;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .poster-qrcode-grid {
+      width: 60%;
+      height: 60%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 2px;
+      margin-bottom: 4px;
+    }
+
+    .poster-qrcode-grid span {
+      background: #333;
+      border-radius: 1px;
+    }
+
+    .poster-element-label {
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      background: var(--bg-secondary);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    /* Position Controls */
+    .position-control-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 10px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+    }
+
+    .position-control {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .position-control label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .position-control input {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .poster-hint-box {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .poster-hint-box h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .poster-hint-box ul {
+      font-size: 11px;
+      color: #92400e;
+      margin: 0;
+      padding-left: 16px;
+    }
+
+    .poster-hint-box li {
+      margin-bottom: 4px;
+    }
+
+    .poster-dimensions-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+    }
+
     @media (max-width: 768px) {
       .poster-preview-container {
         flex-direction: column-reverse;
@@ -7831,6 +8304,9 @@
       .poster-preview-box {
         width: 100%;
         height: 300px;
+      }
+      .position-control-group {
+        grid-template-columns: 1fr 1fr;
       }
     }
 
@@ -8636,6 +9112,44 @@
       gap: 8px;
     }
     
+    .event-user-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .event-user-source {
+      font-size: 10px;
+      color: #888;
+    }
+    
+    .help-status {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    
+    .help-status.status-valid {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+    
+    .help-status.status-restored {
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+    
+    .help-status.status-duplicate {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+    
+    .help-status.status-invalid {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+    
     .event-user-avatar {
       width: 24px;
       height: 24px;
@@ -8746,10 +9260,30 @@
     .event-details-inline {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
+      align-items: flex-start;
       gap: 16px 24px;
       padding: 12px 20px;
       background: var(--bg-primary);
+    }
+    
+    /* Detail sections for grouped info */
+    .detail-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border-radius: 6px;
+      min-width: 200px;
+    }
+    
+    .detail-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border-color);
     }
     
     .detail-group {
@@ -8815,6 +9349,132 @@
       letter-spacing: 0.5px;
       color: var(--text-muted);
       margin-bottom: 4px;
+    }
+    
+    .unionid-present {
+      color: #10b981 !important;
+    }
+    
+    .unionid-missing {
+      color: #ef4444 !important;
+      font-size: 11px;
+    }
+    
+    .has-value {
+      color: var(--text-primary);
+    }
+    
+    .no-value {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+    
+    .openid-value {
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 3px;
+      background: var(--bg-secondary);
+      transition: all 0.2s;
+    }
+    
+    .openid-value:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .openid-value.copied {
+      background: #10b981 !important;
+      color: white !important;
+    }
+    
+    .copyable {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .copyable:hover {
+      background: var(--primary-color);
+      color: white;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    
+    .copyable.copied {
+      background: #10b981 !important;
+      color: white !important;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    
+    .event-openid-cell, .event-unionid-cell, .event-source-cell {
+      font-size: 11px;
+      text-align: center;
+    }
+    
+    .campaign-events-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .detail-section-wide {
+      flex: 2;
+      min-width: 300px;
+    }
+    
+    .json-payload-container {
+      position: relative;
+      margin-top: 8px;
+    }
+    
+    .json-payload {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 11px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      max-height: 200px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0;
+    }
+    
+    .btn-copy-payload {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 8px;
+      font-size: 11px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .btn-copy-payload:hover {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+    
+    /* Campaign events table column widths */
+    .campaign-events-table .col-openid {
+      width: 120px;
+      min-width: 100px;
+    }
+    
+    .campaign-events-table .col-unionid {
+      width: 120px;
+      min-width: 100px;
+    }
+    
+    .campaign-events-table .col-source {
+      width: 50px;
+      text-align: center;
     }
     
     .detail-row {
@@ -11825,6 +12485,9 @@
             <button class="infra-tab-btn active" onclick="switchInfraTab('system-health')">
               <span>✅</span> 系统状态
             </button>
+            <button class="infra-tab-btn" onclick="switchInfraTab('miniprogram')">
+              <span>📲</span> 小程序配置
+            </button>
             <button class="infra-tab-btn" onclick="switchInfraTab('tunnel')">
               <span>🚇</span> 隧道配置
             </button>
@@ -11856,16 +12519,6 @@
                     <span class="indicator-dot" style="background: var(--text-muted);"></span>
                     <span class="indicator-text">点击刷新检测</span>
                   </div>
-                </div>
-                <button class="btn-recheck" onclick="validateAllSystems()" title="运行系统健康检查">
-                  🔄 立即检测
-                </button>
-              </div>
-
-              <div class="health-score" id="healthScore">
-                <div class="health-score-circle" style="background: linear-gradient(135deg, #9ca3af, #6b7280);">
-                  <div class="health-score-value" id="healthScoreValue">--</div>
-                  <div class="health-score-label">健康得分</div>
                 </div>
               </div>
             </div>
@@ -11984,6 +12637,214 @@
           </div>
 
           <!-- ============================================ -->
+          <!-- MINIPROGRAM CONFIG TAB CONTENT -->
+          <!-- ============================================ -->
+          <div class="infra-tab-content" id="infra-tab-miniprogram">
+            
+            <!-- Overview -->
+            <div class="tunnel-section">
+              <h4>📲 小程序开发配置指南</h4>
+              <p class="section-desc">本指南解释了小程序开发中 localhost 与真机测试的核心问题，以及我们的解决方案。</p>
+            </div>
+            
+            <!-- Problem Explanation -->
+            <div class="tunnel-section">
+              <h4>🔴 核心问题</h4>
+              <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 16px; margin-top: 12px;">
+                <p style="margin: 0 0 12px 0; font-weight: 600; color: #ef4444;">为什么小程序真机无法直接访问 localhost？</p>
+                <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                  <li><strong>localhost 是本地回环地址</strong> — 指向设备自身，不是你的电脑</li>
+                  <li><strong>手机和电脑是不同设备</strong> — 手机的 localhost 是手机本身，无法到达你电脑的服务</li>
+                  <li><strong>微信小程序限制</strong> — 正式环境必须使用 HTTPS 且域名需备案</li>
+                </ul>
+              </div>
+            </div>
+            
+            <!-- Our Solution -->
+            <div class="tunnel-section">
+              <h4>✅ 我们的解决方案</h4>
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 16px; margin-top: 12px;">
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
+                  <span style="font-size: 24px;">🌐</span>
+                  <div>
+                    <p style="margin: 0 0 8px 0; font-weight: 600; color: #10b981;">Cloudflare Tunnel + Supabase 自动同步</p>
+                    <p style="margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                      我们使用 Cloudflare Tunnel 将本地服务暴露到公网，并将 Tunnel URL 存储在 Supabase。
+                      小程序启动时自动从 Supabase 获取最新 URL，无需每次手动修改代码。
+                    </p>
+                  </div>
+                </div>
+                
+                <div style="background: var(--bg-secondary); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 12px;">
+                  <div style="color: var(--text-muted); margin-bottom: 8px;">工作流程：</div>
+                  <pre style="margin: 0; white-space: pre-wrap;">
+┌──────────────┐    ┌─────────────────┐    ┌──────────────┐
+│   你的电脑    │───▶│ Cloudflare Tunnel│───▶│   公网 URL   │
+│ localhost:3000│    │                 │    │ xxx.trycloudflare.com │
+└──────────────┘    └─────────────────┘    └──────────────┘
+                                                   │
+                           ┌───────────────────────┘
+                           ▼
+            ┌──────────────────────────┐
+            │       Supabase          │◀─── Admin 后台保存 URL
+            │   tunnel_config 表      │
+            └──────────────────────────┘
+                           │
+                           ▼
+            ┌──────────────────────────┐
+            │      小程序 (真机)        │◀─── 启动时自动获取 URL
+            │  自动使用最新 Tunnel URL  │
+            └──────────────────────────┘</pre>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Environment Detection -->
+            <div class="tunnel-section">
+              <h4>🔄 自动环境检测</h4>
+              <p class="section-desc">小程序会自动检测运行环境，选择正确的 API 地址。</p>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;">
+                <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px;">
+                  <div style="font-weight: 600; margin-bottom: 8px;">🖥️ 模拟器环境</div>
+                  <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                    <li>platform = <code>devtools</code></li>
+                    <li>使用 <code>http://localhost:3000/api</code></li>
+                    <li>无需额外配置</li>
+                  </ul>
+                </div>
+                <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px;">
+                  <div style="font-weight: 600; margin-bottom: 8px;">📱 真机环境</div>
+                  <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                    <li>platform = <code>ios</code> 或 <code>android</code></li>
+                    <li>从 Supabase 获取 Tunnel URL</li>
+                    <li>URL 缓存 5 分钟</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Required Configuration -->
+            <div class="tunnel-section">
+              <h4>⚙️ 必要配置</h4>
+              <p class="section-desc">以下配置只需完成一次。</p>
+              
+              <div style="margin-top: 16px;">
+                <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 12px;">
+                  <span style="background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">1</span>
+                  <div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">微信公众平台 - 添加 Supabase 域名</div>
+                    <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">
+                      进入「开发 → 开发管理 → 开发设置 → 服务器域名」<br>
+                      在 <code>request合法域名</code> 添加：<code style="background: rgba(99, 102, 241, 0.1); padding: 2px 6px; border-radius: 3px;">https://fseyfnuqxvrcwrpshxyv.supabase.co</code>
+                    </p>
+                  </div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 12px;">
+                  <span style="background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">2</span>
+                  <div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">开发者工具 - 开启不校验合法域名（开发时）</div>
+                    <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">
+                      在微信开发者工具右上角「详情 → 本地设置」<br>
+                      勾选 ☑️ <code>不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书</code>
+                    </p>
+                  </div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px;">
+                  <span style="background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">3</span>
+                  <div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">真机调试 - 开启调试模式</div>
+                    <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">
+                      扫码预览时，点击右上角「...」→「开启调试」<br>
+                      这样真机也可以访问非 HTTPS 域名（开发阶段）
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Daily Workflow -->
+            <div class="tunnel-section">
+              <h4>📋 日常开发流程</h4>
+              <div style="background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 16px; margin-top: 12px;">
+                <ol style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-secondary); line-height: 2;">
+                  <li><strong>启动后端服务</strong> — <code>cd backend && npm run dev</code></li>
+                  <li><strong>启动 Cloudflare Tunnel</strong> — <code>cloudflared tunnel --url http://localhost:3000</code></li>
+                  <li><strong>复制 Tunnel URL</strong> — 从终端输出中复制 <code>https://xxx.trycloudflare.com</code></li>
+                  <li><strong>在 Admin 后台保存 URL</strong> — 「基础设施 → 隧道配置」粘贴并保存</li>
+                  <li><strong>真机预览</strong> — 小程序会自动获取最新 URL，无需改代码</li>
+                </ol>
+              </div>
+            </div>
+            
+            <!-- Troubleshooting -->
+            <div class="tunnel-section">
+              <h4>🔧 常见问题排查</h4>
+              <div style="margin-top: 12px;">
+                <details style="background: var(--bg-secondary); border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                  <summary style="font-weight: 600; cursor: pointer;">真机提示「request:fail url not in domain list」</summary>
+                  <div style="padding-top: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                    <p><strong>原因：</strong>Supabase 域名未添加到合法域名列表</p>
+                    <p><strong>解决：</strong>在微信公众平台添加 <code>https://fseyfnuqxvrcwrpshxyv.supabase.co</code> 到 request 合法域名</p>
+                  </div>
+                </details>
+                
+                <details style="background: var(--bg-secondary); border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                  <summary style="font-weight: 600; cursor: pointer;">真机请求超时或无响应</summary>
+                  <div style="padding-top: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                    <p><strong>可能原因：</strong></p>
+                    <ul style="padding-left: 20px; margin: 8px 0;">
+                      <li>Cloudflare Tunnel 已断开（每次重启电脑后需要重新启动）</li>
+                      <li>Admin 后台的 Tunnel URL 未更新</li>
+                      <li>后端服务未启动</li>
+                    </ul>
+                    <p><strong>解决：</strong>重新启动 tunnel 并更新 URL</p>
+                  </div>
+                </details>
+                
+                <details style="background: var(--bg-secondary); border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                  <summary style="font-weight: 600; cursor: pointer;">模拟器正常但真机报错</summary>
+                  <div style="padding-top: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                    <p><strong>原因：</strong>模拟器使用 localhost，真机需要公网 URL</p>
+                    <p><strong>解决：</strong>确保 Tunnel 正在运行且 URL 已保存到 Admin 后台</p>
+                  </div>
+                </details>
+                
+                <details style="background: var(--bg-secondary); border-radius: 8px; padding: 12px;">
+                  <summary style="font-weight: 600; cursor: pointer;">小程序无法获取 Tunnel URL</summary>
+                  <div style="padding-top: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                    <p><strong>检查步骤：</strong></p>
+                    <ol style="padding-left: 20px; margin: 8px 0;">
+                      <li>确认 Supabase 域名已添加到 request 合法域名</li>
+                      <li>检查 <code>tunnel_config</code> 表中是否有记录</li>
+                      <li>清除小程序本地存储后重试</li>
+                    </ol>
+                  </div>
+                </details>
+              </div>
+            </div>
+            
+            <!-- Production Notes -->
+            <div class="tunnel-section">
+              <h4>🚀 生产环境注意事项</h4>
+              <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 8px; padding: 16px; margin-top: 12px;">
+                <p style="margin: 0 0 12px 0; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                  上线生产环境前，需要完成以下配置：
+                </p>
+                <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                  <li><strong>域名备案</strong> — 国内服务器需要 ICP 备案</li>
+                  <li><strong>HTTPS 证书</strong> — 所有 API 必须使用 HTTPS</li>
+                  <li><strong>正式域名</strong> — 替换 Cloudflare Tunnel 为正式域名</li>
+                  <li><strong>添加合法域名</strong> — 在微信公众平台添加正式 API 域名</li>
+                  <li><strong>关闭调试开关</strong> — 小程序代码中移除开发时的调试代码</li>
+                </ul>
+              </div>
+            </div>
+            
+          </div>
+
+          <!-- ============================================ -->
           <!-- TUNNEL TAB CONTENT -->
           <!-- ============================================ -->
           <div class="infra-tab-content" id="infra-tab-tunnel">
@@ -12058,12 +12919,26 @@
 
           <!-- Update Tunnel URL Section -->
           <div class="tunnel-section">
-            <h4>Update Tunnel URL</h4>
-            <p class="section-desc">Paste the URL from <code>cloudflared</code> output when you start a new tunnel session.</p>
+            <h4>更新 Tunnel URL</h4>
+            <p class="section-desc">从 <code>cloudflared</code> 命令输出中复制 URL，粘贴到下方保存。</p>
             <div class="tunnel-url-input-group">
               <span class="url-prefix">🌐</span>
               <input type="text" class="tunnel-url-input" id="tunnelUrlInputAlt" placeholder="https://xxx.trycloudflare.com">
-              <button class="btn-primary-small" onclick="updateTunnelUrl()">Save & Verify</button>
+              <button class="btn-primary-small" onclick="updateTunnelUrl()">保存并验证</button>
+            </div>
+            
+            <!-- Mini Program Auto-Fetch Notice -->
+            <div style="margin-top: 16px; padding: 12px 16px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 8px;">
+              <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <span style="font-size: 18px;">📱</span>
+                <div>
+                  <div style="font-weight: 600; font-size: 13px; color: #6366f1; margin-bottom: 4px;">小程序自动同步</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                    保存后，小程序真机调试会<strong>自动获取</strong>最新的 Tunnel URL，无需手动修改代码。
+                    <br><span style="color: var(--text-muted);">首次使用需在小程序「request合法域名」添加：<code style="background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-size: 11px;">fseyfnuqxvrcwrpshxyv.supabase.co</code></span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -13077,146 +13952,176 @@
         <!-- ============================================ -->
         <div class="content-panel" id="panel-settings-testing">
           <div class="testing-tools-container">
-            <!-- Warning Banner -->
-            <div class="testing-warning-banner">
-              <span class="warning-icon">⚠️</span>
-              <div class="warning-text">
-                <strong>仅限开发测试使用</strong>
-                <p>这些工具仅用于测试目的，操作无法撤销！</p>
-              </div>
-            </div>
-
-            <!-- Reset Campaign Data Section -->
-            <div class="testing-section">
-              <div class="testing-section-header">
-                <h3>🔄 重置活动数据</h3>
-                <p>删除助力记录、参与者、领奖记录和事件日志，保留用户和活动结构。</p>
+            
+            <!-- Quick Access Section -->
+            <div class="testing-quick-access">
+              <div class="quick-access-header">
+                <h2>🛠️ 开发测试工具</h2>
+                <p>快速重置数据，高效测试活动流程</p>
               </div>
               
-              <div class="testing-cards">
-                <!-- Reset All Campaigns -->
-                <div class="testing-card">
-                  <div class="testing-card-icon">🗑️</div>
-                  <h4>重置所有活动数据</h4>
-                  <p>删除所有活动的助力记录、参与者、领奖记录和活动事件。</p>
-                  <button class="btn-danger" onclick="resetAllCampaignData()">重置所有活动</button>
-                </div>
-
-                <!-- Reset Specific Campaign -->
-                <div class="testing-card">
-                  <div class="testing-card-icon">📋</div>
-                  <h4>重置指定活动</h4>
-                  <p>仅重置选定活动的数据。</p>
-                  <select id="testingCampaignSelect" class="testing-select">
-                    <option value="">选择活动...</option>
-                  </select>
-                  <button class="btn-warning" onclick="resetSpecificCampaign()">重置选中活动</button>
+              <!-- Quick Settings Row -->
+              <div class="quick-settings-row">
+                <div class="quick-setting-item">
+                  <span class="quick-setting-label">小程序注册</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="registrationRequiredToggle" onchange="toggleRegistrationRequired()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span id="registrationStatusText" class="quick-setting-status">加载中...</span>
                 </div>
               </div>
             </div>
 
-            <!-- Test WeChat Accounts Section -->
-            <div class="testing-section">
-              <div class="testing-section-header">
-                <h3>🧪 测试微信账号</h3>
-                <p>管理测试微信账号，重置助力记录以便重新测试。</p>
-              </div>
-
-              <!-- Known Helpers from Database -->
-              <div class="testing-subsection">
-                <h4>📋 数据库中的助力用户</h4>
-                <p class="testing-hint">这些微信账号曾在活动中进行过助力，点击可重置记录。</p>
-                <div id="knownHelpersList" class="known-helpers-list">
-                  <div class="loading">加载中...</div>
+            <!-- Main Testing Grid -->
+            <div class="testing-main-grid">
+              
+              <!-- Left Column: Test Accounts -->
+              <div class="testing-column">
+                <div class="testing-panel-card">
+                  <div class="panel-card-header">
+                    <h3>🧪 测试账号</h3>
+                    <span class="panel-card-badge">核心功能</span>
+                  </div>
+                  
+                  <div class="test-account-section">
+                    <div class="section-description">
+                      <p>保存测试微信账号，快速重置助力记录进行重复测试。</p>
+                    </div>
+                    
+                    <!-- Saved Accounts List -->
+                    <div id="savedTestAccountsList" class="saved-accounts-compact">
+                      <div class="loading-small">加载中...</div>
+                    </div>
+                    
+                    <!-- Add Account Form -->
+                    <div class="add-account-compact">
+                      <input type="text" id="newTestAccountOpenId" placeholder="OpenID" class="input-compact">
+                      <input type="text" id="newTestAccountName" placeholder="昵称" class="input-compact input-short">
+                      <button class="btn-add-compact" onclick="addTestAccount()">+</button>
+                    </div>
+                    
+                    <div class="account-actions-help">
+                      <details>
+                        <summary>💡 如何使用？</summary>
+                        <div class="help-content">
+                          <p><strong>重置</strong> - 清除助力记录，可重新扫码助力</p>
+                          <p><strong>完全重置</strong> - 清除所有数据+公众号关联，测试完整新用户流程</p>
+                        </div>
+                      </details>
+                    </div>
+                  </div>
                 </div>
-                <button class="btn-secondary btn-sm" onclick="loadKnownHelpers()">↻ 刷新列表</button>
-              </div>
-
-              <!-- Saved Test Accounts -->
-              <div class="testing-subsection">
-                <h4>⭐ 已保存的测试账号</h4>
-                <p class="testing-hint">保存常用测试账号以便快速访问。</p>
-                <div id="savedTestAccountsList" class="saved-accounts-list">
-                  <div class="loading">加载中...</div>
-                </div>
-                <div class="add-test-account-form">
-                  <input type="text" id="newTestAccountOpenId" placeholder="输入 OpenID" class="testing-input">
-                  <input type="text" id="newTestAccountName" placeholder="昵称（可选）" class="testing-input">
-                  <button class="btn-secondary" onclick="addTestAccount()">+ 添加账号</button>
-                </div>
-              </div>
-
-              <!-- Manual Reset -->
-              <div class="testing-subsection">
-                <h4>🔧 按 OpenID 手动重置</h4>
-                <p class="testing-hint">输入 OpenID 重置该用户的所有助力记录。</p>
-                <div class="manual-reset-form">
-                  <input type="text" id="manualResetOpenId" placeholder="输入 OpenID" class="testing-input">
-                  <select id="manualResetCampaign" class="testing-select">
-                    <option value="">全部活动</option>
-                  </select>
-                  <button class="btn-warning" onclick="resetHelperManually()">重置助力</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Delete Users Section -->
-            <div class="testing-section testing-section-warning">
-              <div class="testing-section-header">
-                <h3>👥 删除全部用户</h3>
-                <p>删除所有用户账户，保留活动配置。</p>
               </div>
               
-              <div class="testing-cards">
-                <div class="testing-card testing-card-warning">
-                  <div class="testing-card-icon">👥</div>
-                  <h4>删除全部用户</h4>
-                  <p>删除所有用户账户及其活动参与、助力记录等相关数据。<strong>活动配置将被保留。</strong></p>
-                  <div class="delete-users-stats" id="deleteUsersStats">
-                    <span class="stat-badge">加载用户数量...</span>
+              <!-- Right Column: Campaign Reset -->
+              <div class="testing-column">
+                <div class="testing-panel-card">
+                  <div class="panel-card-header">
+                    <h3>🔄 活动数据重置</h3>
                   </div>
-                  <div class="delete-users-confirm">
-                    <label>输入 <code>DELETE USERS</code> 确认:</label>
-                    <input type="text" id="deleteUsersConfirmInput" placeholder="输入 DELETE USERS" class="testing-input">
-                    <button class="btn-danger" onclick="deleteAllUsers()">🗑️ 删除全部用户</button>
+                  
+                  <div class="campaign-reset-section">
+                    <div class="reset-option">
+                      <div class="reset-option-info">
+                        <h4>重置指定活动</h4>
+                        <p>仅清除选定活动的助力、参与、领奖记录</p>
+                      </div>
+                      <select id="testingCampaignSelect" class="select-compact">
+                        <option value="">选择活动...</option>
+                      </select>
+                      <button class="btn-reset-campaign" onclick="resetSpecificCampaign()">重置活动</button>
+                    </div>
+                    
+                    <div class="reset-divider"></div>
+                    
+                    <div class="reset-option reset-option-danger">
+                      <div class="reset-option-info">
+                        <h4>清除测试用户</h4>
+                        <p>删除所有非管理员用户，保留活动配置</p>
+                      </div>
+                      <div class="delete-stats-inline" id="deleteUsersStats">
+                        <span class="stat-count">--</span> 用户
+                      </div>
+                      <button class="btn-delete-users" onclick="quickDeleteNonAdminUsers()">清除用户</button>
+                    </div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Collapsible Advanced Section -->
+            <details class="advanced-options-section">
+              <summary class="advanced-options-toggle">
+                <span>⚙️ 高级选项</span>
+                <span class="toggle-icon">▼</span>
+              </summary>
+              
+              <div class="advanced-options-content">
+                <div class="advanced-grid">
+                  <!-- Reset All Campaigns -->
+                  <div class="advanced-option-card">
+                    <div class="advanced-option-icon">🗑️</div>
+                    <div class="advanced-option-content">
+                      <h4>重置所有活动数据</h4>
+                      <p>清除所有活动的助力、参与、领奖记录</p>
+                      <button class="btn-warning btn-sm" onclick="resetAllCampaignData()">执行</button>
+                    </div>
+                  </div>
+                  
+                  <!-- Manual OpenID Reset -->
+                  <div class="advanced-option-card">
+                    <div class="advanced-option-icon">🔧</div>
+                    <div class="advanced-option-content">
+                      <h4>手动重置 OpenID</h4>
+                      <div class="inline-form">
+                        <input type="text" id="manualResetOpenId" placeholder="输入 OpenID" class="input-sm">
+                        <button class="btn-secondary btn-sm" onclick="resetHelperManually()">重置</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- Danger Zone (Collapsed by default) -->
+            <details class="danger-zone-section">
+              <summary class="danger-zone-toggle">
+                <span>☢️ 危险操作区</span>
+                <span class="danger-badge">谨慎使用</span>
+              </summary>
+              
+              <div class="danger-zone-content">
+                <div class="danger-warning-banner">
+                  <span>⚠️</span>
+                  <p>以下操作将永久删除数据，无法撤销！</p>
                 </div>
                 
-                <div class="testing-card">
-                  <div class="testing-card-icon">🧹</div>
-                  <h4>删除非管理员用户</h4>
-                  <p>删除<strong>管理员以外</strong>的所有用户，适合清理测试数据同时保留管理员账户。</p>
-                  <div class="delete-users-confirm">
-                    <label>输入 <code>DELETE NON-ADMIN</code> 确认:</label>
-                    <input type="text" id="deleteNonAdminConfirmInput" placeholder="输入 DELETE NON-ADMIN" class="testing-input">
-                    <button class="btn-warning" onclick="deleteNonAdminUsers()">🧹 删除非管理员用户</button>
+                <div class="danger-options">
+                  <div class="danger-option">
+                    <div class="danger-option-info">
+                      <h4>删除全部用户</h4>
+                      <p>删除所有用户，保留活动配置</p>
+                    </div>
+                    <div class="danger-confirm">
+                      <input type="text" id="deleteUsersConfirmInput" placeholder="输入 DELETE USERS" class="input-danger">
+                      <button class="btn-danger btn-sm" onclick="deleteAllUsers()">删除</button>
+                    </div>
+                  </div>
+                  
+                  <div class="danger-option danger-option-nuclear">
+                    <div class="danger-option-info">
+                      <h4>☢️ 删除全部数据</h4>
+                      <p>删除所有数据：用户、活动、记录等</p>
+                    </div>
+                    <div class="danger-confirm">
+                      <input type="text" id="nuclearConfirmInput" placeholder="输入 DELETE ALL" class="input-danger">
+                      <button class="btn-nuclear btn-sm" onclick="nuclearReset()">删除全部</button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Nuclear Option Section -->
-            <div class="testing-section testing-section-danger">
-              <div class="testing-section-header">
-                <h3>☢️ 危险操作</h3>
-                <p>删除所有数据，包括用户和活动。此操作无法撤销！</p>
-              </div>
-              
-              <div class="nuclear-option-card">
-                <div class="nuclear-warning">
-                  <span class="nuclear-icon">☢️</span>
-                  <div>
-                    <strong>删除全部数据</strong>
-                    <p>将删除所有数据：用户、活动、助力记录、参与者、事件日志等。</p>
-                  </div>
-                </div>
-                <div class="nuclear-confirm">
-                  <label>输入 <code>DELETE ALL</code> 确认:</label>
-                  <input type="text" id="nuclearConfirmInput" placeholder="输入 DELETE ALL" class="testing-input">
-                  <button class="btn-nuclear" onclick="nuclearReset()">☢️ 删除全部数据</button>
-                </div>
-              </div>
-            </div>
+            </details>
 
             <!-- Reset Results -->
             <div id="testingResults" class="testing-results" style="display: none;">
@@ -13812,12 +14717,26 @@
 
           <!-- Update Tunnel URL Section -->
           <div class="tunnel-section">
-            <h4>Update Tunnel URL</h4>
-            <p class="section-desc">Paste the URL from <code>cloudflared</code> output when you start a new tunnel session.</p>
+            <h4>更新 Tunnel URL</h4>
+            <p class="section-desc">从 <code>cloudflared</code> 命令输出中复制 URL，粘贴到下方保存。</p>
             <div class="tunnel-url-input-group">
               <span class="url-prefix">🌐</span>
               <input type="text" class="tunnel-url-input" id="tunnelUrlInputAlt" placeholder="https://xxx.trycloudflare.com">
-              <button class="btn-primary-small" onclick="updateTunnelUrl()">Save & Verify</button>
+              <button class="btn-primary-small" onclick="updateTunnelUrl()">保存并验证</button>
+            </div>
+            
+            <!-- Mini Program Auto-Fetch Notice -->
+            <div style="margin-top: 16px; padding: 12px 16px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 8px;">
+              <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <span style="font-size: 18px;">📱</span>
+                <div>
+                  <div style="font-weight: 600; font-size: 13px; color: #6366f1; margin-bottom: 4px;">小程序自动同步</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                    保存后，小程序真机调试会<strong>自动获取</strong>最新的 Tunnel URL，无需手动修改代码。
+                    <br><span style="color: var(--text-muted);">首次使用需在小程序「request合法域名」添加：<code style="background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-size: 11px;">fseyfnuqxvrcwrpshxyv.supabase.co</code></span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -16339,18 +17258,13 @@
       let html = `
         <!-- Executive Summary -->
         <div class="report-executive-summary">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-            <div>
-              <h2>${executiveSummary.campaignName}</h2>
-              <span class="campaign-status ${executiveSummary.status}">${executiveSummary.status.toUpperCase()}</span>
-              <p style="margin: 8px 0 0 0; opacity: 0.8; font-size: 13px;">
-                ${formatDate(executiveSummary.startDate)} - ${formatDate(executiveSummary.endDate)}
-                ${executiveSummary.daysRemaining !== null ? ` • 剩余 ${executiveSummary.daysRemaining} 天` : ''}
-              </p>
-            </div>
-            <div class="health-score-circle grade-${executiveSummary.healthGrade.toLowerCase()}">
-              ${executiveSummary.healthScore}
-            </div>
+          <div>
+            <h2>${executiveSummary.campaignName}</h2>
+            <span class="campaign-status ${executiveSummary.status}">${executiveSummary.status.toUpperCase()}</span>
+            <p style="margin: 8px 0 0 0; opacity: 0.8; font-size: 13px;">
+              ${formatDate(executiveSummary.startDate)} - ${formatDate(executiveSummary.endDate)}
+              ${executiveSummary.daysRemaining !== null ? ` • 剩余 ${executiveSummary.daysRemaining} 天` : ''}
+            </p>
           </div>
           <div class="executive-stats">
             <div class="executive-stat">
@@ -16358,16 +17272,16 @@
               <span class="stat-label">总触达</span>
             </div>
             <div class="executive-stat">
+              <span class="stat-value">${kpis.totalParticipants}</span>
+              <span class="stat-label">参与人数</span>
+            </div>
+            <div class="executive-stat">
+              <span class="stat-value">${kpis.validHelpers}</span>
+              <span class="stat-label">有效助力</span>
+            </div>
+            <div class="executive-stat">
               <span class="stat-value">${kpis.viralCoefficient}x</span>
               <span class="stat-label">裂变系数</span>
-            </div>
-            <div class="executive-stat">
-              <span class="stat-value">${kpis.retentionRate}%</span>
-              <span class="stat-label">留存率</span>
-            </div>
-            <div class="executive-stat">
-              <span class="stat-value">${executiveSummary.healthGrade}</span>
-              <span class="stat-label">健康等级</span>
             </div>
           </div>
         </div>
@@ -16940,14 +17854,64 @@
     let savedTestAccounts = [];
 
     async function loadTestingTools() {
+      // Load registration setting
+      await loadRegistrationSetting();
       // Load campaigns for dropdowns
       await loadTestingCampaigns();
-      // Load known helpers
-      await loadKnownHelpers();
       // Load saved test accounts
       await loadSavedTestAccounts();
       // Load user stats for delete section
       await loadDeleteUsersStats();
+    }
+
+    async function loadRegistrationSetting() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/settings`);
+        if (response.ok) {
+          const data = await response.json();
+          const required = data.data?.registration_required !== false;
+          const toggle = document.getElementById('registrationRequiredToggle');
+          const statusText = document.getElementById('registrationStatusText');
+          
+          if (toggle) toggle.checked = required;
+          if (statusText) statusText.textContent = required ? '需要注册' : '无需注册（直接登录）';
+        }
+      } catch (error) {
+        console.error('Load registration setting error:', error);
+      }
+    }
+
+    async function toggleRegistrationRequired() {
+      const toggle = document.getElementById('registrationRequiredToggle');
+      const statusText = document.getElementById('registrationStatusText');
+      const newValue = toggle.checked;
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/debug/settings`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            key: 'registration_required',
+            value: newValue ? 'true' : 'false',
+          }),
+        });
+        
+        if (response.ok) {
+          statusText.textContent = newValue ? '需要注册' : '无需注册（直接登录）';
+          showSuccess(newValue ? '已开启注册要求' : '已关闭注册要求，用户可直接登录');
+        } else {
+          // Revert toggle
+          toggle.checked = !newValue;
+          showError('保存设置失败');
+        }
+      } catch (error) {
+        console.error('Toggle registration error:', error);
+        toggle.checked = !newValue;
+        showError('保存设置失败');
+      }
     }
 
     async function loadTestingCampaigns() {
@@ -17024,7 +17988,7 @@
       const container = document.getElementById('savedTestAccountsList');
       if (!container) return;
       
-      container.innerHTML = '<div class="loading">加载中...</div>';
+      container.innerHTML = '<div class="loading-small">加载中...</div>';
       
       try {
         const response = await fetch(`${API_BASE_URL}/admin/testing/test-accounts`, {
@@ -17036,11 +18000,11 @@
           savedTestAccounts = data.data?.accounts || [];
           renderSavedTestAccounts();
         } else {
-          container.innerHTML = '<p style="color: var(--text-muted); font-size: 12px;">No saved accounts.</p>';
+          container.innerHTML = '<p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">暂无保存的账号</p>';
         }
       } catch (error) {
         console.error('Load saved test accounts error:', error);
-        container.innerHTML = '<p style="color: var(--error); font-size: 12px;">Error loading accounts.</p>';
+        container.innerHTML = '<p style="color: var(--error); font-size: 12px; text-align: center; padding: 20px;">加载失败</p>';
       }
     }
 
@@ -17049,19 +18013,20 @@
       if (!container) return;
       
       if (savedTestAccounts.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted); font-size: 12px;">No saved test accounts. Add one below.</p>';
+        container.innerHTML = '<p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">暂无保存的测试账号，在下方添加。</p>';
         return;
       }
       
       container.innerHTML = savedTestAccounts.map((account, index) => `
         <div class="saved-account-item">
           <div class="saved-account-info">
-            <span class="saved-account-name">${account.name || 'Test Account ' + (index + 1)}</span>
-            <span class="saved-account-id">${account.openid}</span>
+            <span class="saved-account-name">${account.name || '测试账号 ' + (index + 1)}</span>
+            <span class="saved-account-id">${account.openid.substring(0, 20)}...</span>
           </div>
           <div class="saved-account-actions">
-            <button class="btn-warning btn-sm" onclick="resetHelperById('${account.openid}', '')">Reset</button>
-            <button class="btn-secondary btn-sm" onclick="removeTestAccount(${index})">Remove</button>
+            <button class="btn-warning" onclick="resetHelperById('${account.openid}', '')" title="只重置助力记录">重置</button>
+            <button class="btn-danger" onclick="fullResetByOpenId('${account.openid}')" title="完全重置（包括公众号关联）">完全</button>
+            <button class="btn-secondary" onclick="removeTestAccount(${index})" title="从列表移除">✕</button>
           </div>
         </div>
       `).join('');
@@ -17108,7 +18073,7 @@
     }
 
     async function removeTestAccount(index) {
-      if (!confirm('Remove this test account from the list?')) return;
+      if (!confirm('移除此测试账号？')) return;
       
       savedTestAccounts.splice(index, 1);
       
@@ -17125,7 +18090,64 @@
         renderSavedTestAccounts();
       } catch (error) {
         console.error('Remove test account error:', error);
-        alert('Failed to remove test account');
+        alert('移除测试账号失败');
+      }
+    }
+
+    async function fullResetByOpenId(identifier) {
+      if (!confirm('⚠️ 完全重置此用户？\n\n将清除：\n• 活动参与记录\n• 助力记录\n• 奖励领取记录\n• 公众号关联（openid_oa）\n• 微信头像/昵称\n• 所有二维码\n\n用户需要重新关注公众号！\n此操作不可撤销！')) return;
+      
+      try {
+        let userId = identifier;
+        
+        // Check if identifier looks like a UUID (user ID) or an OpenID
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+        
+        if (!isUUID) {
+          // It's an OpenID, need to search for the user first
+          const searchResponse = await fetch(`${API_BASE_URL}/admin/contacts?search=${encodeURIComponent(identifier)}&limit=1`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
+          
+          if (!searchResponse.ok) {
+            alert('查找用户失败');
+            return;
+          }
+          
+          const searchData = await searchResponse.json();
+          // API returns { data: { contacts: [...], pagination: {...} } }
+          const users = searchData.data?.contacts || searchData.data || [];
+          
+          if (!users || users.length === 0) {
+            alert('未找到此 OpenID 对应的用户');
+            return;
+          }
+          
+          userId = users[0].id;
+          
+          if (!userId) {
+            alert('用户数据不完整，无法获取用户 ID');
+            console.error('User data:', users[0]);
+            return;
+          }
+        }
+        
+        // Call full reset endpoint
+        const resetResponse = await fetch(`${API_BASE_URL}/admin/contacts/${userId}/full-reset`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (resetResponse.ok) {
+          const data = await resetResponse.json();
+          alert('用户已完全重置！\n\n' + JSON.stringify(data.data, null, 2));
+        } else {
+          const data = await resetResponse.json();
+          alert('重置失败: ' + (data.error || '未知错误'));
+        }
+      } catch (error) {
+        console.error('Full reset by OpenID error:', error);
+        alert('完全重置用户时出错');
       }
     }
 
@@ -17343,11 +18365,8 @@
             const total = data.data.totalUsers || 0;
             const admins = data.data.adminUsers || 0;
             const nonAdmin = total - admins;
-            statsEl.innerHTML = `
-              <span class="stat-badge">👥 ${total} total users</span>
-              <span class="stat-badge">👑 ${admins} admins</span>
-              <span class="stat-badge">🧹 ${nonAdmin} non-admin</span>
-            `;
+            // New compact format
+            statsEl.innerHTML = `<span class="stat-count">${nonAdmin}</span> 用户`;
           }
         }
       } catch (error) {
@@ -17404,11 +18423,11 @@
       const confirmation = document.getElementById('deleteNonAdminConfirmInput').value.trim();
       
       if (confirmation !== 'DELETE NON-ADMIN') {
-        alert('Please type "DELETE NON-ADMIN" to confirm');
+        alert('请输入 "DELETE NON-ADMIN" 确认');
         return;
       }
       
-      if (!confirm('⚠️ DELETE NON-ADMIN USERS\n\nThis will delete all users except admins.\n\nAdmin accounts will be preserved.\nCampaigns will be preserved.\n\nAre you sure?')) {
+      if (!confirm('⚠️ 删除非管理员用户\n\n将删除所有非管理员用户。\n\n管理员账户将保留。\n活动配置将保留。\n\n确定继续？')) {
         return;
       }
       
@@ -17426,7 +18445,7 @@
         
         if (response.ok) {
           showTestingResults(data);
-          alert(`✅ Deleted ${data.data?.deletedUsers || 0} non-admin users!\n\nAdmin accounts and campaigns have been preserved.`);
+          alert(`✅ 已删除 ${data.data?.deletedUsers || 0} 个非管理员用户！\n\n管理员账户和活动配置已保留。`);
           document.getElementById('deleteNonAdminConfirmInput').value = '';
           loadDeleteUsersStats();
         } else {
@@ -17435,6 +18454,37 @@
       } catch (error) {
         console.error('Delete non-admin users error:', error);
         alert('Error deleting non-admin users: ' + error.message);
+      }
+    }
+
+    // Quick delete non-admin users (simplified, no confirmation input required)
+    async function quickDeleteNonAdminUsers() {
+      if (!confirm('⚠️ 清除测试用户\n\n将删除所有非管理员用户：\n• 普通用户\n• 测试账号\n• 助力记录\n\n保留内容：\n✓ 管理员账户\n✓ 活动配置\n\n确定继续？')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/testing/delete-non-admin-users`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ confirmation: 'DELETE NON-ADMIN' }),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          showTestingResults(data);
+          alert(`✅ 已删除 ${data.data?.deletedUsers || 0} 个测试用户！`);
+          loadDeleteUsersStats();
+        } else {
+          alert('删除失败: ' + (data.error || '未知错误'));
+        }
+      } catch (error) {
+        console.error('Quick delete non-admin users error:', error);
+        alert('删除失败: ' + error.message);
       }
     }
 
@@ -17672,14 +18722,16 @@
       }
 
       const entry = createLogEntry(event);
-      container.appendChild(entry);
-      logs.push(event);
-      container.scrollTop = container.scrollHeight;
+      // Insert at top to show newest first
+      container.insertBefore(entry, container.firstChild);
+      logs.unshift(event);
+      // Keep scroll at top
+      container.scrollTop = 0;
 
       if (logs.length > 100) {
-        logs.shift();
-        const firstEntry = container.querySelector('.debug-log-entry');
-        if (firstEntry) firstEntry.remove();
+        logs.pop();
+        const lastEntry = container.querySelector('.debug-log-entry:last-child');
+        if (lastEntry) lastEntry.remove();
       }
       
       updateLiveStats();
@@ -17780,7 +18832,7 @@
       const url = input?.value.trim();
 
       if (!url) {
-        showTunnelError('Please enter a tunnel URL');
+        showTunnelError('请输入 Tunnel URL');
         return;
       }
 
@@ -17806,7 +18858,7 @@
           
           const errorDiv = document.getElementById('tunnelError');
           if (errorDiv) {
-            errorDiv.textContent = '✅ ' + (data.data.message || 'Tunnel URL saved successfully');
+            errorDiv.textContent = '✅ ' + (data.data.message || 'Tunnel URL 保存成功！小程序将自动使用新地址。');
             errorDiv.style.display = 'block';
             errorDiv.style.background = 'rgba(16, 185, 129, 0.1)';
             errorDiv.style.borderColor = 'var(--success)';
@@ -18790,14 +19842,26 @@
       // Reset poster settings
       document.getElementById('wizardAvatarEnabled').checked = true;
       document.getElementById('wizardAvatarShape').value = 'circle';
+      document.getElementById('wizardAvatarX').value = '50';
+      document.getElementById('wizardAvatarY').value = '12';
+      document.getElementById('wizardAvatarSize').value = '60';
       document.getElementById('wizardNicknameEnabled').checked = true;
-      document.getElementById('wizardNicknameFontSize').value = '24';
-      document.getElementById('wizardNicknameColor').value = '#333333';
+      document.getElementById('wizardNicknameFontSize').value = '20';
+      document.getElementById('wizardNicknameColor').value = '#FFFFFF';
+      document.getElementById('wizardNicknameX').value = '50';
+      document.getElementById('wizardNicknameY').value = '22';
+      document.getElementById('wizardQrcodeX').value = '50';
+      document.getElementById('wizardQrcodeY').value = '80';
+      document.getElementById('wizardQrcodeSize').value = '120';
       document.getElementById('wizardPosterBackground').value = '';
       document.getElementById('wizardRecommendEnabled').checked = false;
       document.getElementById('wizardRecommendText').value = '';
       document.getElementById('recommendTextGroup').style.display = 'none';
-      document.getElementById('posterPreviewBox').innerHTML = '<div class="poster-upload-placeholder"><span>🖼️</span><div>海报预览</div></div>';
+      
+      // Reset poster preview
+      document.getElementById('posterPlaceholder').style.display = 'flex';
+      document.getElementById('posterPreviewWrapper').style.display = 'none';
+      document.getElementById('posterBgPreview').src = '';
       
       // Reset style selections
       document.querySelectorAll('.style-option[data-style]').forEach(el => {
@@ -18871,13 +19935,39 @@
           document.getElementById('wizardAvatarEnabled').checked = campaign.poster_avatar_enabled !== false;
           document.getElementById('wizardAvatarShape').value = campaign.poster_avatar_shape || 'circle';
           selectAvatarShape(campaign.poster_avatar_shape || 'circle');
+          
+          // Avatar position (parse from JSONB or use defaults)
+          const avatarPos = campaign.poster_avatar_position || { x: 50, y: 12, size: 60 };
+          document.getElementById('wizardAvatarX').value = avatarPos.x || 50;
+          document.getElementById('wizardAvatarY').value = avatarPos.y || 12;
+          document.getElementById('wizardAvatarSize').value = avatarPos.size || 60;
+          
           document.getElementById('wizardNicknameEnabled').checked = campaign.poster_nickname_enabled !== false;
-          document.getElementById('wizardNicknameFontSize').value = campaign.poster_nickname_font_size || '24';
-          document.getElementById('wizardNicknameColor').value = campaign.poster_nickname_color || '#333333';
+          document.getElementById('wizardNicknameFontSize').value = campaign.poster_nickname_font_size || '20';
+          document.getElementById('wizardNicknameColor').value = campaign.poster_nickname_color || '#FFFFFF';
+          
+          // Nickname position
+          const nicknamePos = campaign.poster_nickname_position || { x: 50, y: 22 };
+          document.getElementById('wizardNicknameX').value = nicknamePos.x || 50;
+          document.getElementById('wizardNicknameY').value = nicknamePos.y || 22;
+          
+          // QR Code position
+          const qrcodePos = campaign.poster_qrcode_position || { x: 50, y: 80, size: 120 };
+          document.getElementById('wizardQrcodeX').value = qrcodePos.x || 50;
+          document.getElementById('wizardQrcodeY').value = qrcodePos.y || 80;
+          document.getElementById('wizardQrcodeSize').value = qrcodePos.size || 120;
+          
           document.getElementById('wizardPosterBackground').value = campaign.poster_background_url || '';
           if (campaign.poster_background_url) {
-            document.getElementById('posterPreviewBox').innerHTML = `<img src="${campaign.poster_background_url}" alt="Poster Preview">`;
+            document.getElementById('posterPlaceholder').style.display = 'none';
+            document.getElementById('posterPreviewWrapper').style.display = 'block';
+            document.getElementById('posterBgPreview').src = campaign.poster_background_url;
+            updatePosterPreview();
+          } else {
+            document.getElementById('posterPlaceholder').style.display = 'flex';
+            document.getElementById('posterPreviewWrapper').style.display = 'none';
           }
+          
           document.getElementById('wizardRecommendEnabled').checked = campaign.poster_recommend_enabled || false;
           document.getElementById('wizardRecommendText').value = campaign.poster_recommend_text || '';
           toggleRecommendText();
@@ -18995,6 +20085,7 @@
         if (el.dataset.shape === shape) el.classList.add('selected');
       });
       document.getElementById('wizardAvatarShape').value = shape;
+      updatePosterPreview();
     }
 
     function toggleBrandFields() {
@@ -19149,16 +20240,92 @@
     function handlePosterUpload(input) {
       const file = input.files[0];
       if (file) {
-        // For now, just show a preview. In production, upload to storage.
         const reader = new FileReader();
         reader.onload = function(e) {
-          document.getElementById('posterPreviewBox').innerHTML = `<img src="${e.target.result}" alt="Poster Preview">`;
-          // In production, upload and get URL
-          // For now, store as data URL (not recommended for production)
+          // Store the image data
           document.getElementById('wizardPosterBackground').value = e.target.result;
+          
+          // Update the preview
+          document.getElementById('posterPlaceholder').style.display = 'none';
+          document.getElementById('posterPreviewWrapper').style.display = 'block';
+          document.getElementById('posterBgPreview').src = e.target.result;
+          
+          // Update all overlay positions
+          updatePosterPreview();
         };
         reader.readAsDataURL(file);
       }
+    }
+
+    // Update poster preview with element positions
+    function updatePosterPreview() {
+      const previewBox = document.getElementById('posterPreviewBox');
+      const previewWrapper = document.getElementById('posterPreviewWrapper');
+      
+      // If no background image, don't show overlays
+      const bgImage = document.getElementById('wizardPosterBackground').value;
+      if (!bgImage) {
+        document.getElementById('posterPlaceholder').style.display = 'flex';
+        previewWrapper.style.display = 'none';
+        return;
+      }
+      
+      // Preview dimensions (actual poster is 720x1280, preview is 240x400)
+      const previewWidth = 240;
+      const previewHeight = 400;
+      const scale = previewWidth / 720; // Scale factor for positions
+      
+      // Avatar settings
+      const avatarEnabled = document.getElementById('wizardAvatarEnabled').checked;
+      const avatarShape = document.getElementById('wizardAvatarShape').value;
+      const avatarX = parseFloat(document.getElementById('wizardAvatarX').value) || 50;
+      const avatarY = parseFloat(document.getElementById('wizardAvatarY').value) || 12;
+      const avatarSize = parseFloat(document.getElementById('wizardAvatarSize').value) || 60;
+      
+      const avatarOverlay = document.getElementById('posterAvatarOverlay');
+      if (avatarEnabled) {
+        avatarOverlay.style.display = 'flex';
+        const scaledSize = avatarSize * scale;
+        avatarOverlay.style.width = scaledSize + 'px';
+        avatarOverlay.style.height = scaledSize + 'px';
+        avatarOverlay.style.left = `calc(${avatarX}% - ${scaledSize/2}px)`;
+        avatarOverlay.style.top = `${avatarY}%`;
+        avatarOverlay.className = `poster-overlay-element poster-avatar-overlay ${avatarShape}`;
+      } else {
+        avatarOverlay.style.display = 'none';
+      }
+      
+      // Nickname settings
+      const nicknameEnabled = document.getElementById('wizardNicknameEnabled').checked;
+      const nicknameFontSize = parseFloat(document.getElementById('wizardNicknameFontSize').value) || 20;
+      const nicknameColor = document.getElementById('wizardNicknameColor').value || '#FFFFFF';
+      const nicknameX = parseFloat(document.getElementById('wizardNicknameX').value) || 50;
+      const nicknameY = parseFloat(document.getElementById('wizardNicknameY').value) || 22;
+      
+      const nicknameOverlay = document.getElementById('posterNicknameOverlay');
+      if (nicknameEnabled) {
+        nicknameOverlay.style.display = 'flex';
+        const scaledFontSize = Math.max(10, nicknameFontSize * scale);
+        nicknameOverlay.querySelector('.poster-nickname-text').style.fontSize = scaledFontSize + 'px';
+        nicknameOverlay.querySelector('.poster-nickname-text').style.color = nicknameColor;
+        nicknameOverlay.style.left = `${nicknameX}%`;
+        nicknameOverlay.style.top = `${nicknameY}%`;
+        nicknameOverlay.style.transform = 'translateX(-50%)';
+      } else {
+        nicknameOverlay.style.display = 'none';
+      }
+      
+      // QR Code settings
+      const qrcodeX = parseFloat(document.getElementById('wizardQrcodeX').value) || 50;
+      const qrcodeY = parseFloat(document.getElementById('wizardQrcodeY').value) || 80;
+      const qrcodeSize = parseFloat(document.getElementById('wizardQrcodeSize').value) || 120;
+      
+      const qrcodeOverlay = document.getElementById('posterQrcodeOverlay');
+      const scaledQrSize = qrcodeSize * scale;
+      qrcodeOverlay.style.width = scaledQrSize + 'px';
+      qrcodeOverlay.style.height = scaledQrSize + 'px';
+      qrcodeOverlay.style.left = `calc(${qrcodeX}% - ${scaledQrSize/2}px)`;
+      qrcodeOverlay.style.top = `${qrcodeY}%`;
     }
 
     // Wizard Rewards Management
@@ -19346,9 +20513,23 @@
         poster_background_url: document.getElementById('wizardPosterBackground').value,
         poster_avatar_enabled: document.getElementById('wizardAvatarEnabled').checked,
         poster_avatar_shape: document.getElementById('wizardAvatarShape').value,
+        poster_avatar_position: {
+          x: parseFloat(document.getElementById('wizardAvatarX').value) || 50,
+          y: parseFloat(document.getElementById('wizardAvatarY').value) || 12,
+          size: parseFloat(document.getElementById('wizardAvatarSize').value) || 60
+        },
         poster_nickname_enabled: document.getElementById('wizardNicknameEnabled').checked,
         poster_nickname_font_size: parseInt(document.getElementById('wizardNicknameFontSize').value),
         poster_nickname_color: document.getElementById('wizardNicknameColor').value,
+        poster_nickname_position: {
+          x: parseFloat(document.getElementById('wizardNicknameX').value) || 50,
+          y: parseFloat(document.getElementById('wizardNicknameY').value) || 22
+        },
+        poster_qrcode_position: {
+          x: parseFloat(document.getElementById('wizardQrcodeX').value) || 50,
+          y: parseFloat(document.getElementById('wizardQrcodeY').value) || 80,
+          size: parseFloat(document.getElementById('wizardQrcodeSize').value) || 120
+        },
         poster_recommend_enabled: document.getElementById('wizardRecommendEnabled').checked,
         poster_recommend_text: document.getElementById('wizardRecommendText').value.trim(),
         
@@ -19653,7 +20834,8 @@
                 <td class="campaign-actions">
                   <button onclick="showEditCampaignWizard('${campaign.id}')" title="编辑">✏️</button>
                   <button onclick="copyCampaign('${campaign.id}', '${campaign.name.replace(/'/g, "\\'")}')" title="复制">📋</button>
-                  <button onclick="viewCampaignData('${campaign.id}')" title="数据">📊</button>
+                  <button onclick="viewCampaignData('${campaign.id}')" title="报表">📊</button>
+                  <button onclick="viewCampaignDebug('${campaign.id}')" title="调试">🔍</button>
                   <button onclick="toggleCampaignStatus('${campaign.id}', '${campaign.status}')" title="${campaign.status === 'active' ? '暂停' : '激活'}">${campaign.status === 'active' ? '⏸️' : '▶️'}</button>
                   <button class="btn-delete" onclick="deleteCampaign('${campaign.id}', '${campaign.name.replace(/'/g, "\\'")}')" title="删除">🗑️</button>
                 </td>
@@ -19671,8 +20853,15 @@
     }
     
     function viewCampaignData(campaignId) {
+      // Switch to Report tab and select this campaign
+      switchPanel('campaigns-report');
+      document.getElementById('reportCampaignSelect').value = campaignId;
+      loadCampaignReport();
+    }
+    
+    function viewCampaignDebug(campaignId) {
       // Switch to Debug tab and select this campaign
-      switchCampaignTab('debug');
+      switchPanel('campaigns-debug');
       document.getElementById('campaignSelect').value = campaignId;
       loadCampaignDebug();
     }
@@ -20084,7 +21273,13 @@
           
           <!-- Recent Events - Full Event History Style -->
           <div class="campaign-debug-section campaign-events-section">
-            <h4>📋 最近活动事件 (${events?.length || 0})</h4>
+            <div class="campaign-events-header">
+              <h4>📋 最近活动事件 (${events?.length || 0})</h4>
+              <div class="campaign-events-actions">
+                <button class="btn-sm btn-secondary" onclick="refreshCampaignEvents()">🔄 刷新</button>
+                ${events && events.length > 0 ? `<button class="btn-sm btn-danger" onclick="clearCampaignEvents('${campaign?.id}')">🗑️ 清除事件</button>` : ''}
+              </div>
+            </div>
             <div id="campaignEventsContainer" style="max-height: 500px; overflow-y: auto;">
               ${renderCampaignEventsTable(events || [])}
             </div>
@@ -20094,6 +21289,20 @@
       
       // Store campaign events for copy functions
       window.campaignEvents = events || [];
+      
+      // Setup event delegation for copy buttons after render
+      setTimeout(() => {
+        const container = document.getElementById('campaignEventsContainer');
+        if (container) {
+          container.querySelectorAll('.btn-copy-json').forEach(btn => {
+            btn.onclick = function(e) {
+              e.stopPropagation();
+              const index = parseInt(this.getAttribute('data-event-index'));
+              copyCampaignEventJsonDirect(index);
+            };
+          });
+        }
+      }, 100);
     }
     
     // Render campaign events table (same format as Event History)
@@ -20130,11 +21339,13 @@
           <thead>
             <tr>
               <th class="col-expand"></th>
-              <th class="col-user">User</th>
-              <th class="col-type">Event</th>
-              <th class="col-id">ID</th>
-              <th class="col-env">Env</th>
-              <th class="col-time">Time</th>
+              <th class="col-user">用户</th>
+              <th class="col-type">事件</th>
+              <th class="col-openid">OpenID (小程序)</th>
+              <th class="col-openid">OpenID (公众号)</th>
+              <th class="col-unionid">UnionID</th>
+              <th class="col-source">来源</th>
+              <th class="col-time">时间</th>
             </tr>
           </thead>
           <tbody>
@@ -20178,10 +21389,60 @@
         // Event data for expanded view
         const eventData = event.event_data || {};
         
+        // WeChat IDs - from event_data or user object
+        const openid = eventData.openid || user.openid || '-';
+        const openidOa = eventData.openid_oa || user.openid_oa || eventData.helper_openid || '-';
+        const unionid = eventData.unionid || eventData.helper_unionid || user.unionid || '-';
+        
+        // Determine user source (小程序 or 公众号)
+        const hasOpenidMp = !!(eventData.openid || user.openid);
+        const hasOpenidOa = !!(eventData.openid_oa || user.openid_oa || eventData.helper_openid);
+        const hasUnionid = !!(eventData.unionid || eventData.helper_unionid || user.unionid);
+        let userSource = '';
+        let userSourceIcon = '';
+        if (hasOpenidMp && hasOpenidOa) {
+          userSource = '小程序+公众号';
+          userSourceIcon = '🔗';
+        } else if (hasOpenidMp) {
+          userSource = '小程序';
+          userSourceIcon = '📱';
+        } else if (hasOpenidOa) {
+          userSource = '公众号';
+          userSourceIcon = '📢';
+        } else {
+          userSource = '未知';
+          userSourceIcon = '❓';
+        }
+        
+        // Help validity status (for campaign_help events)
+        let helpStatus = '';
+        let helpStatusClass = '';
+        if (event.event_type === 'campaign_help') {
+          const isValid = eventData.is_valid !== false; // default to valid if not specified
+          const helpSuccess = eventData.help_success;
+          const isNewHelp = eventData.is_new_help;
+          
+          if (helpSuccess && isNewHelp) {
+            helpStatus = '✅ 有效';
+            helpStatusClass = 'status-valid';
+          } else if (helpSuccess && !isNewHelp) {
+            helpStatus = '🔄 恢复';
+            helpStatusClass = 'status-restored';
+          } else if (!helpSuccess) {
+            helpStatus = '⚠️ 重复';
+            helpStatusClass = 'status-duplicate';
+          }
+        }
+        
         // Avatar HTML
         const avatarHtml = userAvatar 
           ? `<img class="event-user-avatar" src="${userAvatar}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="event-user-avatar-fallback" style="display:none">👤</span>`
           : `<span class="event-user-avatar-fallback">👤</span>`;
+        
+        // Format OpenID for display (truncated with copy on click)
+        const openidMpDisplay = openid !== '-' ? `<span class="openid-value" title="${openid}" onclick="event.stopPropagation(); copyToClipboard('${openid}'); this.classList.add('copied'); setTimeout(() => this.classList.remove('copied'), 1000);">${openid.substring(0, 12)}...</span>` : '<span class="no-value">❌ 无</span>';
+        const openidOaDisplay = openidOa !== '-' ? `<span class="openid-value" title="${openidOa}" onclick="event.stopPropagation(); copyToClipboard('${openidOa}'); this.classList.add('copied'); setTimeout(() => this.classList.remove('copied'), 1000);">${openidOa.substring(0, 12)}...</span>` : '<span class="no-value">❌ 无</span>';
+        const unionidDisplay = unionid !== '-' ? `<span class="openid-value unionid-present" title="${unionid}" onclick="event.stopPropagation(); copyToClipboard('${unionid}'); this.classList.add('copied'); setTimeout(() => this.classList.remove('copied'), 1000);">${unionid.substring(0, 12)}...</span>` : '<span class="no-value unionid-missing">❌ 无</span>';
         
         // Main row
         tableHtml += `
@@ -20190,23 +21451,22 @@
             <td class="event-user-cell">
               <div class="event-user-info">
                 ${avatarHtml}
-                <span class="event-user-name">${userName}</span>
+                <div class="event-user-details">
+                  <span class="event-user-name">${userName}</span>
+                </div>
               </div>
             </td>
             <td>
               <div class="event-type-cell">
                 <span class="event-type-icon">${eventType.icon}</span>
                 <span class="event-type-name">${eventType.name}</span>
+                ${helpStatus ? `<span class="help-status ${helpStatusClass}">${helpStatus}</span>` : ''}
               </div>
             </td>
-            <td class="event-id-cell">
-              <div class="event-id-actions">
-                <span class="event-id-text">${eventId}</span>
-                <button class="btn-copy-sm" onclick="event.stopPropagation(); copyCampaignEventJson(${index}, this)" title="Copy Raw JSON">📄</button>
-                <button class="btn-copy-sm" onclick="event.stopPropagation(); copyEventId('${fullEventId}', this)" title="Copy Event ID">📋</button>
-              </div>
-            </td>
-            <td class="event-env-cell" title="${envLabel}">${envIcon}</td>
+            <td class="event-openid-cell">${openidMpDisplay}</td>
+            <td class="event-openid-cell">${openidOaDisplay}</td>
+            <td class="event-unionid-cell">${unionidDisplay}</td>
+            <td class="event-source-cell"><span title="${userSource}">${userSourceIcon}</span></td>
             <td class="event-time-cell">${time}</td>
           </tr>
         `;
@@ -20214,52 +21474,40 @@
         // Details row (hidden by default)
         tableHtml += `
           <tr class="event-details-row" id="campaignEventDetails${index}">
-            <td colspan="6">
+            <td colspan="8">
               <div class="event-details-inline">
-                <div class="detail-group">
-                  <span class="detail-label">Event ID</span>
-                  <span class="detail-value mono">${fullEventId}</span>
+                <div class="detail-section">
+                  <div class="detail-section-title">📋 基本信息</div>
+                  <div class="detail-group">
+                    <span class="detail-label">Event ID</span>
+                    <span class="detail-value mono copyable" onclick="event.stopPropagation(); copyToClipboard('${fullEventId}'); this.classList.add('copied'); setTimeout(() => this.classList.remove('copied'), 1000);">${fullEventId}</span>
+                  </div>
+                  <div class="detail-group">
+                    <span class="detail-label">User ID</span>
+                    <span class="detail-value mono copyable" onclick="event.stopPropagation(); copyToClipboard('${fullUserId}'); this.classList.add('copied'); setTimeout(() => this.classList.remove('copied'), 1000);">${fullUserId}</span>
+                  </div>
+                  ${event.event_type === 'campaign_help' ? `
+                  <div class="detail-group">
+                    <span class="detail-label">助力状态</span>
+                    <span class="detail-value">${helpStatus || '未知'}</span>
+                  </div>
+                  <div class="detail-group">
+                    <span class="detail-label">助力结果</span>
+                    <span class="detail-value">${eventData.help_message || '-'}</span>
+                  </div>
+                  <div class="detail-group">
+                    <span class="detail-label">当前助力数</span>
+                    <span class="detail-value">${eventData.new_helper_count !== undefined ? eventData.new_helper_count : '-'}</span>
+                  </div>
+                  ` : ''}
                 </div>
-                <div class="detail-group">
-                  <span class="detail-label">User ID</span>
-                  <span class="detail-value mono">${fullUserId}</span>
+                <div class="detail-section detail-section-wide">
+                  <div class="detail-section-title">📄 JSON Payload</div>
+                  <div class="json-payload-container">
+                    <pre class="json-payload">${JSON.stringify(eventData, null, 2)}</pre>
+                    <button class="btn-sm btn-copy-payload" onclick="event.stopPropagation(); copyToClipboard(JSON.stringify(window.campaignEvents[${index}], null, 2)); this.textContent='✅ 已复制'; setTimeout(() => this.textContent='复制完整JSON', 1500);">复制完整JSON</button>
+                  </div>
                 </div>
-                <div class="detail-group">
-                  <span class="detail-label">Location</span>
-                  <span class="detail-value">${location}</span>
-                </div>
-                <div class="detail-group">
-                  <span class="detail-label">IP</span>
-                  <span class="detail-value">${ipAddress}</span>
-                </div>
-                <div class="detail-group">
-                  <span class="detail-label">Env</span>
-                  <span class="detail-value">${envLabel}</span>
-                </div>
-                ${deviceType ? `
-                <div class="detail-group">
-                  <span class="detail-label">Device</span>
-                  <span class="detail-value">${deviceBrand || deviceType}${osName ? ' (' + osName + (osVersion ? ' ' + osVersion : '') + ')' : ''}</span>
-                </div>
-                ` : ''}
-                ${appVersion ? `
-                <div class="detail-group">
-                  <span class="detail-label">WeChat</span>
-                  <span class="detail-value">${appVersion}</span>
-                </div>
-                ` : ''}
-                ${eventData.reward_name ? `
-                <div class="detail-group">
-                  <span class="detail-label">Reward</span>
-                  <span class="detail-value">${eventData.reward_name}</span>
-                </div>
-                ` : ''}
-                ${eventData.helper_openid ? `
-                <div class="detail-group">
-                  <span class="detail-label">Helper</span>
-                  <span class="detail-value mono">${eventData.helper_openid}</span>
-                </div>
-                ` : ''}
               </div>
             </td>
           </tr>
@@ -20286,7 +21534,95 @@
       }
     }
     
-    // Copy campaign event JSON
+    // Refresh campaign events
+    async function refreshCampaignEvents() {
+      const select = document.getElementById('debugCampaignSelect');
+      if (select && select.value) {
+        loadCampaignDebugInfo(select.value);
+      }
+    }
+    
+    // Clear all campaign events
+    async function clearCampaignEvents(campaignId) {
+      if (!campaignId) {
+        alert('活动 ID 无效');
+        return;
+      }
+      
+      if (!confirm('确定要清除该活动的所有事件历史吗？\n\n此操作无法撤销！')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/testing/reset-campaign/${campaignId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          alert(`✅ 已清除 ${data.data?.events_deleted || 0} 条事件记录`);
+          // Reload the campaign debug panel
+          const select = document.getElementById('debugCampaignSelect');
+          if (select && select.value) {
+            loadCampaignDebug(select.value);
+          }
+        } else {
+          alert('清除失败: ' + (data.error || '未知错误'));
+        }
+      } catch (error) {
+        console.error('Clear campaign events error:', error);
+        alert('清除失败: ' + error.message);
+      }
+    }
+    
+    // Copy campaign event JSON - direct copy
+    function copyCampaignEventJsonDirect(index) {
+      const eventData = window.campaignEvents?.[index];
+      if (!eventData) {
+        console.error('Campaign event data not found for index:', index);
+        alert('事件数据未找到');
+        return;
+      }
+      
+      const jsonStr = JSON.stringify(eventData, null, 2);
+      
+      // Use modern clipboard API with fallback
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(jsonStr).then(() => {
+          alert('✅ JSON 已复制到剪贴板');
+        }).catch(err => {
+          console.error('Clipboard write failed:', err);
+          fallbackCopyToClipboard(jsonStr);
+        });
+      } else {
+        fallbackCopyToClipboard(jsonStr);
+      }
+    }
+    
+    // Fallback copy function
+    function fallbackCopyToClipboard(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        alert('✅ JSON 已复制到剪贴板');
+      } catch (err) {
+        console.error('Fallback copy failed:', err);
+        alert('复制失败，请手动复制');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // Copy campaign event JSON (legacy with button feedback)
     function copyCampaignEventJson(index, btn) {
       const eventData = window.campaignEvents?.[index];
       if (!eventData) {
@@ -21002,7 +22338,7 @@
     }
 
     async function resetContact(contactId) {
-      if (!confirm('Reset all campaign data for this user?\n\nThis will delete:\n• Campaign participations\n• Helper records\n• Reward claims\n\nThis cannot be undone!')) return;
+      if (!confirm('重置活动数据？\n\n将删除：\n• 活动参与记录\n• 助力记录\n• 奖励领取记录\n\n此操作不可撤销！')) return;
       
       try {
         const response = await fetch(`${API_BASE_URL}/admin/contacts/${contactId}/reset`, {
@@ -21011,15 +22347,38 @@
         });
         
         if (response.ok) {
-          alert('User data reset');
+          alert('用户活动数据已重置');
           loadContacts();
         } else {
           const data = await response.json();
-          alert('Failed: ' + (data.error || 'Unknown error'));
+          alert('操作失败: ' + (data.error || '未知错误'));
         }
       } catch (error) {
         console.error('Reset contact error:', error);
-        alert('Error resetting user');
+        alert('重置用户数据时出错');
+      }
+    }
+
+    async function fullResetContact(contactId) {
+      if (!confirm('⚠️ 完全重置？\n\n将清除：\n• 活动参与记录\n• 助力记录\n• 奖励领取记录\n• 公众号关联（openid_oa）\n• 微信头像/昵称\n• 所有二维码\n\n用户需要重新关注公众号！\n此操作不可撤销！')) return;
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/contacts/${contactId}/full-reset`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          alert('用户已完全重置\n\n' + JSON.stringify(data.data, null, 2));
+          loadContacts();
+        } else {
+          const data = await response.json();
+          alert('操作失败: ' + (data.error || '未知错误'));
+        }
+      } catch (error) {
+        console.error('Full reset contact error:', error);
+        alert('完全重置用户时出错');
       }
     }
 
@@ -21385,79 +22744,146 @@
           <div class="wizard-section-title">🖼️ 海报设置</div>
           <div class="poster-preview-container">
             <div class="poster-settings">
-              <!-- Avatar Toggle -->
-              <div class="toggle-group">
-                <div class="toggle-info">
-                  <div class="toggle-label">用户头像</div>
-                  <div class="toggle-hint">在海报上显示用户微信头像</div>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="wizardAvatarEnabled" checked>
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div id="avatarShapeGroup" class="wizard-form-group" style="margin-top: 12px;">
-                <label>头像形状</label>
-                <div class="style-options">
-                  <div class="style-option selected" data-shape="circle" onclick="selectAvatarShape('circle')">
-                    <span>⭕ 圆形</span>
-                  </div>
-                  <div class="style-option" data-shape="square" onclick="selectAvatarShape('square')">
-                    <span>⬜ 方形</span>
-                  </div>
-                </div>
-                <input type="hidden" id="wizardAvatarShape" value="circle">
-              </div>
-
-              <!-- Nickname Toggle -->
-              <div class="toggle-group" style="margin-top: 16px;">
-                <div class="toggle-info">
-                  <div class="toggle-label">用户昵称</div>
-                  <div class="toggle-hint">在海报上显示用户微信昵称</div>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="wizardNicknameEnabled" checked>
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div id="nicknameStyleGroup" style="margin-top: 12px; display: flex; gap: 16px;">
-                <div class="wizard-form-group" style="flex: 1;">
-                  <label>字体大小</label>
-                  <select id="wizardNicknameFontSize">
-                    <option value="18">18px</option>
-                    <option value="20">20px</option>
-                    <option value="24" selected>24px</option>
-                    <option value="28">28px</option>
-                    <option value="32">32px</option>
-                  </select>
-                </div>
-                <div class="wizard-form-group" style="flex: 1;">
-                  <label>字体颜色</label>
-                  <input type="color" id="wizardNicknameColor" value="#333333" style="height: 38px; padding: 4px;">
-                </div>
-              </div>
-
-              <!-- Poster Background -->
-              <div class="wizard-form-group" style="margin-top: 20px;">
+              <!-- Poster Background Upload -->
+              <div class="wizard-form-group">
                 <label>上传海报背景 <span class="required">*</span></label>
-                <div class="activation-codes-upload" onclick="document.getElementById('posterBgInput').click()">
+                <div class="activation-codes-upload" onclick="document.getElementById('posterBgInput').click()" style="padding: 20px;">
                   <div style="font-size: 32px; margin-bottom: 8px;">📷</div>
-                  <div>点击上传图片</div>
-                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">建议尺寸: 720 × 1280</div>
+                  <div>点击上传背景图片</div>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">建议尺寸: 720 × 1280 像素</div>
                 </div>
                 <input type="file" id="posterBgInput" accept="image/*" style="display: none;" onchange="handlePosterUpload(this)">
                 <input type="hidden" id="wizardPosterBackground">
-                <div class="wizard-form-hint" style="margin-top: 8px;">
-                  ⚠️ 请在海报背景上预留头像、昵称、二维码的位置空间
+              </div>
+
+              <!-- Poster Hint Box -->
+              <div class="poster-hint-box">
+                <h4>💡 设计建议</h4>
+                <ul>
+                  <li>海报背景需预留头像、昵称、二维码的空间</li>
+                  <li>建议二维码放置在海报底部中央或右下角</li>
+                  <li>头像和昵称可放在顶部或二维码附近</li>
+                  <li>右侧预览会实时显示元素位置</li>
+                </ul>
+              </div>
+
+              <!-- Avatar Settings -->
+              <div class="toggle-group" style="margin-top: 20px;">
+                <div class="toggle-info">
+                  <div class="toggle-label">👤 用户头像</div>
+                  <div class="toggle-hint">在海报上显示用户微信头像</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="wizardAvatarEnabled" checked onchange="updatePosterPreview()">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div id="avatarSettingsGroup" style="margin-top: 12px;">
+                <div class="wizard-form-group">
+                  <label>头像形状</label>
+                  <div class="style-options">
+                    <div class="style-option selected" data-shape="circle" onclick="selectAvatarShape('circle')">
+                      <span>⭕ 圆形</span>
+                    </div>
+                    <div class="style-option" data-shape="square" onclick="selectAvatarShape('square')">
+                      <span>⬜ 方形</span>
+                    </div>
+                  </div>
+                  <input type="hidden" id="wizardAvatarShape" value="circle">
+                </div>
+                <div class="position-control-group">
+                  <div class="position-control">
+                    <label>X 位置 (%)</label>
+                    <input type="number" id="wizardAvatarX" value="50" min="0" max="100" onchange="updatePosterPreview()">
+                  </div>
+                  <div class="position-control">
+                    <label>Y 位置 (%)</label>
+                    <input type="number" id="wizardAvatarY" value="12" min="0" max="100" onchange="updatePosterPreview()">
+                  </div>
+                  <div class="position-control">
+                    <label>尺寸 (px)</label>
+                    <input type="number" id="wizardAvatarSize" value="60" min="30" max="120" onchange="updatePosterPreview()">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Nickname Settings -->
+              <div class="toggle-group" style="margin-top: 16px;">
+                <div class="toggle-info">
+                  <div class="toggle-label">✏️ 用户昵称</div>
+                  <div class="toggle-hint">在海报上显示用户微信昵称</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="wizardNicknameEnabled" checked onchange="updatePosterPreview()">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div id="nicknameSettingsGroup" style="margin-top: 12px;">
+                <div style="display: flex; gap: 12px;">
+                  <div class="wizard-form-group" style="flex: 1;">
+                    <label>字体大小</label>
+                    <select id="wizardNicknameFontSize" onchange="updatePosterPreview()">
+                      <option value="14">14px</option>
+                      <option value="16">16px</option>
+                      <option value="18">18px</option>
+                      <option value="20" selected>20px</option>
+                      <option value="24">24px</option>
+                      <option value="28">28px</option>
+                    </select>
+                  </div>
+                  <div class="wizard-form-group" style="flex: 1;">
+                    <label>字体颜色</label>
+                    <input type="color" id="wizardNicknameColor" value="#FFFFFF" style="height: 38px; padding: 4px;" onchange="updatePosterPreview()">
+                  </div>
+                </div>
+                <div class="position-control-group">
+                  <div class="position-control">
+                    <label>X 位置 (%)</label>
+                    <input type="number" id="wizardNicknameX" value="50" min="0" max="100" onchange="updatePosterPreview()">
+                  </div>
+                  <div class="position-control">
+                    <label>Y 位置 (%)</label>
+                    <input type="number" id="wizardNicknameY" value="22" min="0" max="100" onchange="updatePosterPreview()">
+                  </div>
+                  <div class="position-control">
+                    <label></label>
+                    <span style="font-size: 11px; color: var(--text-muted); text-align: center;">自动宽度</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- QR Code Settings -->
+              <div class="toggle-group" style="margin-top: 16px;">
+                <div class="toggle-info">
+                  <div class="toggle-label">📱 二维码</div>
+                  <div class="toggle-hint">用户专属裂变二维码位置</div>
+                </div>
+                <span style="font-size: 12px; color: var(--success);">✓ 必需</span>
+              </div>
+
+              <div id="qrcodeSettingsGroup" style="margin-top: 12px;">
+                <div class="position-control-group">
+                  <div class="position-control">
+                    <label>X 位置 (%)</label>
+                    <input type="number" id="wizardQrcodeX" value="50" min="0" max="100" onchange="updatePosterPreview()">
+                  </div>
+                  <div class="position-control">
+                    <label>Y 位置 (%)</label>
+                    <input type="number" id="wizardQrcodeY" value="80" min="0" max="100" onchange="updatePosterPreview()">
+                  </div>
+                  <div class="position-control">
+                    <label>尺寸 (px)</label>
+                    <input type="number" id="wizardQrcodeSize" value="120" min="60" max="200" onchange="updatePosterPreview()">
+                  </div>
                 </div>
               </div>
 
               <!-- Recommend Text Toggle -->
               <div class="toggle-group" style="margin-top: 20px;">
                 <div class="toggle-info">
-                  <div class="toggle-label">推荐语</div>
+                  <div class="toggle-label">💬 推荐语</div>
                   <div class="toggle-hint">用户分享海报时可一键复制的推荐语</div>
                 </div>
                 <label class="toggle-switch">
@@ -21470,12 +22896,44 @@
               </div>
             </div>
 
+            <!-- Poster Preview -->
             <div class="poster-preview">
               <div class="poster-preview-box" id="posterPreviewBox">
-                <div class="poster-upload-placeholder">
+                <div class="poster-upload-placeholder" id="posterPlaceholder">
                   <span>🖼️</span>
                   <div>海报预览</div>
+                  <div style="font-size: 11px; margin-top: 4px;">请先上传背景图片</div>
                 </div>
+                <!-- Dynamic Preview Wrapper -->
+                <div class="poster-preview-wrapper" id="posterPreviewWrapper" style="display: none;">
+                  <img class="poster-bg-image" id="posterBgPreview" src="" alt="">
+                  <!-- Avatar Overlay -->
+                  <div class="poster-overlay-element poster-avatar-overlay circle" id="posterAvatarOverlay">
+                    <div class="poster-avatar-inner">头像</div>
+                    <span class="poster-element-label">头像</span>
+                  </div>
+                  <!-- Nickname Overlay -->
+                  <div class="poster-overlay-element poster-nickname-overlay" id="posterNicknameOverlay">
+                    <span class="poster-nickname-text">用户昵称</span>
+                    <span class="poster-element-label">昵称</span>
+                  </div>
+                  <!-- QR Code Overlay -->
+                  <div class="poster-overlay-element poster-qrcode-overlay" id="posterQrcodeOverlay">
+                    <div class="poster-qrcode-inner">
+                      <div class="poster-qrcode-grid">
+                        <span></span><span></span><span></span>
+                        <span></span><span style="background: transparent;"></span><span></span>
+                        <span></span><span></span><span></span>
+                      </div>
+                      <span>二维码</span>
+                    </div>
+                    <span class="poster-element-label">二维码</span>
+                  </div>
+                </div>
+              </div>
+              <div class="poster-dimensions-info">
+                <span>预览尺寸: 240 × 400</span>
+                <span>实际尺寸: 720 × 1280</span>
               </div>
             </div>
           </div>

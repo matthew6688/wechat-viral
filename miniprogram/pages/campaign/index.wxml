@@ -1,232 +1,196 @@
-<!--pages/campaign/index.wxml-->
-<wxs module="utils">
-  module.exports = {
-    formatTime: function(dateString) {
-      if (!dateString) return '';
-      var date = getDate(dateString);
-      var month = (date.getMonth() + 1).toString();
-      if (month.length < 2) month = '0' + month;
-      var day = date.getDate().toString();
-      if (day.length < 2) day = '0' + day;
-      var hours = date.getHours().toString();
-      if (hours.length < 2) hours = '0' + hours;
-      var minutes = date.getMinutes().toString();
-      if (minutes.length < 2) minutes = '0' + minutes;
-      return month + '-' + day + ' ' + hours + ':' + minutes;
-    }
-  };
-</wxs>
-<view class="campaign-container">
-  <!-- Loading State -->
-  <view wx:if="{{loading}}" class="loading-state">
+<!--pages/campaign/index.wxml - Apple 极简风格-->
+<view class="page">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
     <view class="loading-spinner"></view>
-    <text class="loading-text">加载中...</text>
+    <text class="loading-text">加载中</text>
   </view>
 
-  <!-- Campaign Content -->
-  <view wx:else>
-    <!-- Campaign Header -->
-    <view class="campaign-header">
-      <image 
-        wx:if="{{campaign.cover_image_url}}" 
-        class="cover-image" 
-        src="{{campaign.cover_image_url}}" 
-        mode="aspectFill"
-      />
-      <view wx:else class="cover-placeholder">
-        <text class="placeholder-icon">🎁</text>
+  <!-- 主内容 -->
+  <view class="content" wx:else>
+    <!-- 活动头部 -->
+    <view class="header">
+      <view class="header-top">
+        <view class="badge-status {{campaign.status === 'active' ? 'badge-active' : 'badge-ended'}}">
+          {{campaign.status === 'active' ? '进行中' : '已结束'}}
+        </view>
+        <view class="header-actions">
+          <view class="action-btn" bindtap="refreshPage">
+            <text class="icon">↻</text>
+          </view>
+        </view>
       </view>
-      <view class="header-overlay">
-        <text class="campaign-name">{{campaign.name}}</text>
-        <text class="campaign-desc">{{campaign.description}}</text>
-      </view>
+      
+      <view class="campaign-title">{{campaign.name || '活动名称'}}</view>
+      <view class="campaign-subtitle" wx:if="{{campaign.description}}">{{campaign.description}}</view>
     </view>
 
-    <!-- Progress Section -->
-    <view class="section-card progress-section">
+    <!-- 进度卡片 -->
+    <view class="card progress-card">
       <view class="progress-header">
-        <text class="section-title">助力进度</text>
-        <text class="helper-count">{{participant.helper_count || 0}} 人已助力</text>
+        <view class="progress-label">助力进度</view>
+        <view class="progress-count">
+          <text class="count-current">{{participation.helper_count || 0}}</text>
+          <text class="count-divider">/</text>
+          <text class="count-total">{{campaign.required_helpers || 8}}</text>
+        </view>
       </view>
       
-      <!-- Progress Bar -->
       <view class="progress-bar-container">
-        <view class="progress-bar">
-          <view 
-            class="progress-fill" 
-            style="width: {{progressPercent}}%"
-          ></view>
-        </view>
-        <view class="progress-milestones">
-          <view 
-            wx:for="{{rewards}}" 
-            wx:key="id" 
-            class="milestone {{(participant.helper_count || 0) >= item.helpers_required ? 'achieved' : ''}}"
-            style="left: {{item.helpers_required === 0 ? 0 : (item.helpers_required / maxHelpers * 100)}}%"
-          >
-            <view class="milestone-dot"></view>
-            <text class="milestone-label">{{item.helpers_required}}人</text>
-          </view>
-        </view>
-      </view>
-
-      <!-- Next Reward Hint -->
-      <view wx:if="{{nextReward}}" class="next-reward-hint">
-        <text class="hint-text">
-          还差 <text class="highlight">{{nextReward.helpers_required - (participant.helper_count || 0)}}</text> 人解锁
-          <text class="reward-name">「{{nextReward.reward_name}}」</text>
-        </text>
-      </view>
-      <view wx:else class="all-unlocked-hint">
-        <text class="hint-text">🎉 恭喜！已解锁全部奖励</text>
-      </view>
-    </view>
-
-    <!-- Rewards Section -->
-    <view class="section-card rewards-section">
-      <text class="section-title">奖励阶梯</text>
-      <view class="rewards-list">
-        <view 
-          wx:for="{{rewardsWithStatus}}" 
-          wx:key="index" 
-          class="reward-item {{item.canClaim || item.claimed ? 'unlocked' : 'locked'}} {{item.claimed ? 'claimed' : ''}}"
-        >
-          <view class="reward-tier">
-            <text class="tier-number">{{item.reward.helpers_required}}</text>
-            <text class="tier-label">人助力</text>
-          </view>
-          <view class="reward-info">
-            <text class="reward-name">{{item.reward.reward_name}}</text>
-            <text class="reward-desc">{{item.reward.reward_description}}</text>
-          </view>
-          <view class="reward-action">
-            <!-- Already claimed -->
-            <button 
-              wx:if="{{item.claimed}}" 
-              class="claim-btn claimed"
-              data-reward="{{item.reward}}"
-              data-claim="{{item.claim}}"
-              bindtap="viewReward"
-            >
-              <text>查看奖品</text>
-            </button>
-            <!-- Can claim -->
-            <button 
-              wx:elif="{{item.canClaim}}" 
-              class="claim-btn claimable"
-              data-reward-id="{{item.reward.id}}"
-              bindtap="claimReward"
-            >
-              <text>领取</text>
-            </button>
-            <!-- Locked -->
-            <view wx:else class="status-locked">
-              <text class="lock-icon">🔒</text>
-              <text class="lock-text">还差{{item.reward.helpers_required - (participant.helper_count || 0)}}人</text>
-            </view>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- Share Section -->
-    <view class="section-card share-section">
-      <text class="section-title">邀请好友助力</text>
-      <view class="referral-code-box">
-        <text class="code-label">我的邀请码</text>
-        <text class="code-value">{{participant.referral_code || '--'}}</text>
-        <button class="copy-btn" bindtap="copyCode">复制</button>
+        <view class="progress-bar-bg"></view>
+        <view class="progress-bar-fill" style="width: {{progressPercent}}%"></view>
       </view>
       
-      <!-- QR Code Preview -->
-      <view class="qrcode-section">
-        <view wx:if="{{qrCodeLoading}}" class="qrcode-loading">
-          <text>生成二维码中...</text>
+      <view class="progress-footer">
+        <view class="progress-info">
+          <text class="info-text" wx:if="{{remainingHelpers > 0}}">还需 {{remainingHelpers}} 人即可完成</text>
+          <text class="info-text success" wx:else>🎉 恭喜，任务已完成！</text>
         </view>
-        <image 
-          wx:elif="{{qrCodeUrl}}" 
-          class="qrcode-image" 
-          src="{{qrCodeUrl}}" 
-          mode="aspectFit"
-          bindtap="previewQRCode"
-        />
-        <view wx:else class="qrcode-placeholder" bindtap="generateQRCode">
-          <text class="placeholder-text">点击生成二维码</text>
-        </view>
-      </view>
-
-      <!-- Action Buttons -->
-      <view class="action-buttons">
-        <button class="action-btn primary" bindtap="generatePoster">
-          <text class="btn-icon">📷</text>
-          <text class="btn-text">生成海报</text>
-        </button>
-        <button class="action-btn secondary" open-type="share">
-          <text class="btn-icon">📤</text>
-          <text class="btn-text">分享给好友</text>
-        </button>
       </view>
     </view>
 
-    <!-- Helpers Section -->
-    <view class="section-card helpers-section">
-      <view class="section-header">
-        <text class="section-title">助力好友</text>
-        <view class="header-right">
-          <text class="helper-total">共 {{helpers.length || 0}} 人</text>
-          <button class="refresh-btn {{refreshing ? 'refreshing' : ''}}" bindtap="refreshProgress" disabled="{{refreshing}}">
-            <text class="refresh-icon">🔄</text>
-          </button>
-        </view>
-      </view>
-      <view wx:if="{{helpers && helpers.length > 0}}" class="helpers-list">
-        <view wx:for="{{helpers}}" wx:key="id" class="helper-item">
-          <view class="helper-avatar-container">
-            <image wx:if="{{item.avatar_url}}" class="helper-avatar" src="{{item.avatar_url}}" mode="aspectFill"></image>
-            <view wx:else class="helper-avatar-placeholder">
-              <text>{{index + 1}}</text>
+    <!-- 奖品列表 -->
+    <view class="section">
+      <view class="section-header">奖品</view>
+      <view class="card-inset">
+        <view class="reward-list">
+          <view 
+            class="reward-item {{index <= currentRewardIndex ? 'reward-unlocked' : 'reward-locked'}}"
+            wx:for="{{rewards}}" 
+            wx:key="id"
+          >
+            <view class="reward-icon-wrap">
+              <image 
+                class="reward-icon" 
+                src="{{item.reward_image_url || '/images/gift.png'}}" 
+                mode="aspectFill"
+              />
+              <view class="reward-check" wx:if="{{index < currentRewardIndex}}">✓</view>
+            </view>
+            <view class="reward-info">
+              <view class="reward-name">{{item.reward_name || item.name}}</view>
+              <view class="reward-requirement">需 {{item.required_helpers || item.helpers_required}} 人助力</view>
+            </view>
+            <view class="reward-status">
+              <view class="status-badge unlocked" wx:if="{{index < currentRewardIndex}}">已解锁</view>
+              <view class="status-badge current" wx:elif="{{index === currentRewardIndex}}">进行中</view>
+              <view class="status-badge locked" wx:else>未解锁</view>
             </view>
           </view>
-          <view class="helper-info">
-            <text class="helper-name">{{item.display_name || '微信用户'}}</text>
-            <text class="helper-time">{{utils.formatTime(item.created_at)}}</text>
-          </view>
-          <view class="helper-status {{item.is_valid ? 'valid' : 'invalid'}}">
-            <text>{{item.is_valid ? '有效' : '已取关'}}</text>
-          </view>
         </view>
-      </view>
-      <view wx:else class="empty-helpers">
-        <text class="empty-icon">👥</text>
-        <text class="empty-text">还没有好友助力</text>
-        <text class="empty-hint">分享给好友，邀请他们扫码关注为您助力！</text>
       </view>
     </view>
 
-    <!-- Debug Info (for development) -->
-    <view wx:if="{{showDebug}}" class="debug-section">
-      <text class="debug-title">Debug Info</text>
-      <text class="debug-text">Campaign ID: {{campaign.id}}</text>
-      <text class="debug-text">Scene: {{sceneStr}}</text>
-      <text class="debug-text">Participant ID: {{participant.id}}</text>
-      <text class="debug-text">Referral Code: {{participant.referral_code}}</text>
+    <!-- 分享海报 -->
+    <view class="section">
+      <view class="section-header">邀请好友</view>
+      <view class="card-inset">
+        <view class="share-card">
+          <view class="poster-preview" wx:if="{{posterUrl}}">
+            <image class="poster-image" src="{{posterUrl}}" mode="aspectFit" />
+          </view>
+          <view class="poster-placeholder" wx:else>
+            <view class="placeholder-icon">🖼</view>
+            <view class="placeholder-text">点击生成专属海报</view>
+          </view>
+          
+          <view class="share-actions">
+            <button class="share-btn primary" bindtap="generatePoster" wx:if="{{!posterUrl}}">
+              生成海报
+            </button>
+            <button class="share-btn primary" bindtap="savePoster" wx:else>
+              保存到相册
+            </button>
+            <button class="share-btn secondary" open-type="share">
+              分享给好友
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 助力好友 -->
+    <view class="section" wx:if="{{helpers && helpers.length > 0}}">
+      <view class="section-header">
+        <text>助力好友</text>
+        <text class="section-count">{{helpers.length}}</text>
+      </view>
+      <view class="card-inset">
+        <view class="helper-list">
+          <view class="helper-item" wx:for="{{helpers}}" wx:key="id">
+            <image 
+              class="helper-avatar" 
+              src="{{item.wechat_avatar_url || item.helper_avatar || '/images/default-avatar.png'}}" 
+              mode="aspectFill"
+            />
+            <view class="helper-info">
+              <view class="helper-name">{{item.wechat_nickname || item.helper_name || '微信用户'}}</view>
+              <view class="helper-time">{{item.created_at_formatted || item.help_time}}</view>
+            </view>
+            <view class="helper-status valid" wx:if="{{item.is_valid !== false}}">有效</view>
+            <view class="helper-status invalid" wx:else>无效</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="section" wx:if="{{!helpers || helpers.length === 0}}">
+      <view class="section-header">助力好友</view>
+      <view class="card-inset">
+        <view class="empty-state">
+          <view class="empty-icon">👥</view>
+          <view class="empty-title">暂无助力</view>
+          <view class="empty-text">分享海报邀请好友来助力吧</view>
+        </view>
+      </view>
     </view>
   </view>
 
-  <!-- Profile Authorization Modal -->
-  <view wx:if="{{showProfileModal}}" class="modal-overlay" catchtouchmove="preventTouchMove">
-    <view class="modal-container profile-modal">
-      <view class="modal-header">
-        <text class="modal-title">完善个人信息</text>
+  <!-- 关注公众号提示 -->
+  <view class="modal-overlay" wx:if="{{showOAFollowModal}}" bindtap="closeOAFollowModal">
+    <view class="modal-sheet" catchtap>
+      <view class="modal-handle"></view>
+      <view class="modal-content">
+        <view class="modal-header">
+          <view class="modal-title">关注公众号</view>
+        </view>
+        <view class="modal-body">
+          <view class="qrcode-wrap">
+            <image 
+              class="qrcode-image" 
+              src="{{oaFollowQRCode}}" 
+              mode="aspectFit"
+              show-menu-by-longpress="{{true}}"
+            />
+          </view>
+          <view class="qrcode-tips">
+            <view class="tip-item">1. 长按识别二维码关注公众号</view>
+            <view class="tip-item">2. 关注后即可接收助力通知</view>
+          </view>
+        </view>
+        <view class="modal-footer">
+          <button class="modal-btn" bindtap="closeOAFollowModal">我已关注</button>
+        </view>
       </view>
-      <view class="modal-body">
-        <view class="profile-prompt-icon">👤</view>
-        <text class="profile-prompt-text">授权您的微信头像和昵称</text>
-        <text class="profile-prompt-hint">让好友更容易认出您</text>
-      </view>
-      <view class="modal-footer">
-        <button class="btn-secondary" bindtap="skipProfile">暂不授权</button>
-        <button class="btn-primary" bindtap="authorizeProfile">立即授权</button>
+    </view>
+  </view>
+
+  <!-- 授权提示 -->
+  <view class="modal-overlay" wx:if="{{showAuthModal}}" bindtap="closeAuthModal">
+    <view class="modal-center" catchtap>
+      <view class="modal-content">
+        <view class="modal-header center">
+          <view class="modal-title">授权提示</view>
+        </view>
+        <view class="modal-body center">
+          <view class="auth-icon">👤</view>
+          <view class="auth-text">为了更好的体验，请允许获取您的微信头像和昵称</view>
+        </view>
+        <view class="modal-footer">
+          <button class="modal-btn secondary" bindtap="closeAuthModal">取消</button>
+          <button class="modal-btn primary" bindtap="authorizeProfile">允许</button>
+        </view>
       </view>
     </view>
   </view>

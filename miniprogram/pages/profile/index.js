@@ -50,12 +50,25 @@ Page({
     try {
       const result = await app.getUserProfile();
       if (result) {
+        // 直接使用返回的数据更新 UI，不等待服务器响应
+        const currentUser = this.data.user || {};
+        this.setData({
+          user: {
+            ...currentUser,
+            wechat_nickname: result.nickName,
+            wechat_avatar_url: result.avatarUrl,
+          }
+        });
+        
         wx.showToast({
           title: '授权成功',
           icon: 'success',
         });
-        // Refresh user data
-        this.loadUser();
+        
+        // 延迟后再次同步，确保服务器数据已更新
+        setTimeout(() => {
+          this.loadUser();
+        }, 1500);
       }
     } catch (error) {
       console.error('Authorize profile error:', error);
@@ -89,14 +102,72 @@ Page({
     try {
       const result = await app.getUserProfile();
       if (result) {
+        // 直接使用返回的数据更新 UI
+        const currentUser = this.data.user || {};
+        this.setData({
+          user: {
+            ...currentUser,
+            wechat_nickname: result.nickName,
+            wechat_avatar_url: result.avatarUrl,
+          }
+        });
+        
         wx.showToast({
           title: '更新成功',
           icon: 'success',
         });
-        this.loadUser();
+        
+        // 延迟后再次同步
+        setTimeout(() => {
+          this.loadUser();
+        }, 1500);
       }
     } catch (error) {
       console.error('Update profile error:', error);
+      wx.showToast({
+        title: '授权失败',
+        icon: 'none',
+      });
+    }
+  },
+
+  /**
+   * Force re-authorize WeChat profile (clears skip flag)
+   */
+  async forceReauthorize() {
+    // Clear the skip flag
+    wx.removeStorageSync('profile_auth_skipped');
+    
+    try {
+      const result = await app.getUserProfile();
+      if (result) {
+        // 直接使用返回的数据更新 UI
+        const currentUser = this.data.user || {};
+        this.setData({
+          user: {
+            ...currentUser,
+            wechat_nickname: result.nickName,
+            wechat_avatar_url: result.avatarUrl,
+          }
+        });
+        
+        wx.showToast({
+          title: '授权成功',
+          icon: 'success',
+        });
+        
+        // 延迟后再次同步
+        setTimeout(() => {
+          this.loadUser();
+        }, 1500);
+      } else {
+        wx.showToast({
+          title: '授权被取消',
+          icon: 'none',
+        });
+      }
+    } catch (error) {
+      console.error('Reauthorize error:', error);
       wx.showToast({
         title: '授权失败',
         icon: 'none',

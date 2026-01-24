@@ -1,94 +1,117 @@
-<view class="home-container">
-  <!-- User Header Card -->
-  <view class="user-header">
-    <view class="user-info">
-      <view class="avatar-container">
-        <image wx:if="{{user && (user.wechat_avatar_url || user.avatar_url)}}" class="avatar-image" src="{{user.wechat_avatar_url || user.avatar_url}}" mode="aspectFill" />
-        <view wx:else class="avatar-badge">{{user && user.name ? user.name.charAt(0) : 'U'}}</view>
+<!--pages/home/index.wxml - Apple 极简风格-->
+<view class="page">
+  <!-- 顶部用户区域 -->
+  <view class="header">
+    <view class="user-section">
+      <view class="user-avatar-wrap" bindtap="authorizeProfile">
+        <image 
+          class="user-avatar" 
+          src="{{user.wechat_avatar_url || user.avatar_url || '/images/default-avatar.png'}}" 
+          mode="aspectFill"
+        />
       </view>
-      <view class="user-details">
-        <text class="user-name">{{user && (user.wechat_nickname || user.nickname || user.name) ? (user.wechat_nickname || user.nickname || user.name) : '用户'}}</text>
-        <text class="user-phone">{{user && user.phone ? user.phone : ''}}</text>
+      <view class="user-info">
+        <view class="user-greeting">Hi,</view>
+        <view class="user-name">{{user.wechat_nickname || user.nickname || user.name || '用户'}}</view>
       </view>
     </view>
-    <view class="points-badge">
-      <text class="points-icon">●</text>
-      <text class="points-value">{{points}} PTS</text>
+    
+    <view class="points-display" bindtap="goToRewards">
+      <view class="points-value">{{user.total_points || 0}}</view>
+      <view class="points-label">积分</view>
     </view>
   </view>
 
-  <!-- Action Buttons -->
-  <view class="action-buttons">
-    <view class="action-btn" bindtap="goToRewards">
-      <text class="action-icon">🎁</text>
-      <text class="action-text">Redeem</text>
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <view class="action-item" bindtap="goToCampaigns">
+      <view class="action-icon">🎯</view>
+      <view class="action-text">参与活动</view>
     </view>
-    <view class="action-btn" bindtap="goToInvite">
-      <text class="action-icon">👥</text>
-      <text class="action-text">Invite</text>
+    <view class="action-item" bindtap="goToInvite">
+      <view class="action-icon">🔗</view>
+      <view class="action-text">邀请好友</view>
     </view>
-    <view class="action-btn highlight" bindtap="goToCampaign">
-      <text class="action-icon">🎯</text>
-      <text class="action-text">活动</text>
+    <view class="action-item" bindtap="goToRewards">
+      <view class="action-icon">🎁</view>
+      <view class="action-text">我的奖品</view>
+    </view>
+    <view class="action-item" bindtap="goToProfile">
+      <view class="action-icon">⚙️</view>
+      <view class="action-text">设置</view>
     </view>
   </view>
 
-  <!-- Tasks Section -->
-  <view class="section">
-    <text class="section-title">TASKS</text>
-    <view class="tasks-list">
-      <view wx:for="{{tasks || []}}" wx:key="id" class="task-card">
-        <view class="task-left">
-          <view class="task-checkbox {{item.completed ? 'checked' : ''}}">
-            <text wx:if="{{item.completed}}" class="check-icon">✓</text>
-          </view>
-          <view class="task-content">
-            <text class="task-title">{{item.name}}</text>
-            <text class="task-desc">{{item.description}}</text>
-            <text wx:if="{{!item.completed}}" class="task-action" data-id="{{item.id}}" bindtap="completeTask">Start Task</text>
+  <!-- 进行中的活动 -->
+  <view class="section" wx:if="{{currentCampaign}}">
+    <view class="section-header">
+      <text class="section-title">进行中的活动</text>
+    </view>
+    <view class="card" bindtap="goToCurrentCampaign">
+      <view class="campaign-card">
+        <view class="campaign-info">
+          <view class="campaign-name">{{currentCampaign.name}}</view>
+          <view class="campaign-progress">
+            <view class="progress-text">{{currentCampaign.helper_count || 0}}/{{currentCampaign.required_helpers || 8}} 人</view>
           </view>
         </view>
-        <text class="task-points">+{{item.points}}</text>
+        <view class="campaign-arrow">›</view>
       </view>
-      <view wx:if="{{!tasks || tasks.length === 0}}" class="empty-state">
-        <text>No tasks available</text>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{currentCampaignProgress}}%"></view>
       </view>
     </view>
   </view>
 
-  <!-- Activity Section -->
+  <!-- 可参与的活动 -->
   <view class="section">
-    <text class="section-title">ACTIVITY</text>
-    <view class="activity-list">
-      <view wx:for="{{logs || []}}" wx:key="id" class="activity-item">
-        <view class="activity-dot"></view>
-        <view class="activity-content">
-          <text class="activity-title">{{item.remark}}</text>
-          <text class="activity-date">{{item.formatted_date}}</text>
+    <view class="section-header">
+      <text class="section-title">可参与的活动</text>
+      <text class="section-more" bindtap="goToCampaigns">全部</text>
+    </view>
+    
+    <view class="card" wx:if="{{campaigns && campaigns.length > 0}}">
+      <view 
+        class="campaign-list-item" 
+        wx:for="{{campaigns}}" 
+        wx:key="id"
+        bindtap="goToCampaign"
+        data-id="{{item.id}}"
+      >
+        <view class="campaign-list-info">
+          <view class="campaign-list-name">{{item.name}}</view>
+          <view class="campaign-list-desc">{{item.description || '参与活动赢取丰厚奖品'}}</view>
         </view>
-        <text class="activity-points {{item.points > 0 ? 'positive' : 'negative'}}">{{item.points > 0 ? '+' : ''}}{{item.points}}</text>
+        <view class="campaign-list-arrow">›</view>
       </view>
-      <view wx:if="{{!logs || logs.length === 0}}" class="empty-state">
-        <text>No activity yet</text>
+    </view>
+    
+    <view class="card empty-card" wx:else>
+      <view class="empty-content">
+        <view class="empty-icon">📋</view>
+        <view class="empty-text">暂无可参与的活动</view>
       </view>
     </view>
   </view>
 
-  <!-- Profile Authorization Modal -->
-  <view wx:if="{{showProfileModal}}" class="modal-overlay" catchtouchmove="preventTouchMove">
-    <view class="modal-container">
-      <view class="modal-header">
-        <text class="modal-title">完善个人信息</text>
-      </view>
-      <view class="modal-body">
-        <view class="modal-icon">👤</view>
-        <text class="modal-text">授权您的微信头像和昵称</text>
-        <text class="modal-hint">让好友更容易认出您</text>
-      </view>
-      <view class="modal-footer">
-        <button class="btn-skip" bindtap="skipProfile">暂不授权</button>
-        <button class="btn-authorize" bindtap="authorizeProfile">立即授权</button>
+  <!-- 最近动态 -->
+  <view class="section" wx:if="{{recentActivities && recentActivities.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">最近动态</text>
+    </view>
+    <view class="card">
+      <view class="activity-list">
+        <view class="activity-item" wx:for="{{recentActivities}}" wx:key="id">
+          <view class="activity-icon">{{item.icon || '📌'}}</view>
+          <view class="activity-content">
+            <view class="activity-text">{{item.description}}</view>
+            <view class="activity-time">{{item.time_ago || item.created_at}}</view>
+          </view>
+        </view>
       </view>
     </view>
   </view>
+
+  <!-- 底部安全区 -->
+  <view class="bottom-safe"></view>
 </view>

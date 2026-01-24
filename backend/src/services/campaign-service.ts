@@ -32,6 +32,15 @@ export interface Campaign {
   end_time: string;
   rules: Record<string, any>;
   anti_cheat_settings: Record<string, any>;
+  // Message fields
+  messages_enabled?: boolean;
+  message_to_sharer?: string;
+  message_to_helper?: string;
+  msg_rule?: string;
+  msg_helper_success?: string;
+  msg_duplicate_help?: string;
+  msg_campaign_ended?: string;
+  msg_campaign_ended_image_url?: string;
 }
 
 export interface CampaignReward {
@@ -84,23 +93,32 @@ export interface ParsedCampaignScene {
 /**
  * Parse campaign scene string
  * Format: "camp_{campaignId}_ref_{referralCode}" or "qrscene_camp_{campaignId}_ref_{referralCode}"
+ * Note: Due to WeChat's 64-character limit, IDs may be truncated to 8 characters
  */
 export function parseCampaignScene(sceneStr: string): ParsedCampaignScene | null {
   // Remove "qrscene_" prefix if present (added by WeChat for subscribe events)
   const cleanScene = sceneStr.replace(/^qrscene_/, '');
   
-  // Match pattern: camp_{uuid}_ref_{code}
-  // UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-  const match = cleanScene.match(/^camp_([a-f0-9-]{36})_ref_([A-Z0-9]+)$/i);
+  // Match pattern: camp_{id}_ref_{code}
+  // ID can be:
+  // - Full UUID (36 chars): xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  // - Short ID (8 chars): xxxxxxxx (first 8 chars of UUID, used due to WeChat's 64-char limit)
+  const match = cleanScene.match(/^camp_([a-f0-9-]{8,36})_ref_([A-Z0-9]{1,8})$/i);
   
   if (match) {
+    console.log('[parseCampaignScene] Matched scene:', {
+      campaignIdFragment: match[1],
+      referralCode: match[2],
+      raw: sceneStr,
+    });
     return {
-      campaignId: match[1],
+      campaignId: match[1], // This may be a partial ID (first 8 chars)
       referralCode: match[2],
       raw: sceneStr,
     };
   }
   
+  console.log('[parseCampaignScene] No match for scene:', cleanScene);
   return null;
 }
 
@@ -116,21 +134,82 @@ export function isCampaignScene(sceneStr: string): boolean {
 // ============================================
 
 /**
- * Get active campaign by ID
+ * Get active campaign by ID (supports both full UUID and partial ID)
  */
 export async function getCampaign(campaignId: string): Promise<Campaign | null> {
-  const { data, error } = await supabase
-    .from('campaigns')
-    .select('*')
-    .eq('id', campaignId)
-    .single();
+  // If it's a full UUID (36 chars), use exact match
+  if (campaignId.length === 36) {
+    const { data, error } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('id', campaignId)
+      .single();
 
-  if (error || !data) {
-    console.error('Get campaign error:', error);
+    if (error || !data) {
+      console.error('Get campaign error:', error);
+      return null;
+    }
+    return data;
+  }
+  
+  // If it's a partial ID (8 chars), query using raw SQL
+  console.log('[getCampaign] Looking up campaign by partial ID:', campaignId);
+  
+  // Use raw SQL query for partial ID matching (UUID needs to be cast to text for LIKE)
+  const { data, error } = await supabase
+    .rpc('get_campaign_by_partial_id', { partial_id: campaignId });
+
+  if (error) {
+    // Fallback: fetch all campaigns and filter in code
+    console.log('[getCampaign] RPC not available, using fallback query');
+    const { data: allCampaigns, error: fetchError } = await supabase
+      .from('campaigns')
+      .select('*');
+    
+    if (fetchError || !allCampaigns) {
+      console.error('Get campaigns error:', fetchError);
+      return null;
+    }
+    
+    // Find campaign where ID starts with the partial ID
+    const campaign = allCampaigns.find(c => c.id.startsWith(campaignId));
+    if (campaign) {
+      console.log('[getCampaign] Found campaign via fallback:', campaign.id, campaign.name);
+      return campaign;
+    }
+    
+    console.error('Campaign not found with partial ID:', campaignId);
     return null;
   }
+  
+  if (data && data.length > 0) {
+    console.log('[getCampaign] Found campaign:', data[0].id, data[0].name);
+    return data[0];
+  }
+  
+  return null;
+}
 
-  return data;
+/**
+ * Get full campaign ID from a partial ID
+ */
+export async function getFullCampaignId(partialId: string): Promise<string | null> {
+  if (partialId.length === 36) {
+    return partialId; // Already full ID
+  }
+  
+  // Fetch all campaigns and find by partial ID prefix
+  const { data: allCampaigns, error } = await supabase
+    .from('campaigns')
+    .select('id');
+  
+  if (error || !allCampaigns) {
+    console.error('Get full campaign ID error:', error);
+    return null;
+  }
+  
+  const campaign = allCampaigns.find(c => c.id.startsWith(partialId));
+  return campaign?.id || null;
 }
 
 /**
@@ -250,23 +329,91 @@ export async function getOrCreateParticipant(
 
 /**
  * Find participant by referral code
+ * Supports both full IDs and partial IDs (8-char prefix)
+ * Also handles QR code -> user lookup for data consistency
  */
 export async function findParticipantByCode(
   campaignId: string,
   referralCode: string
 ): Promise<CampaignParticipant | null> {
-  const { data, error } = await supabase
+  console.log('[findParticipantByCode] Looking for:', { campaignId, referralCode });
+  
+  // First, get the full campaign ID if we have a partial one
+  const fullCampaignId = await getFullCampaignId(campaignId);
+  if (!fullCampaignId) {
+    console.error('[findParticipantByCode] Campaign not found for ID:', campaignId);
+    return null;
+  }
+  
+  // Try exact match first
+  let { data, error } = await supabase
     .from('campaign_participants')
     .select('*')
-    .eq('campaign_id', campaignId)
+    .eq('campaign_id', fullCampaignId)
     .eq('referral_code', referralCode)
     .single();
 
-  if (error || !data) {
-    return null;
+  if (data) {
+    console.log('[findParticipantByCode] Found participant by exact match:', data.id);
+    return data;
   }
-
-  return data;
+  
+  // If referral code might be truncated, try prefix match on participants
+  const { data: allParticipants } = await supabase
+    .from('campaign_participants')
+    .select('*')
+    .eq('campaign_id', fullCampaignId);
+  
+  if (allParticipants) {
+    // Check if any participant's referral code starts with or equals the provided code
+    const participant = allParticipants.find(p => 
+      p.referral_code === referralCode ||
+      p.referral_code.startsWith(referralCode) ||
+      referralCode.startsWith(p.referral_code)
+    );
+    
+    if (participant) {
+      console.log('[findParticipantByCode] Found participant by prefix match:', participant.id);
+      return participant;
+    }
+  }
+  
+  // Fallback: look up by QR code scene string to find the user
+  // This handles cases where the QR code has a different referral code than the participant record
+  console.log('[findParticipantByCode] Trying QR code lookup fallback');
+  const scenePattern = `camp_${campaignId}_ref_${referralCode}`;
+  
+  const { data: qrCodes } = await supabase
+    .from('oa_qrcodes')
+    .select('user_id, scene_str');
+  
+  if (qrCodes) {
+    // Find QR code that matches the scene pattern
+    const qrCode = qrCodes.find(qr => 
+      qr.scene_str === scenePattern ||
+      qr.scene_str.includes(`_ref_${referralCode}`)
+    );
+    
+    if (qrCode) {
+      console.log('[findParticipantByCode] Found QR code for user:', qrCode.user_id);
+      
+      // Now find the participant for this user
+      const { data: participantByUser } = await supabase
+        .from('campaign_participants')
+        .select('*')
+        .eq('campaign_id', fullCampaignId)
+        .eq('user_id', qrCode.user_id)
+        .single();
+      
+      if (participantByUser) {
+        console.log('[findParticipantByCode] Found participant via QR code lookup:', participantByUser.id);
+        return participantByUser;
+      }
+    }
+  }
+  
+  console.log('[findParticipantByCode] No participant found');
+  return null;
 }
 
 /**
@@ -900,14 +1047,19 @@ export async function claimReward(
     };
   }
 
-  // Get reward details
+  // Get reward details with all fields
   const { data: rewardData } = await supabase
     .from('campaign_rewards')
     .select('*')
     .eq('id', rewardId)
     .single();
 
-  const reward = rewardData as unknown as CampaignReward | null;
+  const reward = rewardData as unknown as (CampaignReward & {
+    claim_method?: string;
+    claim_link?: string;
+    claim_text?: string;
+    activation_source?: string;
+  }) | null;
 
   if (!reward) {
     return { success: false, message: '奖品不存在' };
@@ -926,6 +1078,71 @@ export async function claimReward(
     return { success: false, message: '参与记录不存在' };
   }
 
+  // Handle activation code claim
+  let activationCode: string | null = null;
+  const claimMethod = (reward as any).claim_method || 'link';
+  
+  if (claimMethod === 'activation_code') {
+    // Get an unused activation code
+    const { data: codeData, error: codeError } = await supabase
+      .from('activation_codes')
+      .select('id, code')
+      .eq('reward_id', rewardId)
+      .eq('is_used', false)
+      .limit(1)
+      .single();
+
+    if (codeError || !codeData) {
+      return { success: false, message: '激活码已用完，请联系客服' };
+    }
+
+    // Mark the code as used
+    const { error: updateError } = await supabase
+      .from('activation_codes')
+      .update({
+        is_used: true,
+        used_by: userId,
+        used_at: new Date().toISOString(),
+      } as AnyRecord)
+      .eq('id', codeData.id)
+      .eq('is_used', false); // Double check to prevent race condition
+
+    if (updateError) {
+      console.error('Failed to mark activation code as used:', updateError);
+      return { success: false, message: '领取失败，请重试' };
+    }
+
+    activationCode = codeData.code;
+
+    // Update remaining quantity
+    const { count: remainingCount } = await supabase
+      .from('activation_codes')
+      .select('*', { count: 'exact', head: true })
+      .eq('reward_id', rewardId)
+      .eq('is_used', false);
+
+    await supabase
+      .from('campaign_rewards')
+      .update({
+        remaining_quantity: remainingCount || 0,
+      } as AnyRecord)
+      .eq('id', rewardId);
+  }
+
+  // Build reward content for the claim
+  const rewardContent: Record<string, any> = {
+    ...(reward.reward_content || {}),
+    claim_method: claimMethod,
+  };
+
+  if (claimMethod === 'link' && (reward as any).claim_link) {
+    rewardContent.claim_link = (reward as any).claim_link;
+  } else if (claimMethod === 'text' && (reward as any).claim_text) {
+    rewardContent.claim_text = (reward as any).claim_text;
+  } else if (claimMethod === 'activation_code' && activationCode) {
+    rewardContent.activation_code = activationCode;
+  }
+
   // Create claim record
   const { data: claimData, error: claimError } = await supabase
     .from('campaign_reward_claims')
@@ -936,7 +1153,7 @@ export async function claimReward(
       user_id: userId,
       tier_level: reward.tier_level,
       helper_count_at_claim: checkResult.helperCount || 0,
-      reward_content: reward.reward_content,
+      reward_content: rewardContent,
     } as AnyRecord)
     .select()
     .single();
@@ -982,14 +1199,22 @@ export async function claimReward(
       tier_level: reward.tier_level,
       reward_name: reward.reward_name,
       helper_count_at_claim: checkResult.helperCount,
+      claim_method: claimMethod,
+      has_activation_code: !!activationCode,
     },
   });
+
+  // Return with enhanced reward info
+  const enhancedReward = {
+    ...reward,
+    claim_content: rewardContent,
+  };
 
   return {
     success: true,
     message: '领取成功',
     claim,
-    reward,
+    reward: enhancedReward as any,
   };
 }
 

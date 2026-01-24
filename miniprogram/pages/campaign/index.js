@@ -19,8 +19,13 @@ Page({
     showDebug: false, // Set to true for debugging
     claimedRewardIds: [], // IDs of claimed rewards
     showProfileModal: false,
+    showFollowOAModal: false, // 引导关注公众号弹窗
+    oaFollowQRCode: '', // 公众号关注二维码
+    hasFollowedOA: false, // 是否已关注公众号
+    oaPollingStatus: '', // 轮询状态提示
     refreshing: false,
     refreshTimer: null,
+    oaFollowPollingTimer: null, // 公众号关注状态轮询定时器
   },
 
   onLoad(options) {
@@ -51,14 +56,19 @@ Page({
     
     // Check profile authorization
     this.checkProfileAuthorization();
+    
+    // Check OA follow status
+    this.checkOAFollowStatus();
   },
 
   onHide() {
     this.stopAutoRefresh();
+    this.stopOAFollowPolling();
   },
 
   onUnload() {
     this.stopAutoRefresh();
+    this.stopOAFollowPolling();
   },
 
   /**
@@ -92,6 +102,11 @@ Page({
     } catch (error) {
       console.error('Authorize profile error:', error);
     }
+    
+    // After profile modal is dismissed, check OA follow status
+    setTimeout(() => {
+      this.checkOAFollowStatus(true); // immediate check
+    }, 500);
   },
 
   /**
@@ -100,6 +115,260 @@ Page({
   skipProfile() {
     this.setData({ showProfileModal: false });
     wx.setStorageSync('profile_auth_skipped_campaign', true);
+    
+    // After profile modal is dismissed, check OA follow status
+    setTimeout(() => {
+      this.checkOAFollowStatus(true); // immediate check
+    }, 500);
+  },
+
+  /**
+   * Check if user has followed the Official Account
+   * Show prompt if not followed
+   * @param {boolean} immediate - If true, don't use setTimeout
+   */
+  checkOAFollowStatus(immediate = false) {
+    const doCheck = () => {
+      const user = app.globalData.user;
+      const hasFollowedOA = user && user.openid_oa;
+      const hasSkipped = wx.getStorageSync('oa_follow_skipped_campaign');
+      
+      console.log('[OA Check] User:', user?.id, 'hasFollowedOA:', hasFollowedOA, 'hasSkipped:', hasSkipped, 'showProfileModal:', this.data.showProfileModal);
+      
+      this.setData({ hasFollowedOA: !!hasFollowedOA });
+      
+      // If not followed and not skipped, show prompt (only if profile modal is not showing)
+      if (!hasFollowedOA && !hasSkipped && !this.data.showProfileModal) {
+        console.log('[OA Check] Showing OA follow modal');
+        this.setData({ showFollowOAModal: true });
+        // Load OA QR code
+        this.loadOAFollowQRCode();
+        // Start polling to detect when user follows
+        this.startOAFollowPolling();
+      }
+    };
+    
+    if (immediate) {
+      doCheck();
+    } else {
+      setTimeout(doCheck, 1500); // Delay to let profile modal show first
+    }
+  },
+
+  /**
+   * Start polling to detect OA follow status
+   * Checks every 3 seconds, stops after 90 seconds
+   */
+  startOAFollowPolling() {
+    this.stopOAFollowPolling(); // Clear any existing timer
+    
+    console.log('[OA Polling] Starting polling for OA follow status...');
+    this.setData({ oaPollingStatus: '等待关注...' });
+    
+    let pollCount = 0;
+    const maxPolls = 30; // 30 polls * 3 seconds = 90 seconds max
+    
+    const timer = setInterval(async () => {
+      pollCount++;
+      console.log(`[OA Polling] Poll #${pollCount}`);
+      
+      if (pollCount >= maxPolls) {
+        console.log('[OA Polling] Max polls reached, stopping');
+        this.stopOAFollowPolling();
+        this.setData({ oaPollingStatus: '检测超时，请点击"我已关注"' });
+        return;
+      }
+      
+      try {
+        // Fetch latest user data from server
+        const response = await api.get('/users/me');
+        const userData = (response.data && response.data.data) ? response.data.data : response.data;
+        
+        if (userData && userData.openid_oa) {
+          console.log('[OA Polling] User has followed OA!', userData.openid_oa);
+          
+          // Update local user data
+          app.globalData.user = userData;
+          wx.setStorageSync('user', userData);
+          
+          // Stop polling and close modal
+          this.stopOAFollowPolling();
+          this.setData({
+            hasFollowedOA: true,
+            showFollowOAModal: false,
+            oaPollingStatus: '',
+          });
+          
+          wx.showToast({
+            title: '关注成功！',
+            icon: 'success',
+          });
+        } else {
+          this.setData({ oaPollingStatus: `检测中... (${pollCount}/${maxPolls})` });
+        }
+      } catch (error) {
+        console.error('[OA Polling] Error checking status:', error);
+      }
+    }, 3000); // Poll every 3 seconds
+    
+    this.setData({ oaFollowPollingTimer: timer });
+  },
+
+  /**
+   * Stop OA follow polling
+   */
+  stopOAFollowPolling() {
+    const timer = this.data.oaFollowPollingTimer;
+    if (timer) {
+      console.log('[OA Polling] Stopping polling');
+      clearInterval(timer);
+      this.setData({ oaFollowPollingTimer: null, oaPollingStatus: '' });
+    }
+  },
+
+  /**
+   * Load the OA linking QR code for the current user
+   * This QR code links the MP user with their OA account when scanned
+   */
+  async loadOAFollowQRCode() {
+    const user = app.globalData.user;
+    if (!user || !user.id) return;
+
+    try {
+      const apiBase = require('../../utils/config').API_BASE_URL;
+      const token = wx.getStorageSync('token') || '';
+      
+      // Get LINKING QR code info (includes user_id in scene)
+      const qrInfoResponse = await new Promise((resolve, reject) => {
+        wx.request({
+          url: `${apiBase}/oa/linking-qrcode`,
+          method: 'GET',
+          header: token ? { 'Authorization': `Bearer ${token}` } : {},
+          success: resolve,
+          fail: reject,
+        });
+      });
+      
+      console.log('[OA QRCode] Linking QRCode response:', qrInfoResponse.data);
+      
+      const qrInfo = (qrInfoResponse.data && qrInfoResponse.data.data) 
+        ? qrInfoResponse.data.data 
+        : qrInfoResponse.data;
+      
+      if (qrInfo && qrInfo.ticket) {
+        // Get QR code image
+        const imageResponse = await new Promise((resolve, reject) => {
+          wx.request({
+            url: `${apiBase}/oa/qrcode-image/${qrInfo.ticket}`,
+            method: 'GET',
+            responseType: 'arraybuffer',
+            header: token ? { 'Authorization': `Bearer ${token}` } : {},
+            success: resolve,
+            fail: reject,
+          });
+        });
+        
+        if (imageResponse.statusCode === 200 && imageResponse.data instanceof ArrayBuffer) {
+          const base64 = wx.arrayBufferToBase64(imageResponse.data);
+          this.setData({
+            oaFollowQRCode: `data:image/png;base64,${base64}`,
+          });
+          console.log('[OA QRCode] Linking QRCode loaded successfully, scene:', qrInfo.sceneStr);
+        }
+      }
+    } catch (error) {
+      console.error('Load OA linking QR code error:', error);
+    }
+  },
+
+  /**
+   * Show follow OA prompt modal when user taps the banner
+   */
+  showFollowOAPrompt() {
+    this.setData({ showFollowOAModal: true });
+    this.loadOAFollowQRCode();
+  },
+
+  /**
+   * User taps "Later" button in OA follow modal
+   */
+  skipFollowOA() {
+    this.stopOAFollowPolling();
+    this.setData({ showFollowOAModal: false });
+    wx.setStorageSync('oa_follow_skipped_campaign', true);
+  },
+
+  /**
+   * User taps "Done" button after following OA
+   */
+  async confirmFollowedOA() {
+    // Stop polling first
+    this.stopOAFollowPolling();
+    
+    // Refresh user data to check if they've followed
+    wx.showLoading({ title: '检查中...' });
+    
+    try {
+      // Fetch latest user data from server
+      const response = await api.get('/users/me');
+      const userData = (response.data && response.data.data) ? response.data.data : response.data;
+      
+      if (userData && userData.openid_oa) {
+        // Update local user data
+        app.globalData.user = userData;
+        wx.setStorageSync('user', userData);
+        
+        this.setData({ 
+          hasFollowedOA: true,
+          showFollowOAModal: false,
+        });
+        wx.hideLoading();
+        wx.showToast({
+          title: '关注成功！',
+          icon: 'success',
+        });
+      } else {
+        wx.hideLoading();
+        wx.showToast({
+          title: '请先关注公众号',
+          icon: 'none',
+        });
+        // Show modal again and restart polling
+        setTimeout(() => {
+          this.setData({ showFollowOAModal: true });
+          this.startOAFollowPolling();
+        }, 1500);
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('Check follow status error:', error);
+    }
+  },
+
+  /**
+   * Preview OA QR code for easier scanning
+   */
+  previewOAQRCode() {
+    if (!this.data.oaFollowQRCode) return;
+    
+    const base64Data = this.data.oaFollowQRCode.split(',')[1];
+    const fs = wx.getFileSystemManager();
+    const filePath = `${wx.env.USER_DATA_PATH}/oa_qr_${Date.now()}.png`;
+    
+    fs.writeFile({
+      filePath,
+      data: base64Data,
+      encoding: 'base64',
+      success: () => {
+        wx.previewImage({
+          urls: [filePath],
+          current: filePath,
+        });
+      },
+      fail: (err) => {
+        console.error('Save OA QR code error:', err);
+      },
+    });
   },
 
   preventTouchMove() {
@@ -497,12 +766,174 @@ Page({
     });
   },
 
+  /**
+   * Generate and save poster to album
+   */
   async generatePoster() {
-    wx.showToast({
-      title: '海报功能开发中...',
-      icon: 'none',
-    });
-    // TODO: Implement poster generation
+    const campaign = this.data.campaign;
+    if (!campaign || !campaign.id) {
+      wx.showToast({
+        title: '活动数据加载中，请稍后再试',
+        icon: 'none',
+      });
+      return;
+    }
+    
+    // Check if user has followed OA - warn if not
+    if (!this.data.hasFollowedOA) {
+      const res = await new Promise((resolve) => {
+        wx.showModal({
+          title: '提示',
+          content: '您还未关注公众号，关注后才能收到好友助力通知。是否先关注公众号？',
+          confirmText: '去关注',
+          cancelText: '继续生成',
+          success: resolve,
+        });
+      });
+      
+      if (res.confirm) {
+        // User chose to follow OA first
+        this.setData({ showFollowOAModal: true });
+        this.loadOAFollowQRCode();
+        this.startOAFollowPolling();
+        return;
+      }
+      // User chose to continue without following - proceed with poster generation
+    }
+    
+    const campaignId = campaign.id;
+
+    wx.showLoading({ title: '生成海报中...' });
+
+    try {
+      const token = wx.getStorageSync('token') || '';
+      const apiBase = require('../../utils/config').API_BASE_URL;
+      
+      // Call poster API to get base64 image
+      const response = await new Promise((resolve, reject) => {
+        wx.request({
+          url: `${apiBase}/campaigns/${campaignId}/poster/base64`,
+          method: 'GET',
+          header: token ? { 'Authorization': `Bearer ${token}` } : {},
+          success: resolve,
+          fail: reject,
+        });
+      });
+
+      if (response.statusCode !== 200 || !response.data || !response.data.success) {
+        throw new Error((response.data && response.data.error) || '生成海报失败');
+      }
+
+      const posterData = response.data.data.poster; // data:image/png;base64,...
+      
+      // Convert base64 to temp file
+      const base64Data = posterData.split(',')[1];
+      const fs = wx.getFileSystemManager();
+      const filePath = `${wx.env.USER_DATA_PATH}/poster_${campaignId}_${Date.now()}.png`;
+      
+      await new Promise((resolve, reject) => {
+        fs.writeFile({
+          filePath,
+          data: base64Data,
+          encoding: 'base64',
+          success: () => resolve(),
+          fail: (err) => reject(err),
+        });
+      });
+
+      wx.hideLoading();
+
+      // Show action sheet to preview or save
+      const res = await new Promise((resolve, reject) => {
+        wx.showActionSheet({
+          itemList: ['预览海报', '保存到相册'],
+          success: resolve,
+          fail: reject,
+        });
+      });
+
+      if (res.tapIndex === 0) {
+        // Preview
+        wx.previewImage({
+          urls: [filePath],
+          current: filePath,
+        });
+      } else if (res.tapIndex === 1) {
+        // Save to album
+        await this.savePosterToAlbum(filePath);
+      }
+
+    } catch (error) {
+      wx.hideLoading();
+      if (error.errMsg !== 'showActionSheet:fail cancel') {
+        console.error('Generate poster error:', error);
+        wx.showToast({
+          title: error.message || '生成海报失败',
+          icon: 'none',
+        });
+      }
+    }
+  },
+
+  /**
+   * Save poster image to photo album
+   */
+  async savePosterToAlbum(filePath) {
+    try {
+      // Check album write permission
+      const setting = await new Promise((resolve, reject) => {
+        wx.getSetting({
+          success: (res) => resolve(res.authSetting),
+          fail: reject,
+        });
+      });
+
+      if (!setting['scope.writePhotosAlbum']) {
+        // Request permission
+        await new Promise((resolve, reject) => {
+          wx.authorize({
+            scope: 'scope.writePhotosAlbum',
+            success: () => resolve(),
+            fail: () => {
+              // User denied, show settings modal
+              wx.showModal({
+                title: '需要相册权限',
+                content: '请在设置中开启相册写入权限以保存海报',
+                confirmText: '去设置',
+                success: (res) => {
+                  if (res.confirm) {
+                    wx.openSetting();
+                  }
+                },
+              });
+              reject(new Error('用户拒绝授权'));
+            },
+          });
+        });
+      }
+
+      // Save to album
+      await new Promise((resolve, reject) => {
+        wx.saveImageToPhotosAlbum({
+          filePath,
+          success: () => resolve(),
+          fail: reject,
+        });
+      });
+
+      wx.showToast({
+        title: '已保存到相册',
+        icon: 'success',
+      });
+    } catch (error) {
+      console.error('Save to album error:', error);
+      if (error.message !== '用户拒绝授权') {
+        wx.showToast({
+          title: '保存失败',
+          icon: 'none',
+        });
+      }
+    }
   },
 
   copyCode() {

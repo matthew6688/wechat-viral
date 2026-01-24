@@ -1,5 +1,5 @@
 // app.js
-const API_BASE_URL = 'http://localhost:3000/api';
+const { API_BASE_URL } = require('./utils/config');
 
 // Storage utility
 const storage = {
@@ -206,41 +206,47 @@ App({
     return new Promise((resolve) => {
       wx.getUserProfile({
         desc: '用于展示您的昵称和头像',
-        success: async (res) => {
+        success: (res) => {
           console.log('getUserProfile success:', res.userInfo);
           const { nickName, avatarUrl } = res.userInfo;
           
+          // Immediately update local user data (optimistic update)
+          if (self.globalData.user) {
+            self.globalData.user.wechat_nickname = nickName;
+            self.globalData.user.wechat_avatar_url = avatarUrl;
+            storage.setUser(self.globalData.user);
+            console.log('Local user profile updated immediately:', nickName);
+          }
+          
           // Update user profile on server
-          try {
-            const token = storage.getToken();
-            if (token) {
-              wx.request({
-                url: `${API_BASE_URL}/users/profile`,
-                method: 'PUT',
-                header: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-                data: {
-                  wechat_nickname: nickName,
-                  wechat_avatar_url: avatarUrl,
-                },
-                success: (response) => {
-                  if (response.statusCode === 200 && response.data && response.data.data) {
-                    // Update local user data
-                    const updatedUser = response.data.data;
-                    self.globalData.user = updatedUser;
-                    storage.setUser(updatedUser);
-                    console.log('User profile updated:', nickName);
-                  }
-                },
-                fail: (error) => {
-                  console.error('Update profile request failed:', error);
-                },
-              });
-            }
-          } catch (error) {
-            console.error('Update profile error:', error);
+          const token = storage.getToken();
+          if (token) {
+            wx.request({
+              url: `${API_BASE_URL}/users/profile`,
+              method: 'PUT',
+              header: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              data: {
+                wechat_nickname: nickName,
+                wechat_avatar_url: avatarUrl,
+              },
+              success: (response) => {
+                console.log('Profile update response:', response.statusCode, response.data);
+                if (response.statusCode === 200 && response.data && response.data.data) {
+                  // Update local user data from server response
+                  const updatedUser = response.data.data;
+                  self.globalData.user = updatedUser;
+                  storage.setUser(updatedUser);
+                  console.log('User profile synced from server:', nickName);
+                }
+              },
+              fail: (error) => {
+                console.error('Update profile request failed:', error);
+                // Still keep local update even if server fails
+              },
+            });
           }
 
           resolve({ nickName, avatarUrl });

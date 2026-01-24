@@ -48,12 +48,27 @@ Page({
     try {
       const result = await app.getUserProfile();
       if (result) {
+        // 直接使用返回的数据更新 UI，不等待服务器响应
+        const currentUser = this.data.user || {};
+        this.setData({
+          user: {
+            ...currentUser,
+            wechat_nickname: result.nickName,
+            wechat_avatar_url: result.avatarUrl,
+          }
+        });
+        
         wx.showToast({
           title: '授权成功',
           icon: 'success',
         });
-        // Refresh user data
-        this.setData({ user: app.globalData.user });
+        
+        // 延迟后再次同步，确保服务器数据已更新
+        setTimeout(() => {
+          if (app.globalData.user) {
+            this.setData({ user: app.globalData.user });
+          }
+        }, 1500);
       }
     } catch (error) {
       console.error('Authorize profile error:', error);

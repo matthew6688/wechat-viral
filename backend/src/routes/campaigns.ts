@@ -27,6 +27,11 @@ import {
 } from '../services/campaign-service';
 import { supabase } from '../config/supabase';
 import { logEvent } from '../services/event-logger';
+import { 
+  generateCampaignPoster, 
+  generateCampaignPosterBase64,
+  clearCampaignPosterCache 
+} from '../services/poster-generator';
 
 const router = express.Router();
 
@@ -138,12 +143,26 @@ router.get('/:id/my-progress', authenticate, async (req: AuthRequest, res) => {
           participant: null,
           helpers: [],
           rewards: [],
+          rewardsWithStatus: [],
         },
       });
     }
 
     const helpers = await getHelpers(participant.id);
     const rewards = await getCampaignRewards(campaignId);
+    
+    // Get rewards with claim status
+    const rewardsWithStatus = await getClaimableRewards(campaignId, participant.id);
+    
+    // Get claimed rewards to add claim details
+    const claimedRewards = await getClaimedRewards(participant.id);
+    const claimsMap = new Map(claimedRewards.map(c => [c.reward_id, c]));
+    
+    // Enhance rewardsWithStatus with claim details
+    const enhancedRewardsWithStatus = rewardsWithStatus.map(item => ({
+      ...item,
+      claim: claimsMap.get(item.reward.id) || null,
+    }));
 
     // Calculate unlocked rewards
     const unlockedRewards = rewards.filter(r => participant.helper_count >= r.helpers_required);
@@ -156,6 +175,7 @@ router.get('/:id/my-progress', authenticate, async (req: AuthRequest, res) => {
         participant,
         helpers,
         rewards,
+        rewardsWithStatus: enhancedRewardsWithStatus,
         unlockedRewards,
         nextReward,
         sceneStr: generateCampaignSceneStr(campaignId, participant.referral_code),
@@ -1817,6 +1837,111 @@ router.get('/admin/:id/full', authenticate, requireAdmin, async (req: AuthReques
   } catch (error: any) {
     console.error('Get full campaign error:', error);
     res.status(500).json({ error: error.message || 'Failed to get campaign' });
+  }
+});
+
+// ============================================
+// Poster Generation Routes
+// ============================================
+
+/**
+ * GET /api/campaigns/:id/poster
+ * Generate and return poster for current user
+ * Returns: PNG image
+ */
+router.get('/:id/poster', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const campaignId = req.params.id;
+    const userId = req.userId!;
+    const forceRegenerate = req.query.force === 'true';
+
+    console.log(`Generating poster for user ${userId}, campaign ${campaignId}`);
+
+    const { buffer, fromCache } = await generateCampaignPoster(userId, campaignId, forceRegenerate);
+
+    // Log event
+    await logEvent({
+      event_type: 'poster_generated',
+      user_id: userId,
+      event_data: {
+        campaign_id: campaignId,
+        from_cache: fromCache,
+      },
+    });
+
+    // Set cache headers
+    res.set({
+      'Content-Type': 'image/png',
+      'Content-Length': buffer.length,
+      'Cache-Control': fromCache ? 'public, max-age=3600' : 'no-cache',
+      'X-From-Cache': fromCache ? 'true' : 'false',
+    });
+
+    res.send(buffer);
+  } catch (error: any) {
+    console.error('Generate poster error:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate poster' });
+  }
+});
+
+/**
+ * GET /api/campaigns/:id/poster/base64
+ * Generate poster and return as base64 string
+ * Useful for mini program to display directly
+ */
+router.get('/:id/poster/base64', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const campaignId = req.params.id;
+    const userId = req.userId!;
+    const forceRegenerate = req.query.force === 'true';
+
+    console.log(`Generating base64 poster for user ${userId}, campaign ${campaignId}`);
+
+    const { base64, fromCache } = await generateCampaignPosterBase64(userId, campaignId, forceRegenerate);
+
+    // Log event
+    await logEvent({
+      event_type: 'poster_generated',
+      user_id: userId,
+      event_data: {
+        campaign_id: campaignId,
+        from_cache: fromCache,
+        format: 'base64',
+      },
+    });
+
+    res.json({
+      success: true,
+      data: {
+        poster: `data:image/png;base64,${base64}`,
+        fromCache,
+      },
+    });
+  } catch (error: any) {
+    console.error('Generate base64 poster error:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate poster' });
+  }
+});
+
+/**
+ * POST /api/campaigns/admin/:id/poster/clear-cache
+ * Clear all cached posters for a campaign (admin only)
+ * Call this after updating campaign poster settings
+ */
+router.post('/admin/:id/poster/clear-cache', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const campaignId = req.params.id;
+
+    const deletedCount = clearCampaignPosterCache(campaignId);
+
+    res.json({
+      success: true,
+      message: `Cleared ${deletedCount} cached posters`,
+      data: { deleted_count: deletedCount },
+    });
+  } catch (error: any) {
+    console.error('Clear poster cache error:', error);
+    res.status(500).json({ error: error.message || 'Failed to clear poster cache' });
   }
 });
 

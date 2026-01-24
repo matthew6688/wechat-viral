@@ -1,84 +1,117 @@
-<view class="profile-container">
-  <!-- User Header -->
-  <view class="user-header">
-    <view class="avatar-container" bindtap="updateProfile">
-      <image wx:if="{{user && user.wechat_avatar_url}}" class="avatar-image" src="{{user.wechat_avatar_url}}" mode="aspectFill" />
-      <view wx:else class="avatar-badge">
-        <text>{{user && user.name ? user.name.substring(0, 1) : '?'}}</text>
-        <text class="avatar-edit-hint">点击授权</text>
+<!--pages/profile/index.wxml - Apple 极简风格-->
+<view class="page">
+  <!-- 用户信息头部 -->
+  <view class="header">
+    <view class="avatar-section">
+      <view class="avatar-wrap" bindtap="authorizeProfile">
+        <image 
+          class="avatar" 
+          src="{{user.wechat_avatar_url || user.avatar_url || '/images/default-avatar.png'}}" 
+          mode="aspectFill"
+        />
+        <view class="avatar-edit">
+          <text class="edit-icon">✎</text>
+        </view>
       </view>
     </view>
-    <view class="user-info">
-      <text class="user-name">{{user && (user.wechat_nickname || user.name) ? (user.wechat_nickname || user.name) : 'User'}}</text>
-      <text class="user-phone">{{user && user.phone ? user.phone : ''}}</text>
-      <text wx:if="{{!user || !user.wechat_nickname}}" class="profile-hint" bindtap="updateProfile">点击头像授权微信信息</text>
+    
+    <view class="user-name">{{user.wechat_nickname || user.nickname || user.name || '点击授权'}}</view>
+    <view class="user-id">ID: {{user.id ? user.id.substring(0, 8) + '...' : '--'}}</view>
+  </view>
+
+  <!-- 数据统计 -->
+  <view class="stats-card">
+    <view class="stat-item" bindtap="goToRewards">
+      <view class="stat-value">{{user.total_points || 0}}</view>
+      <view class="stat-label">积分</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item" bindtap="goToInvite">
+      <view class="stat-value">{{user.referral_count || 0}}</view>
+      <view class="stat-label">邀请</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item" bindtap="goToRewards">
+      <view class="stat-value">{{user.reward_count || 0}}</view>
+      <view class="stat-label">奖品</view>
     </view>
   </view>
 
-  <!-- Role & Balance Cards -->
-  <view class="info-cards">
-    <view class="info-card light">
-      <text class="card-label">ROLE</text>
-      <text class="card-value">{{user && user.role ? user.role : 'Member'}}</text>
-    </view>
-    <view class="info-card dark">
-      <text class="card-label">BALANCE</text>
-      <text class="card-value">{{points || 0}} PTS</text>
-    </view>
-  </view>
-
-  <!-- Account Details -->
+  <!-- 功能列表 -->
   <view class="section">
-    <text class="section-title">ACCOUNT DETAILS</text>
-    <view class="details-list">
-      <view class="detail-item">
-        <view class="detail-icon">📱</view>
-        <text class="detail-label">Phone</text>
-        <text class="detail-value">{{user && user.phone ? user.phone : '-'}}</text>
+    <view class="list-header">账户</view>
+    <view class="list-group">
+      <view class="list-item" bindtap="authorizeProfile">
+        <view class="list-item-icon blue">👤</view>
+        <view class="list-item-content">
+          <view class="list-item-title">更新微信信息</view>
+        </view>
+        <view class="list-item-chevron">›</view>
       </view>
-      <view class="detail-item">
-        <view class="detail-icon">💬</view>
-        <text class="detail-label">WeChat</text>
-        <text class="detail-value">{{user && user.wechat_id ? user.wechat_id : '-'}}</text>
+      <view class="list-item" bindtap="goToRewards">
+        <view class="list-item-icon orange">🎁</view>
+        <view class="list-item-content">
+          <view class="list-item-title">我的奖品</view>
+        </view>
+        <view class="list-item-chevron">›</view>
       </view>
-      <view class="detail-item">
-        <view class="detail-icon">🔗</view>
-        <text class="detail-label">Code</text>
-        <text class="detail-value">{{referralCode || '-'}}</text>
+      <view class="list-item" bindtap="goToInvite">
+        <view class="list-item-icon green">🔗</view>
+        <view class="list-item-content">
+          <view class="list-item-title">邀请记录</view>
+        </view>
+        <view class="list-item-chevron">›</view>
       </view>
-      <view class="detail-item">
-        <view class="detail-icon">📦</view>
-        <text class="detail-label">Products</text>
-        <text class="detail-value">{{user && user.main_products ? user.main_products : '-'}}</text>
+    </view>
+  </view>
+
+  <!-- 更多 -->
+  <view class="section">
+    <view class="list-header">更多</view>
+    <view class="list-group">
+      <view class="list-item" bindtap="showAbout">
+        <view class="list-item-icon purple">ℹ️</view>
+        <view class="list-item-content">
+          <view class="list-item-title">关于</view>
+        </view>
+        <view class="list-item-value">v1.0.0</view>
+        <view class="list-item-chevron">›</view>
+      </view>
+      <view class="list-item" bindtap="contactService">
+        <view class="list-item-icon teal">💬</view>
+        <view class="list-item-content">
+          <view class="list-item-title">联系客服</view>
+        </view>
+        <view class="list-item-chevron">›</view>
       </view>
     </view>
   </view>
 
-  <!-- Sign Out Button -->
-  <view class="actions">
-    <button class="btn-signout" bindtap="logout">Sign Out</button>
-  </view>
-
-  <!-- Admin Button (if admin) -->
-  <button wx:if="{{user && user.is_admin}}" class="btn-admin" bindtap="goToAdmin">
-    Admin Console
-  </button>
-
-  <!-- Profile Authorization Modal -->
-  <view wx:if="{{showProfileModal}}" class="modal-overlay" catchtouchmove="preventTouchMove">
-    <view class="modal-container">
-      <view class="modal-header">
-        <text class="modal-title">完善个人信息</text>
-      </view>
-      <view class="modal-body">
-        <view class="modal-icon">👤</view>
-        <text class="modal-text">授权您的微信头像和昵称</text>
-        <text class="modal-hint">让好友更容易认出您</text>
-      </view>
-      <view class="modal-footer">
-        <button class="btn-skip" bindtap="skipProfile">暂不授权</button>
-        <button class="btn-authorize" bindtap="authorizeProfile">立即授权</button>
+  <!-- 管理员入口 -->
+  <view class="section" wx:if="{{user.is_admin}}">
+    <view class="list-header">管理</view>
+    <view class="list-group">
+      <view class="list-item" bindtap="goToAdmin">
+        <view class="list-item-icon red">⚙️</view>
+        <view class="list-item-content">
+          <view class="list-item-title">管理后台</view>
+        </view>
+        <view class="list-item-chevron">›</view>
       </view>
     </view>
   </view>
+
+  <!-- 退出登录 -->
+  <view class="section">
+    <view class="list-group">
+      <view class="list-item logout-item" bindtap="handleLogout">
+        <view class="list-item-content center">
+          <view class="list-item-title danger">退出登录</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部安全区 -->
+  <view class="bottom-safe"></view>
 </view>

@@ -13,8 +13,16 @@ import {
   recordHelper,
   invalidateHelper,
   getCampaign,
+  getFullCampaignId,
 } from './campaign-service';
-import { sendHelpNotifications, MessageContext } from './oa-message';
+import { 
+  sendHelpNotifications, 
+  sendDuplicateHelpMessage,
+  sendCampaignEndedMessage,
+  isCampaignEnded,
+  MessageContext,
+  CampaignWithMessages,
+} from './oa-message';
 
 const parseXML = promisify(parseString);
 
@@ -68,9 +76,116 @@ function parseSceneStr(sceneStr: string): string | null {
   if (isCampaignScene(sceneStr)) {
     return null;
   }
+  // Skip if it's a user-linking scene
+  if (isUserLinkingScene(sceneStr)) {
+    return null;
+  }
   
   const match = sceneStr.match(/ref_([A-Z0-9]+)/);
   return match ? match[1] : null;
+}
+
+/**
+ * Check if scene string is a user-linking scene
+ * Format: "qrscene_link_user_{userId}" (subscribe) or "link_user_{userId}" (SCAN)
+ */
+function isUserLinkingScene(sceneStr: string): boolean {
+  const cleanScene = sceneStr.replace(/^qrscene_/, '');
+  return cleanScene.startsWith('link_user_');
+}
+
+/**
+ * Parse user-linking scene to get user ID
+ * Format: "qrscene_link_user_{userId}" (subscribe) or "link_user_{userId}" (SCAN)
+ */
+function parseUserLinkingScene(sceneStr: string): string | null {
+  const cleanScene = sceneStr.replace(/^qrscene_/, '');
+  const match = cleanScene.match(/^link_user_([a-f0-9-]+)$/i);
+  return match ? match[1] : null;
+}
+
+/**
+ * Handle user-linking subscribe event
+ * Links an existing Mini Program user with their OA openid
+ */
+async function handleUserLinkingSubscribe(
+  event: WeChatEvent,
+  openid: string,
+  userInfo: WeChatUserInfo,
+  targetUserId: string
+): Promise<string> {
+  console.log(`[User Linking] Linking OA openid ${openid} to user ${targetUserId}`);
+  
+  // Build profile update data
+  const profileData: Record<string, any> = {
+    openid_oa: openid,
+  };
+  
+  // Only update profile fields if they have values
+  if (userInfo.nickname) profileData.wechat_nickname = userInfo.nickname;
+  if (userInfo.headimgurl) profileData.wechat_avatar_url = userInfo.headimgurl;
+  if (userInfo.city) profileData.wechat_city = userInfo.city;
+  if (userInfo.province) profileData.wechat_province = userInfo.province;
+  if (userInfo.country) profileData.wechat_country = userInfo.country;
+  if (userInfo.sex !== undefined) profileData.wechat_gender = userInfo.sex;
+  if (userInfo.unionid) profileData.unionid = userInfo.unionid;
+  
+  // Update the existing user with OA openid and profile
+  const { data: updatedUser, error } = await supabase
+    .from('users')
+    .update(profileData)
+    .eq('id', targetUserId)
+    .select('id, name, wechat_nickname')
+    .single();
+  
+  if (error) {
+    console.error('[User Linking] Failed to update user:', error);
+    return generateErrorReply(event, '关联失败，请重试');
+  }
+  
+  console.log(`[User Linking] Successfully linked! User: ${updatedUser.name || updatedUser.wechat_nickname}`);
+  
+  // Log the event
+  await logEvent({
+    event_type: 'oa_user_linked',
+    user_id: targetUserId,
+    event_data: {
+      openid,
+      openid_oa: openid,
+      unionid: userInfo.unionid,
+      scene_str: event.EventKey,
+      wechat_nickname: userInfo.nickname,
+      has_avatar: !!userInfo.headimgurl,
+    },
+  });
+  
+  // Generate success response with notification activation guidance
+  const userName = updatedUser.wechat_nickname || updatedUser.name || '用户';
+  const message = `🎉 关联成功！
+
+${userName}，您的微信账号已成功关联。
+
+━━━━━━━━━━━━━━━━
+⚠️ 重要：激活消息通知
+━━━━━━━━━━━━━━━━
+
+请回复任意消息（如"1"）来激活通知功能，这样当有好友助力时，您才能收到实时提醒！
+
+━━━━━━━━━━━━━━━━
+
+关联后您可以：
+✅ 收到好友助力的实时通知
+✅ 查看活动进度更新
+
+感谢您的关注！`;
+
+  return `<xml>
+    <ToUserName><![CDATA[${openid}]]></ToUserName>
+    <FromUserName><![CDATA[${event.ToUserName}]]></FromUserName>
+    <CreateTime>${Math.floor(Date.now() / 1000)}</CreateTime>
+    <MsgType><![CDATA[text]]></MsgType>
+    <Content><![CDATA[${message}]]></Content>
+  </xml>`;
 }
 
 /**
@@ -340,6 +455,12 @@ export async function handleSubscribeEvent(event: WeChatEvent): Promise<string> 
   // Get user info (includes unionid if bound)
   const userInfo = await getUserInfo(openid);
 
+  // Check if this is a user-linking scene (user follows to link their MP account with OA)
+  const linkingUserId = parseUserLinkingScene(sceneStr);
+  if (linkingUserId) {
+    return handleUserLinkingSubscribe(event, openid, userInfo, linkingUserId);
+  }
+
   // Identify or create user (also updates profile data)
   const { id: userId, isNew } = await identifyUser(openid, userInfo);
 
@@ -459,7 +580,40 @@ async function handleCampaignSubscribe(
     return generateErrorReply(event, '活动不存在或已结束');
   }
 
-  // Find the participant being helped
+  // Check if campaign has ended
+  if (isCampaignEnded(campaign)) {
+    console.log('Campaign has ended:', campaign.id);
+    
+    // Send campaign ended message asynchronously
+    const endContext: MessageContext = {
+      helper_count: 0,
+      max_helpers: 0,
+      remaining: 0,
+      helper_name: userInfo.nickname || '微信用户',
+      sharer_name: '',
+      campaign_name: campaign.name,
+    };
+    
+    sendCampaignEndedMessage(campaign, openid, endContext).catch(err => {
+      console.error('[Campaign Subscribe] Failed to send ended message:', err);
+    });
+    
+    // Log event
+    await logEvent({
+      event_type: 'campaign_ended_access',
+      user_id: userId,
+      event_data: {
+        campaign_id: campaign.id,
+        campaign_name: campaign.name,
+        scene_str: sceneStr,
+        openid,
+      },
+    });
+    
+    return generateErrorReply(event, '该活动已结束，感谢您的关注！');
+  }
+
+  // Find the participant being helped (using original IDs, function handles partial matching)
   const participant = await findParticipantByCode(campaignId, referralCode);
   if (!participant) {
     console.error('Participant not found:', referralCode);
@@ -469,15 +623,18 @@ async function handleCampaignSubscribe(
   // Get participant user info
   const { data: inviterUser } = await supabase
     .from('users')
-    .select('id, name, wechat_nickname')
+    .select('id, name, wechat_nickname, openid_oa')
     .eq('id', participant.user_id)
     .single();
 
   const inviterName = inviterUser?.wechat_nickname || inviterUser?.name || '好友';
 
+  // Use full campaign ID from the fetched campaign object
+  const fullCampaignId = campaign.id;
+  
   // Record the help action (source: wechat_scan for subscribe events)
   const helpResult = await recordHelper(
-    campaignId,
+    fullCampaignId,
     participant.id,
     openid,
     userInfo.unionid,
@@ -487,47 +644,73 @@ async function handleCampaignSubscribe(
 
   console.log('Help Result:', helpResult);
 
-  // Send notification messages if help was successful
+  // Get max helpers from campaign rewards
+  const { data: maxReward } = await supabase
+    .from('campaign_rewards')
+    .select('helpers_required')
+    .eq('campaign_id', fullCampaignId)
+    .order('helpers_required', { ascending: false })
+    .limit(1)
+    .single();
+
+  const maxHelpers = maxReward?.helpers_required || 8;
+  const helperName = userInfo.nickname || '微信用户';
+  const sharerName = inviterUser?.wechat_nickname || inviterUser?.name || '好友';
+
+  const messageContext: MessageContext = {
+    helper_count: helpResult.helperCount || 1,
+    max_helpers: maxHelpers,
+    remaining: Math.max(0, maxHelpers - (helpResult.helperCount || 1)),
+    helper_name: helperName,
+    sharer_name: sharerName,
+    campaign_name: campaign.name,
+  };
+
+  // Debug log for notification
+  console.log('[Campaign Subscribe] === NOTIFICATION DEBUG ===');
+  console.log('[Campaign Subscribe] Sharer (inviter) info:', {
+    user_id: inviterUser?.id || 'NOT_FOUND',
+    name: inviterUser?.name || 'N/A',
+    wechat_nickname: inviterUser?.wechat_nickname || 'N/A',
+    openid_oa: inviterUser?.openid_oa || 'NULL - 分享者未关注公众号，无法发送通知！',
+    has_openid_oa: !!inviterUser?.openid_oa,
+  });
+  console.log('[Campaign Subscribe] Helper info:', {
+    openid: openid,
+    nickname: helperName,
+  });
+  console.log('[Campaign Subscribe] Help result:', helpResult);
+  console.log('[Campaign Subscribe] ========================');
+
+  // Send notification messages based on result
   if (helpResult.success && helpResult.isNew) {
-    // Get sharer's OA OpenID
-    const { data: sharerUser } = await supabase
-      .from('users')
-      .select('openid_oa, wechat_nickname, name')
-      .eq('id', participant.user_id)
-      .single();
-
-    // Get max helpers from campaign rewards
-    const { data: maxReward } = await supabase
-      .from('campaign_rewards')
-      .select('helpers_required')
-      .eq('campaign_id', campaignId)
-      .order('helpers_required', { ascending: false })
-      .limit(1)
-      .single();
-
-    const maxHelpers = maxReward?.helpers_required || 8;
-    const helperName = userInfo.nickname || '微信用户';
-    const sharerName = sharerUser?.wechat_nickname || sharerUser?.name || '好友';
-
-    const messageContext: MessageContext = {
-      helper_count: helpResult.helperCount || 1,
-      max_helpers: maxHelpers,
-      remaining: Math.max(0, maxHelpers - (helpResult.helperCount || 1)),
-      helper_name: helperName,
-      sharer_name: sharerName,
-      campaign_name: campaign.name,
-    };
-
-    // Send messages asynchronously (don't block the response)
+    // Send success messages asynchronously (don't block the response)
+    console.log('[Campaign Subscribe] Sending notifications to:');
+    console.log('  - Sharer (openid_oa):', inviterUser?.openid_oa || 'WILL_BE_SKIPPED');
+    console.log('  - Helper (openid):', openid);
+    
     sendHelpNotifications(
       campaign,
-      sharerUser?.openid_oa || null,
+      inviterUser?.openid_oa || null,
       openid,
       messageContext
     ).then(result => {
       console.log('[Campaign Subscribe] Notification results:', result);
+      if (!result.sharerMessageSent && inviterUser?.openid_oa) {
+        console.error('[Campaign Subscribe] WARNING: Failed to send message to sharer despite having openid_oa');
+      }
+      if (!result.sharerMessageSent && !inviterUser?.openid_oa) {
+        console.log('[Campaign Subscribe] NOTE: Sharer message skipped - user has not followed OA');
+      }
     }).catch(err => {
       console.error('[Campaign Subscribe] Notification error:', err);
+    });
+  } else if (!helpResult.success) {
+    // Send duplicate help message asynchronously
+    sendDuplicateHelpMessage(campaign, openid, messageContext).then(result => {
+      console.log('[Campaign Subscribe] Duplicate help message result:', result);
+    }).catch(err => {
+      console.error('[Campaign Subscribe] Failed to send duplicate message:', err);
     });
   }
 
@@ -544,7 +727,7 @@ async function handleCampaignSubscribe(
       unionid: userInfo.unionid,
       scene_str: sceneStr,
       is_new_user: isNew,
-      campaign_id: campaignId,
+      campaign_id: fullCampaignId,
       campaign_name: campaign.name,
       referral_code: referralCode,
       source: 'campaign_qr',
@@ -557,7 +740,7 @@ async function handleCampaignSubscribe(
     user_id: userId,
     related_user_id: participant.user_id,
     event_data: {
-      campaign_id: campaignId,
+      campaign_id: fullCampaignId,
       campaign_name: campaign.name,
       participant_id: participant.id,
       referral_code: referralCode,
@@ -791,7 +974,41 @@ async function handleCampaignScan(
     return generateErrorReply(event, '活动不存在或已结束');
   }
 
-  // Find the participant being helped
+  // Check if campaign has ended
+  if (isCampaignEnded(campaign)) {
+    console.log('Campaign has ended:', campaign.id);
+    
+    // Send campaign ended message asynchronously
+    const endContext: MessageContext = {
+      helper_count: 0,
+      max_helpers: 0,
+      remaining: 0,
+      helper_name: userInfo.nickname || '微信用户',
+      sharer_name: '',
+      campaign_name: campaign.name,
+    };
+    
+    sendCampaignEndedMessage(campaign, openid, endContext).catch(err => {
+      console.error('[Campaign Scan] Failed to send ended message:', err);
+    });
+    
+    // Log event
+    await logEvent({
+      event_type: 'campaign_ended_access',
+      user_id: userId,
+      event_data: {
+        campaign_id: campaign.id,
+        campaign_name: campaign.name,
+        scene_str: sceneStr,
+        openid,
+        scan_type: 'SCAN',
+      },
+    });
+    
+    return generateErrorReply(event, '该活动已结束，感谢您的关注！');
+  }
+
+  // Find the participant being helped (using original IDs, function handles partial matching)
   const participant = await findParticipantByCode(campaignId, referralCode);
   if (!participant) {
     console.error('Participant not found:', referralCode);
@@ -801,16 +1018,19 @@ async function handleCampaignScan(
   // Get participant user info
   const { data: inviterUser } = await supabase
     .from('users')
-    .select('id, name, wechat_nickname')
+    .select('id, name, wechat_nickname, openid_oa')
     .eq('id', participant.user_id)
     .single();
 
   const inviterName = inviterUser?.wechat_nickname || inviterUser?.name || '好友';
 
+  // Use full campaign ID from the fetched campaign object
+  const fullCampaignId = campaign.id;
+  
   // Check if scanner is the participant themselves
   if (participant.user_id === userId) {
     // User scanned their own QR code - show their progress
-    const mpLink = `pages/campaign/index?id=${campaignId}&from=oa`;
+    const mpLink = `pages/campaign/index?id=${fullCampaignId}&from=oa`;
     
     return `<xml>
       <ToUserName><![CDATA[${openid}]]></ToUserName>
@@ -823,7 +1043,7 @@ async function handleCampaignScan(
 
   // Record the help action (for already following users - SCAN event)
   const helpResult = await recordHelper(
-    campaignId,
+    fullCampaignId,
     participant.id,
     openid,
     userInfo.unionid,
@@ -833,47 +1053,47 @@ async function handleCampaignScan(
 
   console.log('Help Result:', helpResult);
 
-  // Send notification messages if help was successful
+  // Get max helpers from campaign rewards
+  const { data: maxReward } = await supabase
+    .from('campaign_rewards')
+    .select('helpers_required')
+    .eq('campaign_id', fullCampaignId)
+    .order('helpers_required', { ascending: false })
+    .limit(1)
+    .single();
+
+  const maxHelpers = maxReward?.helpers_required || 8;
+  const helperName = userInfo.nickname || '微信用户';
+  const sharerName = inviterUser?.wechat_nickname || inviterUser?.name || '好友';
+
+  const messageContext: MessageContext = {
+    helper_count: helpResult.helperCount || 1,
+    max_helpers: maxHelpers,
+    remaining: Math.max(0, maxHelpers - (helpResult.helperCount || 1)),
+    helper_name: helperName,
+    sharer_name: sharerName,
+    campaign_name: campaign.name,
+  };
+
+  // Send notification messages based on result
   if (helpResult.success && helpResult.isNew) {
-    // Get sharer's OA OpenID
-    const { data: sharerUser } = await supabase
-      .from('users')
-      .select('openid_oa, wechat_nickname, name')
-      .eq('id', participant.user_id)
-      .single();
-
-    // Get max helpers from campaign rewards
-    const { data: maxReward } = await supabase
-      .from('campaign_rewards')
-      .select('helpers_required')
-      .eq('campaign_id', campaignId)
-      .order('helpers_required', { ascending: false })
-      .limit(1)
-      .single();
-
-    const maxHelpers = maxReward?.helpers_required || 8;
-    const helperName = userInfo.nickname || '微信用户';
-    const sharerName = sharerUser?.wechat_nickname || sharerUser?.name || '好友';
-
-    const messageContext: MessageContext = {
-      helper_count: helpResult.helperCount || 1,
-      max_helpers: maxHelpers,
-      remaining: Math.max(0, maxHelpers - (helpResult.helperCount || 1)),
-      helper_name: helperName,
-      sharer_name: sharerName,
-      campaign_name: campaign.name,
-    };
-
-    // Send messages asynchronously (don't block the response)
+    // Send success messages asynchronously (don't block the response)
     sendHelpNotifications(
       campaign,
-      sharerUser?.openid_oa || null,
+      inviterUser?.openid_oa || null,
       openid,
       messageContext
     ).then(result => {
       console.log('[Campaign Scan] Notification results:', result);
     }).catch(err => {
       console.error('[Campaign Scan] Notification error:', err);
+    });
+  } else if (!helpResult.success) {
+    // Send duplicate help message asynchronously
+    sendDuplicateHelpMessage(campaign, openid, messageContext).then(result => {
+      console.log('[Campaign Scan] Duplicate help message result:', result);
+    }).catch(err => {
+      console.error('[Campaign Scan] Failed to send duplicate message:', err);
     });
   }
 
@@ -887,7 +1107,7 @@ async function handleCampaignScan(
       unionid: userInfo.unionid,
       scene_str: sceneStr,
       event_type: 'SCAN', // Already following
-      campaign_id: campaignId,
+      campaign_id: fullCampaignId,
       campaign_name: campaign.name,
       referral_code: referralCode,
       source: 'campaign_qr',
@@ -900,7 +1120,7 @@ async function handleCampaignScan(
     user_id: userId,
     related_user_id: participant.user_id,
     event_data: {
-      campaign_id: campaignId,
+      campaign_id: fullCampaignId,
       campaign_name: campaign.name,
       participant_id: participant.id,
       referral_code: referralCode,
@@ -933,7 +1153,7 @@ async function handleCampaignScan(
   message += `👉 您也可以参与活动，邀请好友为您助力！`;
 
   // Generate Mini Program link
-  const mpLink = `pages/campaign/index?id=${campaignId}&from=oa`;
+  const mpLink = `pages/campaign/index?id=${fullCampaignId}&from=oa`;
 
   // Return XML reply
   return `<xml>

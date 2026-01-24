@@ -31,8 +31,15 @@ router.get('/me', authenticate, async (req: AuthRequest, res) => {
         is_admin: user.is_admin || false,
         unionid: user.unionid || null, // WeChat unique ID across all products
         openid: user.openid || null, // WeChat Mini Program unique ID
-        avatar_url: user.avatar_url || null, // WeChat avatar URL
-        nickname: user.nickname || null, // WeChat nickname
+        openid_oa: user.openid_oa || null, // WeChat Official Account unique ID (set when user follows OA)
+        avatar_url: user.avatar_url || null, // WeChat avatar URL (from Mini Program)
+        nickname: user.nickname || null, // WeChat nickname (from Mini Program)
+        // WeChat profile from Official Account (more reliable - real data from OA API)
+        wechat_nickname: user.wechat_nickname || null,
+        wechat_avatar_url: user.wechat_avatar_url || null,
+        wechat_city: user.wechat_city || null,
+        wechat_province: user.wechat_province || null,
+        wechat_country: user.wechat_country || null,
       },
     });
   } catch (error: any) {

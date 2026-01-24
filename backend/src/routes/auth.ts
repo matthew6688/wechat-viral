@@ -8,6 +8,36 @@ import { logEvent, getClientIp, getUserAgent } from '../services/event-logger';
 const router = express.Router();
 
 /**
+ * GET /api/auth/settings
+ * Get public authentication settings (no auth required)
+ */
+router.get('/settings', async (req, res) => {
+  try {
+    const { data: settings } = await supabase
+      .from('debug_settings')
+      .select('key, value')
+      .in('key', ['registration_required']);
+    
+    const result: Record<string, any> = {
+      registration_required: true, // Default to true
+    };
+    
+    if (settings) {
+      for (const setting of settings) {
+        if (setting.key === 'registration_required') {
+          result.registration_required = setting.value === 'true';
+        }
+      }
+    }
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error('Get auth settings error:', error);
+    res.json({ success: true, data: { registration_required: true } });
+  }
+});
+
+/**
  * POST /api/auth/login
  * WeChat Mini Program login
  */
@@ -26,21 +56,74 @@ router.post('/login', async (req, res) => {
     const session = await code2Session(code);
     console.log('code2Session success, openid:', session.openid);
 
-    // Find or create user
-    console.log('Looking up user with openid:', session.openid);
-    let { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('openid', session.openid)
-      .single();
-    
+    // Find or create user - Priority: unionid > openid
+    // This ensures users who first follow OA then use MP are properly linked
+    console.log('Looking up user, unionid:', session.unionid, 'openid:', session.openid);
+
+    let user: any = null;
+    let userError: any = null;
+    let foundBy: string = 'none';
+
+    // Priority 1: Find by unionid (if bound to Open Platform)
+    if (session.unionid) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('unionid', session.unionid)
+        .single();
+      
+      if (data) {
+        user = data;
+        foundBy = 'unionid';
+        console.log('Found user by unionid:', user.id);
+        
+        // Update openid if not set (user was created from OA first)
+        if (!user.openid) {
+          await supabase
+            .from('users')
+            .update({ openid: session.openid })
+            .eq('id', user.id);
+          user.openid = session.openid;
+          console.log('Updated user with MP openid');
+        }
+      }
+    }
+
+    // Priority 2: Find by openid (if not found by unionid)
+    if (!user) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('openid', session.openid)
+        .single();
+      
+      user = data;
+      userError = error;
+      
+      if (user) {
+        foundBy = 'openid';
+        console.log('Found user by openid:', user.id);
+        
+        // Update unionid if not set
+        if (session.unionid && !user.unionid) {
+          await supabase
+            .from('users')
+            .update({ unionid: session.unionid })
+            .eq('id', user.id);
+          user.unionid = session.unionid;
+          console.log('Updated user with unionid');
+        }
+      }
+    }
+
     console.log('User lookup result:', { 
       found: !!user, 
+      foundBy,
       error: userError ? { code: userError.code, message: userError.message } : null 
     });
 
-    if (userError && userError.code === 'PGRST116') {
-      // User not found, create new user
+    // Create new user if not found
+    if (!user && (!userError || userError.code === 'PGRST116')) {
       // Generate unique phone number to avoid unique constraint violation (max 20 chars)
       const uniquePhone = `mp_${session.openid.slice(-12)}`; // mp_ + last 12 chars of openid = 15 chars
       
@@ -66,14 +149,9 @@ router.post('/login', async (req, res) => {
 
       console.log('User created successfully:', newUser.id);
       user = newUser;
-    } else if (userError) {
+      foundBy = 'created';
+    } else if (userError && userError.code !== 'PGRST116') {
       throw userError;
-    } else if (user && session.unionid && !user.unionid) {
-      // Update unionid if available
-      await supabase
-        .from('users')
-        .update({ unionid: session.unionid })
-        .eq('id', user.id);
     }
 
     // Generate JWT token
@@ -93,7 +171,8 @@ router.post('/login', async (req, res) => {
       event_data: {
         openid: user.openid,
         unionid: user.unionid,
-        is_new_user: userError && userError.code === 'PGRST116',
+        is_new_user: foundBy === 'created',
+        found_by: foundBy,
       },
       ip_address: getClientIp(req),
       user_agent: getUserAgent(req),
@@ -113,8 +192,11 @@ router.post('/login', async (req, res) => {
           is_admin: user.is_admin || false,
           unionid: user.unionid || null, // WeChat unique ID across all products
           openid: user.openid || null, // WeChat Mini Program unique ID
+          openid_oa: user.openid_oa || null, // WeChat Official Account unique ID
           avatar_url: user.avatar_url || null, // WeChat avatar URL
           nickname: user.nickname || null, // WeChat nickname
+          wechat_nickname: user.wechat_nickname || null, // WeChat nickname from OA
+          wechat_avatar_url: user.wechat_avatar_url || null, // WeChat avatar from OA
         },
       },
     });

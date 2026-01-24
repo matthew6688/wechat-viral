@@ -1,5 +1,6 @@
 const app = getApp();
 import { api } from '../../services/api';
+import { API_BASE_URL } from '../../utils/config';
 
 declare function getApp(): any;
 
@@ -61,10 +62,9 @@ Page({
       
       // Fetch QR code image and convert to base64
       const imageResponse: any = await new Promise((resolve, reject) => {
-        const apiBase = 'http://localhost:3000/api'; // Should match config
         const token = app.globalData.token || '';
         wx.request({
-          url: `${apiBase}/oa/qrcode-image/${response.data.ticket}`,
+          url: `${API_BASE_URL}/oa/qrcode-image/${response.data.ticket}`,
           method: 'GET',
           responseType: 'arraybuffer',
           header: token ? {
@@ -93,12 +93,11 @@ Page({
       wx.showLoading({ title: '生成中...' });
 
       const userId = this.data.user.id;
-      const apiBase = 'http://localhost:3000/api'; // Should match config
       const token = app.globalData.token || '';
       
       const response: any = await new Promise((resolve, reject) => {
         wx.request({
-          url: `${apiBase}/oa/poster/${userId}`,
+          url: `${API_BASE_URL}/oa/poster/${userId}`,
           method: 'GET',
           responseType: 'arraybuffer',
           header: token ? {

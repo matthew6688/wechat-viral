@@ -1,6 +1,7 @@
 // pages/invite/index.js
 const app = getApp();
 const api = require('../../services/api').api;
+const { API_BASE_URL } = require('../../utils/config');
 
 Page({
   data: {
@@ -89,11 +90,10 @@ Page({
     this.setData({ 'loading.mp': true });
     try {
       const token = wx.getStorageSync('token') || '';
-      const apiBase = 'http://localhost:3000/api';
       
       const response = await new Promise((resolve, reject) => {
         wx.request({
-          url: `${apiBase}/referrals/qrcode`,
+          url: `${API_BASE_URL}/referrals/qrcode`,
           method: 'GET',
           responseType: 'arraybuffer',
           header: token ? { 'Authorization': `Bearer ${token}` } : {},
@@ -123,11 +123,10 @@ Page({
       
       if (qrInfo && qrInfo.ticket) {
         const token = wx.getStorageSync('token') || '';
-        const apiBase = 'http://localhost:3000/api';
         
         const response = await new Promise((resolve, reject) => {
           wx.request({
-            url: `${apiBase}/oa/qrcode-image/${qrInfo.ticket}`,
+            url: `${API_BASE_URL}/oa/qrcode-image/${qrInfo.ticket}`,
             method: 'GET',
             responseType: 'arraybuffer',
             header: token ? { 'Authorization': `Bearer ${token}` } : {},
@@ -180,11 +179,10 @@ Page({
     try {
       const requestData = this.data.selectedTemplateId ? { templateId: this.data.selectedTemplateId } : {};
       const token = wx.getStorageSync('token') || '';
-      const apiBase = 'http://localhost:3000/api';
       
       const response = await new Promise((resolve, reject) => {
         wx.request({
-          url: `${apiBase}/oa/poster/${this.data.user.id}`,
+          url: `${API_BASE_URL}/oa/poster/${this.data.user.id}`,
           method: 'POST',
           data: requestData,
           responseType: 'arraybuffer',

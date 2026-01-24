@@ -93,6 +93,36 @@ Page({
     }
   },
 
+  /**
+   * Force re-authorize WeChat profile (clears skip flag)
+   */
+  async forceReauthorize() {
+    // Clear the skip flag
+    wx.removeStorageSync('profile_auth_skipped');
+    
+    try {
+      const result = await app.getUserProfile();
+      if (result) {
+        wx.showToast({
+          title: '授权成功',
+          icon: 'success',
+        });
+        this.loadUser();
+      } else {
+        wx.showToast({
+          title: '授权被取消',
+          icon: 'none',
+        });
+      }
+    } catch (error) {
+      console.error('Reauthorize error:', error);
+      wx.showToast({
+        title: '授权失败',
+        icon: 'none',
+      });
+    }
+  },
+
   logout() {
     wx.showModal({
       title: '确认退出',
