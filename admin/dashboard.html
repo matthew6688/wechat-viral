@@ -4355,6 +4355,73 @@
       border-top: 1px solid var(--border-color);
     }
 
+    /* Settings Card Styles */
+    .settings-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .settings-card h4 {
+      margin: 0 0 8px 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .settings-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .settings-card-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .settings-card-desc {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .settings-card.collapsible .collapsible-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      margin: -20px;
+      padding: 20px;
+    }
+
+    .settings-card.collapsible .collapsible-header:hover {
+      background: var(--bg-secondary);
+    }
+
+    .settings-card.collapsible .collapsible-header h4 {
+      margin: 0;
+    }
+
+    .settings-card.collapsible .collapsible-icon {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .settings-card.collapsible .collapsible-content {
+      margin: 0 -20px -20px -20px;
+      padding: 0 20px 20px 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .ai-cs-container {
+      max-width: 800px;
+    }
+
     .section-desc {
       font-size: 12px;
       color: var(--text-muted);
@@ -10636,6 +10703,10 @@
             <span class="nav-item-icon">📇</span>
             <span class="nav-item-text">全部用户</span>
           </button>
+          <button class="nav-item" data-panel="ai-customer-service" onclick="switchPanel('ai-customer-service')">
+            <span class="nav-item-icon">🤖</span>
+            <span class="nav-item-text">AI 客服</span>
+          </button>
         </div>
 
         <!-- 系统监控 -->
@@ -14248,6 +14319,267 @@
           </div>
         </div>
 
+        <!-- ============================================ -->
+        <!-- AI CUSTOMER SERVICE PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-ai-customer-service">
+          <div class="ai-cs-container">
+            <!-- Status Card -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <h3>🤖 AI 客服配置</h3>
+                <span class="status-indicator" id="aiCsStatusPanel">
+                  <span class="indicator-dot"></span>
+                  <span class="indicator-text">检查中...</span>
+                </span>
+              </div>
+              <p class="settings-card-desc">配置 AI 客服与 n8n 的集成，自动回复公众号用户消息。</p>
+            </div>
+
+            <!-- Enable Toggle -->
+            <div class="settings-card">
+              <h4>启用 AI 客服</h4>
+              <div style="display: flex; align-items: center; gap: 16px; margin-top: 12px;">
+                <button type="button" id="aiCsToggleBtn" onclick="toggleAICSPanel()" style="
+                  padding: 10px 20px;
+                  border-radius: 8px;
+                  border: none;
+                  cursor: pointer;
+                  font-size: 14px;
+                  font-weight: 500;
+                  transition: all 0.2s;
+                  min-width: 100px;
+                ">已禁用</button>
+              </div>
+              <p class="section-desc" style="margin-top: 8px;">启用后，用户发送消息会转发到 n8n 处理，AI 生成回复后自动发送给用户。</p>
+              <input type="hidden" id="aiCsEnabledPanel" value="false">
+            </div>
+
+            <!-- Webhook URL -->
+            <div class="settings-card">
+              <h4>n8n Webhook URL</h4>
+              <p class="section-desc">配置 n8n 工作流的 Webhook 接收地址。</p>
+              <div class="tunnel-url-input-group" style="margin-top: 12px;">
+                <input type="text" id="n8nWebhookUrlPanel" placeholder="https://your-n8n.app/webhook/xxx" class="tunnel-url-input" style="min-width: 400px;">
+                <button class="btn-primary-small" onclick="saveAICSConfigPanel()">保存</button>
+                <button class="btn-secondary" onclick="testN8nWebhookPanel()">测试连接</button>
+              </div>
+              <div id="n8nTestResultPanel" style="margin-top: 8px; font-size: 12px;"></div>
+            </div>
+
+            <!-- Timeout Setting -->
+            <div class="settings-card">
+              <h4>超时设置</h4>
+              <p class="section-desc">n8n 响应超时时间（毫秒）。微信要求 5 秒内响应，建议设置 4500ms。</p>
+              <div style="display: flex; align-items: center; gap: 12px; margin-top: 12px;">
+                <input type="number" id="aiCsTimeoutPanel" value="4500" min="1000" max="5000" style="width: 100px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                <span>毫秒 (推荐: 4500)</span>
+              </div>
+            </div>
+
+            <!-- Fallback Message -->
+            <div class="settings-card">
+              <h4>兜底消息</h4>
+              <p class="section-desc">当 AI 无法回复或超时时，发送给用户的消息。</p>
+              <textarea id="aiCsFallbackMessagePanel" rows="3" style="width: 100%; margin-top: 12px; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); resize: vertical;" placeholder="抱歉，系统繁忙，请稍后再试或回复&quot;转人工&quot;联系客服。"></textarea>
+            </div>
+
+            <!-- Transfer Message -->
+            <div class="settings-card">
+              <h4>转人工提示</h4>
+              <p class="section-desc">转接人工客服前发送给用户的消息。</p>
+              <textarea id="aiCsTransferMessagePanel" rows="2" style="width: 100%; margin-top: 12px; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); resize: vertical;" placeholder="正在为您转接人工客服，请稍候..."></textarea>
+            </div>
+
+            <!-- Transfer Keywords -->
+            <div class="settings-card">
+              <h4>转人工关键词（备用）</h4>
+              <p class="section-desc">用户消息包含这些关键词时，直接转人工（作为 AI 判断的补充）。</p>
+              <input type="text" id="aiCsTransferKeywordsPanel" style="width: 100%; margin-top: 12px; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary);" placeholder="转人工, 人工客服, 找客服">
+              <p class="section-desc" style="margin-top: 4px; font-size: 11px; color: var(--text-muted);">多个关键词用逗号分隔</p>
+            </div>
+
+            <!-- Integration Guide (Collapsible) -->
+            <div class="settings-card collapsible">
+              <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <h4>📖 n8n 集成指南（Callback 模式）</h4>
+                <span class="collapsible-icon">▼</span>
+              </div>
+              <div class="collapsible-content" style="display: none;">
+                <div style="padding: 16px 0;">
+                  <div style="background: var(--warning-bg, rgba(255,193,7,0.1)); border: 1px solid var(--warning, #ffc107); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                    <strong>⚠️ 重要：</strong>使用 Callback 模式，n8n 可以花任意时间处理消息，不受微信 5 秒限制！
+                  </div>
+
+                  <h5>步骤 1：创建 Webhook 节点</h5>
+                  <ul style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 16px 20px; line-height: 1.8;">
+                    <li>在 n8n 中创建新工作流</li>
+                    <li>添加 <strong>Webhook</strong> 节点作为触发器</li>
+                    <li><strong>关键设置：Respond = "Immediately"</strong></li>
+                    <li>复制 Production URL 填入上方输入框</li>
+                  </ul>
+
+                  <h5>步骤 2：我们发送给 n8n 的数据格式</h5>
+                  <pre style="background: var(--bg-tertiary); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; margin: 8px 0 16px 0;">{
+  "openid": "用户的微信OpenID",
+  "message": "用户发送的消息内容",
+  "message_type": "text",
+  "timestamp": 1234567890,
+  "user_info": {
+    "nickname": "用户昵称",
+    "avatar_url": "头像URL",
+    "user_id": "系统用户ID"
+  },
+  "callback_url": "https://你的域名/api/oa/ai-callback",
+  "request_id": "req_xxx_唯一请求ID"
+}</pre>
+
+                  <h5>步骤 3：添加 AI 处理节点</h5>
+                  <ul style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 16px 20px; line-height: 1.8;">
+                    <li>连接你的 AI 模型（OpenAI、Claude 等）</li>
+                    <li>使用 <code>{{ $json.message }}</code> 获取用户消息</li>
+                    <li>可以调用数据库、API 等，时间不限</li>
+                  </ul>
+
+                  <h5>步骤 4：添加 HTTP Request 节点（关键！）</h5>
+                  <ul style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 16px 20px; line-height: 1.8;">
+                    <li>Method: <strong>POST</strong></li>
+                    <li>URL: <code>{{ $('Webhook').item.json.callback_url }}</code></li>
+                    <li>Body Content Type: <strong>JSON</strong></li>
+                  </ul>
+                  <pre style="background: var(--bg-tertiary); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; margin: 8px 0 16px 0;">// HTTP Request Body:
+{
+  "request_id": "{{ $('Webhook').item.json.request_id }}",
+  "openid": "{{ $('Webhook').item.json.openid }}",
+  "reply": "AI 生成的回复内容",
+  "transfer_to_human": false
+}</pre>
+
+                  <h5>步骤 5：转人工客服</h5>
+                  <p style="font-size: 13px; color: var(--text-secondary); margin: 8px 0;">
+                    当 AI 判断需要转人工时，设置 <code>"transfer_to_human": true</code>，系统会自动发送转人工提示并调用微信客服接口。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Flow Diagram (Collapsible) -->
+            <div class="settings-card collapsible">
+              <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <h4>🔄 数据流图（Callback 模式）</h4>
+                <span class="collapsible-icon">▼</span>
+              </div>
+              <div class="collapsible-content" style="display: none;">
+                <div style="padding: 16px 0;">
+                  <pre style="background: var(--bg-tertiary); padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 11px; line-height: 1.8; white-space: pre;">
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  微信用户    │     │   我们后端   │     │    n8n       │
+└──────────────┘     └──────────────┘     └──────────────┘
+       │                    │                    │
+       │ 1. 发送消息        │                    │
+       │───────────────────▶│                    │
+       │                    │                    │
+       │ 2. 立即返回        │ 3. POST webhook    │
+       │   "success"        │    (带callback_url) │
+       │◀───────────────────│───────────────────▶│
+       │                    │                    │
+       │                    │  4. n8n 处理消息   │
+       │                    │     (无时间限制！)  │
+       │                    │     ⏱️ 可花 1分钟+  │
+       │                    │                    │
+       │                    │ 5. POST callback   │
+       │                    │◀───────────────────│
+       │                    │                    │
+       │ 6. 客服消息API     │                    │
+       │◀───────────────────│                    │
+       │                    │                    │
+       │  用户收到回复 ✅   │                    │
+                  </pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- Testing Guide (Collapsible) -->
+            <div class="settings-card collapsible">
+              <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <h4>🧪 一步步测试指南</h4>
+                <span class="collapsible-icon">▼</span>
+              </div>
+              <div class="collapsible-content" style="display: none;">
+                <div style="padding: 16px 0;">
+                  <h5>测试步骤</h5>
+                  <ol style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 16px 20px; line-height: 2;">
+                    <li><strong>配置 n8n：</strong>创建工作流，添加 Webhook + HTTP Request 节点</li>
+                    <li><strong>设置 Webhook：</strong>Respond 设为 <code>Immediately</code></li>
+                    <li><strong>激活工作流：</strong>点击 n8n 右上角的激活开关</li>
+                    <li><strong>复制 URL：</strong>复制 Production URL（不是 Test URL）</li>
+                    <li><strong>保存配置：</strong>将 URL 粘贴到上方输入框，点击保存</li>
+                    <li><strong>启用 AI 客服：</strong>点击上方的启用按钮</li>
+                    <li><strong>测试连接：</strong>点击"测试连接"按钮验证</li>
+                    <li><strong>真机测试：</strong>用微信给公众号发送消息</li>
+                    <li><strong>查看日志：</strong>在 n8n 执行记录中确认收到请求</li>
+                    <li><strong>验证回复：</strong>检查微信是否收到 AI 回复</li>
+                  </ol>
+
+                  <h5 style="margin-top: 16px;">常见问题</h5>
+                  <ul style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 16px 20px; line-height: 1.8;">
+                    <li><strong>没收到消息？</strong> 检查 n8n 工作流是否已激活</li>
+                    <li><strong>收到兜底消息？</strong> 检查 callback_url 是否正确被调用</li>
+                    <li><strong>n8n 显示错误？</strong> 检查 HTTP Request 节点的 URL 是否使用了表达式</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- 48-Hour Window Guide (Collapsible) -->
+            <div class="settings-card collapsible">
+              <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <h4>⏰ 48小时消息窗口说明</h4>
+                <span class="collapsible-icon">▼</span>
+              </div>
+              <div class="collapsible-content" style="display: none;">
+                <div style="padding: 16px 0;">
+                  <div style="background: var(--info-bg, rgba(23,162,184,0.1)); border: 1px solid var(--info, #17a2b8); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                    <strong>💡 什么是 48 小时窗口？</strong><br>
+                    <span style="font-size: 13px;">微信规定：用户主动与公众号互动后，48小时内可以向用户发送客服消息。超过 48 小时后，除非用户再次互动，否则无法发送消息。</span>
+                  </div>
+
+                  <h5>✅ 以下事件会打开/刷新 48 小时窗口：</h5>
+                  <ul style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 16px 20px; line-height: 2;">
+                    <li>📱 <strong>用户发送文字消息</strong> ← AI 客服主要使用这个</li>
+                    <li>🖼️ <strong>用户发送图片、语音、视频</strong></li>
+                    <li>📍 <strong>用户发送位置</strong></li>
+                    <li>🔗 <strong>用户点击自定义菜单</strong>（菜单需配置为发送消息类型）</li>
+                    <li>➕ <strong>用户关注公众号</strong></li>
+                    <li>📲 <strong>用户扫描带参数二维码</strong></li>
+                    <li>💳 <strong>用户支付成功</strong>（微信支付后会触发）</li>
+                    <li>🎫 <strong>用户从卡包进入</strong>（会员卡等）</li>
+                  </ul>
+
+                  <h5>❌ 以下情况无法打开窗口：</h5>
+                  <ul style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 16px 20px; line-height: 1.8;">
+                    <li>用户只是阅读了文章，没有其他互动</li>
+                    <li>用户只是点击了跳转链接的菜单</li>
+                    <li>用户 48 小时内没有任何主动互动</li>
+                  </ul>
+
+                  <div style="background: var(--success-bg, rgba(40,167,69,0.1)); border: 1px solid var(--success, #28a745); border-radius: 8px; padding: 12px; margin-top: 16px;">
+                    <strong>💬 最佳实践：</strong><br>
+                    <span style="font-size: 13px;">引导用户给公众号发送任意消息（如"你好"），既能触发 AI 客服，又能打开 48 小时窗口用于后续通知。</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Save Button -->
+            <div style="margin-top: 24px;">
+              <button class="btn-primary" onclick="saveAICSConfigPanel()" style="padding: 12px 24px;">
+                💾 保存所有设置
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Contact Detail Modal -->
         <div class="modal-overlay" id="contactDetailModal" style="display: none;">
           <div class="modal contact-detail-modal">
@@ -14976,6 +15308,12 @@
         subtitle: '管理小程序和公众号的所有用户',
         actions: '<button class="btn-primary" onclick="bulkExportContacts()">📤 导出数据</button>',
         onLoad: loadContacts
+      },
+      'ai-customer-service': {
+        title: 'AI 客服',
+        subtitle: '配置 AI 客服与 n8n 的集成，自动回复公众号用户消息',
+        actions: '',
+        onLoad: loadAICSConfigPanel
       }
     };
 
@@ -19518,6 +19856,194 @@
           btn.disabled = false;
           btn.textContent = '🔄';
         }
+      }
+    }
+
+    // ============================================
+    // AI Customer Service Panel Functions
+    // ============================================
+
+    let aiCsConfig = null;
+
+    async function loadAICSConfigPanel() {
+      try {
+        const statusEl = document.getElementById('aiCsStatusPanel');
+        if (statusEl) {
+          const dot = statusEl.querySelector('.indicator-dot');
+          const text = statusEl.querySelector('.indicator-text');
+          if (dot) dot.className = 'indicator-dot checking';
+          if (text) text.textContent = '检查中...';
+        }
+        
+        const res = await fetch(`${API_BASE_URL}/admin/ai-cs/config`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const response = await res.json();
+        
+        if (response.success && response.data && response.data.config) {
+          const config = response.data.config;
+          aiCsConfig = config;
+          
+          // Update toggle button
+          const enabledEl = document.getElementById('aiCsEnabledPanel');
+          const toggleBtn = document.getElementById('aiCsToggleBtn');
+          if (enabledEl) enabledEl.value = config.enabled ? 'true' : 'false';
+          if (toggleBtn) {
+            updateAICSToggleButton(config.enabled);
+          }
+          
+          const webhookEl = document.getElementById('n8nWebhookUrlPanel');
+          if (webhookEl) webhookEl.value = config.n8n_webhook_url || '';
+          
+          const timeoutEl = document.getElementById('aiCsTimeoutPanel');
+          if (timeoutEl) timeoutEl.value = config.timeout_ms || 4500;
+          
+          const fallbackEl = document.getElementById('aiCsFallbackMessagePanel');
+          if (fallbackEl) fallbackEl.value = config.fallback_message || '';
+          
+          const transferMsgEl = document.getElementById('aiCsTransferMessagePanel');
+          if (transferMsgEl) transferMsgEl.value = config.transfer_message || '';
+          
+          const keywordsEl = document.getElementById('aiCsTransferKeywordsPanel');
+          if (keywordsEl) keywordsEl.value = (config.transfer_keywords || []).join(', ');
+          
+          // Update status
+          updateAICSStatusPanel(config.enabled && config.n8n_webhook_url ? 'connected' : 
+                               config.n8n_webhook_url ? 'configured' : 'disconnected');
+        } else {
+          updateAICSStatusPanel('disconnected', '配置加载失败');
+        }
+      } catch (error) {
+        console.error('Load AI CS config panel error:', error);
+        updateAICSStatusPanel('disconnected', '加载失败');
+      }
+    }
+
+    function updateAICSStatusPanel(status, customText) {
+      const indicator = document.getElementById('aiCsStatusPanel');
+      if (!indicator) return;
+      
+      const dot = indicator.querySelector('.indicator-dot');
+      const textEl = indicator.querySelector('.indicator-text');
+      
+      if (status === 'checking') {
+        if (dot) dot.className = 'indicator-dot checking';
+        if (textEl) { textEl.textContent = customText || '检查中...'; textEl.style.color = 'var(--text-muted)'; }
+      } else if (status === 'connected') {
+        if (dot) dot.className = 'indicator-dot connected';
+        if (textEl) { textEl.textContent = customText || '已启用'; textEl.style.color = 'var(--success)'; }
+      } else if (status === 'configured') {
+        if (dot) { dot.className = 'indicator-dot'; dot.style.background = 'var(--warning)'; }
+        if (textEl) { textEl.textContent = customText || '已配置（未启用）'; textEl.style.color = 'var(--warning)'; }
+      } else {
+        if (dot) dot.className = 'indicator-dot disconnected';
+        if (textEl) { textEl.textContent = customText || '未配置'; textEl.style.color = 'var(--error)'; }
+      }
+    }
+
+    function updateAICSToggleButton(enabled) {
+      const toggleBtn = document.getElementById('aiCsToggleBtn');
+      if (toggleBtn) {
+        toggleBtn.textContent = enabled ? '✅ 已启用' : '❌ 已禁用';
+        toggleBtn.style.background = enabled ? 'var(--success, #28a745)' : 'var(--bg-tertiary, #444)';
+        toggleBtn.style.color = enabled ? '#fff' : 'var(--text-secondary)';
+      }
+    }
+
+    async function toggleAICSPanel() {
+      const enabledEl = document.getElementById('aiCsEnabledPanel');
+      const currentValue = enabledEl?.value === 'true';
+      const newValue = !currentValue;
+      
+      // Update UI immediately
+      if (enabledEl) enabledEl.value = newValue ? 'true' : 'false';
+      updateAICSToggleButton(newValue);
+      
+      // Save to server
+      await saveAICSConfigPanel();
+    }
+
+    async function saveAICSConfigPanel() {
+      try {
+        const enabledEl = document.getElementById('aiCsEnabledPanel');
+        const config = {
+          id: aiCsConfig?.id,
+          enabled: enabledEl?.value === 'true',
+          n8n_webhook_url: document.getElementById('n8nWebhookUrlPanel')?.value.trim() || '',
+          timeout_ms: parseInt(document.getElementById('aiCsTimeoutPanel')?.value) || 4500,
+          fallback_message: document.getElementById('aiCsFallbackMessagePanel')?.value.trim() || '',
+          transfer_message: document.getElementById('aiCsTransferMessagePanel')?.value.trim() || '',
+          transfer_keywords: (document.getElementById('aiCsTransferKeywordsPanel')?.value || '')
+            .split(',')
+            .map(k => k.trim())
+            .filter(k => k.length > 0),
+        };
+        
+        const res = await fetch(`${API_BASE_URL}/admin/ai-cs/config`, {
+          method: 'PUT',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(config),
+        });
+        const response = await res.json();
+        
+        if (response.success) {
+          alert('AI 客服配置已保存');
+          loadAICSConfigPanel();
+        } else {
+          alert(response.error || '保存失败');
+        }
+      } catch (error) {
+        console.error('Save AI CS config panel error:', error);
+        alert('保存失败: ' + error.message);
+      }
+    }
+
+    async function testN8nWebhookPanel() {
+      const webhookUrl = document.getElementById('n8nWebhookUrlPanel')?.value.trim();
+      const timeout = parseInt(document.getElementById('aiCsTimeoutPanel')?.value) || 5000;
+      const resultEl = document.getElementById('n8nTestResultPanel');
+      
+      if (!webhookUrl) {
+        if (resultEl) resultEl.innerHTML = '<span style="color: var(--error);">请输入 Webhook URL</span>';
+        return;
+      }
+      
+      if (resultEl) resultEl.innerHTML = '<span style="color: var(--text-muted);">测试中...</span>';
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/ai-cs/test`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ webhook_url: webhookUrl, timeout_ms: timeout }),
+        });
+        const response = await res.json();
+        
+        if (response.success) {
+          if (resultEl) resultEl.innerHTML = `<span style="color: var(--success);">✅ ${response.message}</span>`;
+        } else {
+          if (resultEl) resultEl.innerHTML = `<span style="color: var(--error);">❌ ${response.message || response.error || '测试失败'}</span>`;
+        }
+      } catch (error) {
+        console.error('Test n8n webhook panel error:', error);
+        if (resultEl) resultEl.innerHTML = `<span style="color: var(--error);">❌ 测试失败: ${error.message}</span>`;
+      }
+    }
+
+    function toggleCollapsible(header) {
+      const content = header.nextElementSibling;
+      const icon = header.querySelector('.collapsible-icon');
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+        if (icon) icon.textContent = '▲';
+      } else {
+        content.style.display = 'none';
+        if (icon) icon.textContent = '▼';
       }
     }
 

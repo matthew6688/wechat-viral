@@ -12,6 +12,15 @@ import { generatePoster } from '../services/poster-generator';
 import { oaConfig } from '../config/wechat';
 import { supabase } from '../config/supabase';
 import { decryptMessage, decryptEchostr } from '../services/oa-crypto';
+import { sendCustomerServiceMessage } from '../services/oa-message';
+import {
+  sendUserMessageToAI,
+  processN8nCallback,
+  generateTransferCustomerServiceXML,
+  getAICustomerServiceConfig,
+  N8nCallbackPayload,
+} from '../services/ai-customer-service';
+import { logEvent } from '../services/event-logger';
 
 const router = express.Router();
 
@@ -206,41 +215,93 @@ router.post('/wh', express.text({ type: 'text/xml' }), async (req, res) => {
           reply = 'success';
       }
     } else if (event.MsgType === 'text') {
-      // Text message from user - this activates the 48-hour message window!
+      // Text message from user - AI Customer Service with Callback Pattern
       const openid = event.FromUserName;
-      console.log(`[OA Message] Received text from ${openid}: ${event.Content}`);
+      const content = (event as any).Content || '';
+      console.log(`[OA Message] Received text from ${openid}: ${content}`);
       
       // Record this interaction for notification activation
-      const { logEvent } = require('../services/event-logger');
       await logEvent({
         event_type: 'oa_message_received',
         event_data: {
           openid,
-          content: event.Content?.slice(0, 100), // Truncate for privacy
+          content: content.slice(0, 100),
           msg_type: 'text',
         },
       });
       
-      // Send confirmation that notifications are activated
-      reply = `<xml>
-        <ToUserName><![CDATA[${openid}]]></ToUserName>
-        <FromUserName><![CDATA[${event.ToUserName}]]></FromUserName>
-        <CreateTime>${Math.floor(Date.now() / 1000)}</CreateTime>
-        <MsgType><![CDATA[text]]></MsgType>
-        <Content><![CDATA[✅ 通知已激活！
+      // Check if AI customer service is enabled
+      const aiConfig = await getAICustomerServiceConfig();
+      
+      if (aiConfig && aiConfig.enabled && aiConfig.n8n_webhook_url) {
+        console.log('[AI CS] Sending message to n8n (callback pattern)');
+        
+        // Build callback URL - use Cloudflare tunnel URL if available
+        const { data: tunnelConfig } = await supabase
+          .from('tunnel_config')
+          .select('url')
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        const baseUrl = tunnelConfig?.url || `${req.protocol}://${req.get('host')}`;
+        const callbackUrl = `${baseUrl}/api/oa/ai-callback`;
+        
+        // Get user info for context
+        const { data: user } = await supabase
+          .from('users')
+          .select('id, wechat_nickname, wechat_avatar_url')
+          .eq('openid_oa', openid)
+          .single();
+        
+        const result = await sendUserMessageToAI(
+          openid,
+          content,
+          'text',
+          {
+            nickname: user?.wechat_nickname,
+            avatar_url: user?.wechat_avatar_url,
+            user_id: user?.id,
+          },
+          callbackUrl
+        );
+        
+        // If handled locally (e.g., transfer keyword), send message directly
+        if (result.handled_locally && result.local_reply) {
+          await sendCustomerServiceMessage(openid, result.local_reply);
+          console.log('[AI CS] Message handled locally');
+        } else if (result.sent) {
+          console.log('[AI CS] Message sent to n8n, callback URL:', callbackUrl);
+        } else if (result.error) {
+          console.error('[AI CS] Error:', result.error);
+          const fallbackMsg = aiConfig.fallback_message || '抱歉，系统繁忙，请稍后再试。';
+          await sendCustomerServiceMessage(openid, fallbackMsg);
+        }
+        
+        // Return success immediately - n8n will call back with response
+        reply = 'success';
+      } else {
+        // AI customer service not enabled, use default response
+        reply = `<xml>
+          <ToUserName><![CDATA[${openid}]]></ToUserName>
+          <FromUserName><![CDATA[${event.ToUserName}]]></FromUserName>
+          <CreateTime>${Math.floor(Date.now() / 1000)}</CreateTime>
+          <MsgType><![CDATA[text]]></MsgType>
+          <Content><![CDATA[✅ 通知已激活！
 
 当有好友为您助力时，您将收到实时提醒。
 
 ━━━━━━━━━━━━━━━━
 📱 返回小程序继续分享，邀请更多好友助力！]]></Content>
-      </xml>`;
+        </xml>`;
+      }
     } else {
       // Other message types
       reply = 'success';
     }
 
-    // If security mode, encrypt reply
-    if (encrypt_type === 'aes' && oaConfig.encodingAESKey && timestamp && nonce) {
+    // If security mode, encrypt reply (only for XML responses, not 'success')
+    if (reply !== 'success' && encrypt_type === 'aes' && oaConfig.encodingAESKey && timestamp && nonce) {
       try {
         const { encryptMessage } = require('../services/oa-crypto');
         const { encrypted, signature: replySignature } = encryptMessage(reply, timestamp as string, nonce as string);
@@ -409,41 +470,93 @@ router.post('/webhook', express.text({ type: 'text/xml' }), async (req, res) => 
           reply = 'success';
       }
     } else if (event.MsgType === 'text') {
-      // Text message from user - this activates the 48-hour message window!
+      // Text message from user - AI Customer Service with Callback Pattern
       const openid = event.FromUserName;
-      console.log(`[OA Message] Received text from ${openid}: ${event.Content}`);
+      const content = (event as any).Content || '';
+      console.log(`[OA Message] Received text from ${openid}: ${content}`);
       
       // Record this interaction for notification activation
-      const { logEvent } = require('../services/event-logger');
       await logEvent({
         event_type: 'oa_message_received',
         event_data: {
           openid,
-          content: event.Content?.slice(0, 100),
+          content: content.slice(0, 100),
           msg_type: 'text',
         },
       });
       
-      // Send confirmation that notifications are activated
-      reply = `<xml>
-        <ToUserName><![CDATA[${openid}]]></ToUserName>
-        <FromUserName><![CDATA[${event.ToUserName}]]></FromUserName>
-        <CreateTime>${Math.floor(Date.now() / 1000)}</CreateTime>
-        <MsgType><![CDATA[text]]></MsgType>
-        <Content><![CDATA[✅ 通知已激活！
+      // Check if AI customer service is enabled
+      const aiConfig = await getAICustomerServiceConfig();
+      
+      if (aiConfig && aiConfig.enabled && aiConfig.n8n_webhook_url) {
+        console.log('[AI CS] Sending message to n8n (callback pattern)');
+        
+        // Build callback URL - use Cloudflare tunnel URL if available
+        const { data: tunnelConfig } = await supabase
+          .from('tunnel_config')
+          .select('url')
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        const baseUrl = tunnelConfig?.url || `${req.protocol}://${req.get('host')}`;
+        const callbackUrl = `${baseUrl}/api/oa/ai-callback`;
+        
+        // Get user info for context
+        const { data: user } = await supabase
+          .from('users')
+          .select('id, wechat_nickname, wechat_avatar_url')
+          .eq('openid_oa', openid)
+          .single();
+        
+        const result = await sendUserMessageToAI(
+          openid,
+          content,
+          'text',
+          {
+            nickname: user?.wechat_nickname,
+            avatar_url: user?.wechat_avatar_url,
+            user_id: user?.id,
+          },
+          callbackUrl
+        );
+        
+        // If handled locally (e.g., transfer keyword), send message directly
+        if (result.handled_locally && result.local_reply) {
+          await sendCustomerServiceMessage(openid, result.local_reply);
+          console.log('[AI CS] Message handled locally');
+        } else if (result.sent) {
+          console.log('[AI CS] Message sent to n8n, callback URL:', callbackUrl);
+        } else if (result.error) {
+          console.error('[AI CS] Error:', result.error);
+          const fallbackMsg = aiConfig.fallback_message || '抱歉，系统繁忙，请稍后再试。';
+          await sendCustomerServiceMessage(openid, fallbackMsg);
+        }
+        
+        // Return success immediately - n8n will call back with response
+        reply = 'success';
+      } else {
+        // AI customer service not enabled, use default response
+        reply = `<xml>
+          <ToUserName><![CDATA[${openid}]]></ToUserName>
+          <FromUserName><![CDATA[${event.ToUserName}]]></FromUserName>
+          <CreateTime>${Math.floor(Date.now() / 1000)}</CreateTime>
+          <MsgType><![CDATA[text]]></MsgType>
+          <Content><![CDATA[✅ 通知已激活！
 
 当有好友为您助力时，您将收到实时提醒。
 
 ━━━━━━━━━━━━━━━━
 📱 返回小程序继续分享，邀请更多好友助力！]]></Content>
-      </xml>`;
+        </xml>`;
+      }
     } else {
       // Other message types
       reply = 'success';
     }
 
-    // If security mode, encrypt reply
-    if (encrypt_type === 'aes' && oaConfig.encodingAESKey && timestamp && nonce) {
+    // If security mode, encrypt reply (only for XML responses, not 'success')
+    if (reply !== 'success' && encrypt_type === 'aes' && oaConfig.encodingAESKey && timestamp && nonce) {
       try {
         const { encryptMessage } = require('../services/oa-crypto');
         const { encrypted, signature: replySignature } = encryptMessage(reply, timestamp as string, nonce as string);
@@ -464,6 +577,63 @@ router.post('/webhook', express.text({ type: 'text/xml' }), async (req, res) => 
   } catch (error: any) {
     console.error('Webhook error:', error);
     res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/oa/ai-callback
+ * Callback endpoint for n8n to send AI response
+ * This is called by n8n's HTTP Request node after processing the message
+ */
+router.post('/ai-callback', express.json(), async (req, res) => {
+  try {
+    const payload = req.body as N8nCallbackPayload;
+    
+    console.log('[AI CS Callback] Received:', {
+      request_id: payload.request_id,
+      openid: payload.openid?.slice(0, 10) + '...',
+      has_reply: !!payload.reply,
+      transfer_to_human: payload.transfer_to_human,
+    });
+    
+    // Validate required fields
+    if (!payload.openid) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Missing required field: openid' 
+      });
+    }
+    
+    // Process the callback
+    const result = await processN8nCallback(payload);
+    
+    if (result.success) {
+      // Log successful callback
+      await logEvent({
+        event_type: 'ai_cs_callback_processed',
+        event_data: {
+          request_id: payload.request_id,
+          openid: payload.openid,
+          transfer_to_human: payload.transfer_to_human,
+        },
+      });
+      
+      return res.json({ 
+        success: true, 
+        message: 'Reply sent successfully' 
+      });
+    } else {
+      return res.status(500).json({ 
+        success: false, 
+        error: result.error || 'Failed to process callback' 
+      });
+    }
+  } catch (error: any) {
+    console.error('[AI CS Callback] Error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Internal server error' 
+    });
   }
 });
 
@@ -616,8 +786,7 @@ router.post('/poster/:userId', authenticate, async (req: AuthRequest, res) => {
       }
     }
 
-    const templateIdParam = req.body?.templateId || req.query?.templateId as string | undefined;
-    const posterBuffer = await generatePoster(userId, templateIdParam);
+    const posterBuffer = await generatePoster(userId);
 
     res.set('Content-Type', 'image/png');
     res.send(posterBuffer);
@@ -649,8 +818,7 @@ router.get('/poster/:userId', authenticate, async (req: AuthRequest, res) => {
       }
     }
 
-    const templateIdParam = templateId as string | undefined;
-    const posterBuffer = await generatePoster(userId, templateIdParam);
+    const posterBuffer = await generatePoster(userId);
 
     res.set('Content-Type', 'image/png');
     res.send(posterBuffer);

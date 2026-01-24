@@ -3041,4 +3041,123 @@ router.post('/testing/refresh-oa-token', authenticate, requireAdmin, async (req:
   }
 });
 
+// ============================================
+// AI CUSTOMER SERVICE CONFIGURATION
+// ============================================
+
+/**
+ * GET /api/admin/ai-cs/config
+ * Get AI customer service configuration
+ */
+router.get('/ai-cs/config', async (req: AuthRequest, res) => {
+  try {
+    const { getAICustomerServiceConfig } = require('../services/ai-customer-service');
+    const config = await getAICustomerServiceConfig();
+    
+    if (!config) {
+      return res.status(404).json({ error: 'Configuration not found' });
+    }
+    
+    res.json({
+      success: true,
+      data: { config },
+    });
+  } catch (error: any) {
+    console.error('Get AI CS config error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get AI CS config' });
+  }
+});
+
+/**
+ * PUT /api/admin/ai-cs/config
+ * Update AI customer service configuration
+ */
+router.put('/ai-cs/config', async (req: AuthRequest, res) => {
+  try {
+    const { 
+      enabled, 
+      n8n_webhook_url, 
+      timeout_ms, 
+      transfer_keywords,
+      fallback_message,
+      transfer_message,
+    } = req.body;
+    
+    const updates: Record<string, any> = {};
+    
+    if (enabled !== undefined) updates.enabled = enabled;
+    if (n8n_webhook_url !== undefined) updates.n8n_webhook_url = n8n_webhook_url;
+    if (timeout_ms !== undefined) updates.timeout_ms = timeout_ms;
+    if (transfer_keywords !== undefined) updates.transfer_keywords = transfer_keywords;
+    if (fallback_message !== undefined) updates.fallback_message = fallback_message;
+    if (transfer_message !== undefined) updates.transfer_message = transfer_message;
+    
+    const { updateAICustomerServiceConfig, clearAIConfigCache } = require('../services/ai-customer-service');
+    const result = await updateAICustomerServiceConfig(updates);
+    
+    if (!result.success) {
+      return res.status(500).json({ error: result.error || 'Failed to update config' });
+    }
+    
+    // Clear cache to ensure changes take effect
+    clearAIConfigCache();
+    
+    // Log the action
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_update_ai_cs_config',
+      user_id: req.userId,
+      event_data: { updated_fields: Object.keys(updates) },
+    });
+    
+    res.json({
+      success: true,
+      message: 'AI customer service configuration updated',
+    });
+  } catch (error: any) {
+    console.error('Update AI CS config error:', error);
+    res.status(500).json({ error: error.message || 'Failed to update AI CS config' });
+  }
+});
+
+/**
+ * POST /api/admin/ai-cs/test
+ * Test n8n webhook connectivity
+ */
+router.post('/ai-cs/test', async (req: AuthRequest, res) => {
+  try {
+    const { webhook_url, timeout_ms = 5000 } = req.body;
+    
+    if (!webhook_url) {
+      return res.status(400).json({ error: 'Webhook URL is required' });
+    }
+    
+    const { testN8nWebhook } = require('../services/ai-customer-service');
+    const result = await testN8nWebhook(webhook_url, timeout_ms);
+    
+    // Log the test
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_test_ai_cs_webhook',
+      user_id: req.userId,
+      event_data: { 
+        success: result.success,
+        duration_ms: result.duration_ms,
+        message: result.message,
+      },
+    });
+    
+    res.json({
+      success: result.success,
+      message: result.message,
+      data: {
+        duration_ms: result.duration_ms,
+      },
+    });
+  } catch (error: any) {
+    console.error('Test AI CS webhook error:', error);
+    res.status(500).json({ error: error.message || 'Failed to test webhook' });
+  }
+});
+
 export default router;
