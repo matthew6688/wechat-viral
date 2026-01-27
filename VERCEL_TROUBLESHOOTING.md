@@ -1,157 +1,132 @@
 # Vercel 部署故障排除指南
 
-## 常见错误和解决方案
+## 当前问题
 
-### 错误 1: FUNCTION_INVOCATION_FAILED (500 Internal Server Error)
+小程序返回 "TypeError: fetch failed" 错误，即使 Vercel URL 已配置。
 
-**可能原因：**
-1. 环境变量未正确配置
-2. 路径问题（admin 目录或静态文件）
-3. TypeScript 编译问题
-4. 依赖项缺失
+## 可能的原因
 
-**解决步骤：**
+1. **Vercel 函数无法正确加载 Express app**
+2. **环境变量未正确配置**
+3. **编译后的代码有问题**
+4. **微信小程序域名白名单未配置**
 
-#### 1. 检查环境变量
+## 解决步骤
 
-在 Vercel Dashboard → Settings → Environment Variables 中确认所有必需的环境变量都已设置：
+### 1. 检查 Vercel 部署日志
 
+1. 登录 Vercel Dashboard
+2. 进入项目 → **Deployments**
+3. 点击最新的部署
+4. 查看 **Build Logs** 和 **Function Logs**
+5. 查找错误信息
+
+### 2. 验证环境变量
+
+确保以下环境变量都已配置：
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_KEY`
+- `WECHAT_APPID`
+- `WECHAT_SECRET`
+- `JWT_SECRET`
+- `OA_APPID` (如果使用)
+- `OA_SECRET` (如果使用)
+- `OA_TOKEN` (如果使用)
+- `OA_ENCODING_AES_KEY` (如果使用)
+
+### 3. 测试 Vercel API
+
+使用 curl 测试 API 端点：
+
+```bash
+# 测试健康检查
+curl https://your-vercel-url.vercel.app/health
+
+# 测试活动列表（公开端点）
+curl https://your-vercel-url.vercel.app/api/campaigns
+
+# 测试登录（需要 code）
+curl -X POST https://your-vercel-url.vercel.app/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"code":"test"}'
 ```
-SUPABASE_URL
-SUPABASE_SERVICE_KEY
-WECHAT_APPID
-WECHAT_SECRET
-OA_APPID
-OA_SECRET
-OA_TOKEN
-OA_ENCODING_AES_KEY
-JWT_SECRET
-NODE_ENV=production
+
+### 4. 配置微信小程序域名白名单
+
+在微信小程序后台：
+1. 进入 **开发** → **开发管理** → **开发设置** → **服务器域名**
+2. 在 **request合法域名** 中添加：
+   - `https://wechat-viral-4lq4hct57-matthews-projects-09dd8000.vercel.app`
+
+### 5. 检查 Vercel 函数配置
+
+确保 `vercel.json` 配置正确：
+
+```json
+{
+  "version": 2,
+  "buildCommand": "cd backend && npm install --include=dev && npm run build",
+  "installCommand": "cd backend && npm install --include=dev",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index"
+    }
+  ],
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "admin/**"
+    }
+  }
+}
 ```
 
-#### 2. 查看构建日志
+### 6. 重新部署
 
-1. 在 Vercel Dashboard 中，点击失败的部署
-2. 查看 "Build Logs" 标签页
-3. 查找错误信息，特别是：
-   - TypeScript 编译错误
-   - 模块未找到错误
-   - 环境变量缺失警告
+如果修改了配置或代码：
+1. 推送到 GitHub
+2. Vercel 会自动重新部署
+3. 等待部署完成
+4. 检查部署日志
 
-#### 3. 查看函数日志
+### 7. 本地测试编译
 
-1. 在 Vercel Dashboard 中，点击 "Functions" 标签页
-2. 点击 `api/index.ts`
-3. 查看 "Logs" 标签页
-4. 查找运行时错误
+在本地测试编译过程：
 
-#### 4. 测试健康检查端点
-
-部署后，访问：
-```
-https://your-app.vercel.app/health
+```bash
+cd backend
+npm install --include=dev
+npm run build
+node dist/index.js
 ```
 
-如果返回 `{"status":"ok"}`，说明基本部署成功。
+如果本地运行正常，但 Vercel 失败，可能是环境变量或构建配置问题。
 
-#### 5. 检查路径问题
+## 常见错误
 
-如果错误与 admin 目录相关，确保：
-- `admin/` 目录在项目根目录
-- `vercel.json` 中 `includeFiles` 配置正确
+### "TypeError: fetch failed"
+- **原因**: Vercel 函数无法正确加载或执行
+- **解决**: 检查部署日志，确保所有依赖都已安装
 
-### 错误 2: Module not found
+### "Cannot find module"
+- **原因**: 依赖未正确安装或路径错误
+- **解决**: 检查 `package.json` 和 `installCommand`
 
-**解决方案：**
-
-1. 确保 `backend/package.json` 包含所有依赖
-2. 在 Vercel 项目设置中，确认：
-   - **Root Directory:** 留空
-   - **Build Command:** `cd backend && npm install && npm run build`
-   - **Output Directory:** 留空（Vercel 会自动处理）
-
-### 错误 3: Environment variable not set
-
-**解决方案：**
-
-1. 在 Vercel Dashboard → Settings → Environment Variables
-2. 确保所有变量都已添加
-3. 确保选择了正确的环境（Production, Preview, Development）
-4. 重新部署以应用新的环境变量
-
-### 错误 4: TypeScript compilation errors
-
-**解决方案：**
-
-1. 本地测试编译：
-   ```bash
-   cd backend
-   npm install
-   npm run build
-   ```
-2. 修复所有 TypeScript 错误
-3. 确保 `backend/tsconfig.json` 配置正确
-
-### 错误 5: Admin pages not loading
-
-**解决方案：**
-
-1. 确保 `admin/` 目录在项目根目录
-2. 检查 `vercel.json` 中的 `includeFiles` 配置
-3. 如果仍然有问题，可以暂时禁用 admin 静态文件服务，只使用 API
+### "Environment variable not set"
+- **原因**: 环境变量未在 Vercel Dashboard 中配置
+- **解决**: 在 Vercel Dashboard → Settings → Environment Variables 中添加
 
 ## 调试技巧
 
-### 1. 添加详细日志
+1. **添加详细日志**: 在代码中添加 `console.log` 来追踪执行流程
+2. **检查函数日志**: 在 Vercel Dashboard 中查看实时函数日志
+3. **使用健康检查端点**: 测试 `/health` 端点确认服务器运行正常
+4. **逐步测试**: 先测试简单的端点（如 `/health`），再测试复杂端点
 
-在 `backend/src/index.ts` 中添加：
-
-```typescript
-console.log('Environment check:', {
-  VERCEL: process.env.VERCEL,
-  NODE_ENV: process.env.NODE_ENV,
-  SUPABASE_URL: process.env.SUPABASE_URL ? 'SET' : 'NOT SET',
-  // 不要记录敏感信息
-});
-```
-
-### 2. 测试最小化部署
-
-创建一个简单的测试端点：
-
-```typescript
-app.get('/test', (req, res) => {
-  res.json({ 
-    message: 'Server is working',
-    timestamp: new Date().toISOString(),
-    env: process.env.NODE_ENV
-  });
-});
-```
-
-### 3. 检查 Vercel 函数大小限制
-
-- 函数代码大小限制：50MB（未压缩）
-- 如果超过限制，考虑：
-  - 移除不必要的依赖
-  - 使用外部 CDN 存储静态文件
-  - 优化代码
-
-## 快速修复清单
-
-- [ ] 所有环境变量已配置
-- [ ] TypeScript 编译无错误
-- [ ] `vercel.json` 配置正确
-- [ ] `api/index.ts` 存在且正确
-- [ ] `backend/src/index.ts` 导出正确
-- [ ] `admin/` 目录在正确位置
-- [ ] 构建日志无错误
-- [ ] 函数日志无运行时错误
-
-## 获取帮助
+## 联系支持
 
 如果问题仍然存在：
-
-1. 查看 Vercel 官方文档：https://vercel.com/docs
-2. 检查 Vercel 社区论坛
-3. 查看项目的 GitHub Issues
+1. 收集 Vercel 部署日志
+2. 收集函数执行日志
+3. 收集错误堆栈信息
+4. 联系 Vercel 支持或检查文档
