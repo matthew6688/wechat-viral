@@ -50,9 +50,36 @@ function getSupabase(): SupabaseClient<Database> {
       
       const body = init?.body ? (typeof init.body === 'string' ? init.body : JSON.stringify(init.body)) : undefined;
       
-      console.log('[Supabase] Axios fetch:', { url, method, hasBody: !!body });
+      console.log('[Supabase] Axios fetch called:', { 
+        url, 
+        method, 
+        hasBody: !!body,
+        urlHost: new URL(url).hostname,
+      });
       
       try {
+        // Try to resolve DNS first
+        const dns = require('dns');
+        const { promisify } = require('util');
+        const lookup = promisify(dns.lookup);
+        
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname;
+        
+        console.log('[Supabase] Attempting DNS lookup for:', hostname);
+        try {
+          const address = await lookup(hostname, { family: 4 });
+          console.log('[Supabase] DNS resolved:', address);
+        } catch (dnsError: any) {
+          console.error('[Supabase] DNS lookup failed:', {
+            code: dnsError.code,
+            errno: dnsError.errno,
+            syscall: dnsError.syscall,
+            hostname: dnsError.hostname,
+          });
+          // Continue anyway, axios might handle it differently
+        }
+        
         const response = await axios({
           url,
           method: method as any,
@@ -60,8 +87,14 @@ function getSupabase(): SupabaseClient<Database> {
           data: body,
           validateStatus: () => true, // Don't throw on any status code
           timeout: 30000, // 30 second timeout
-          // Use IPv4 explicitly to avoid DNS issues
+          // Force IPv4
           family: 4,
+          // Add DNS resolver options
+          lookup: (hostname: string, options: any, callback: any) => {
+            console.log('[Supabase] Custom DNS lookup:', hostname);
+            const dns = require('dns');
+            dns.lookup(hostname, { family: 4, all: false }, callback);
+          },
         });
         
         // Convert axios response to Fetch Response
