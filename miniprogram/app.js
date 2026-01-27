@@ -210,6 +210,8 @@ App({
             }
             
             console.log('[App] Login request URL:', `${API_BASE_URL}/auth/login`);
+            console.log('[App] API_BASE_URL value:', API_BASE_URL);
+            console.log('[App] Platform:', platform);
             
             wx.request({
               url: `${API_BASE_URL}/auth/login`,
@@ -247,10 +249,33 @@ App({
                 }
               },
               fail: (error) => {
-                console.error('Login request failed:', error);
-                const errorMsg = (error && error.errMsg) ? error.errMsg : 
-                                (error && error.message) ? error.message : 
-                                'Network request failed';
+                console.error('[App] ❌ Login request failed:', error);
+                console.error('[App] Error details:', {
+                  errMsg: error?.errMsg,
+                  errno: error?.errno,
+                  errorCode: error?.errorCode,
+                  cronetErrorCode: error?.cronet_error_code,
+                  API_BASE_URL: API_BASE_URL,
+                  requestURL: `${API_BASE_URL}/auth/login`,
+                });
+                
+                // Provide specific error messages based on error type
+                let errorMsg = 'Network request failed';
+                if (error?.errMsg) {
+                  if (error.errMsg.includes('ERR_NAME_NOT_RESOLVED')) {
+                    errorMsg = '域名解析失败，请检查域名白名单配置';
+                  } else if (error.errMsg.includes('ERR_CONNECTION_REFUSED')) {
+                    errorMsg = '连接被拒绝，服务器可能未运行';
+                  } else if (error.errMsg.includes('fetch failed')) {
+                    errorMsg = '网络请求失败，请检查：1) 域名白名单 2) 网络连接 3) 服务器状态';
+                  } else {
+                    errorMsg = error.errMsg;
+                  }
+                } else if (error?.message) {
+                  errorMsg = error.message;
+                }
+                
+                console.error('[App] Final error message:', errorMsg);
                 reject(new Error(errorMsg));
               },
             });
