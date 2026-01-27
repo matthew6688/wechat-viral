@@ -70,6 +70,64 @@ function isDuplicateEvent(event: any): boolean {
   return false;
 }
 
+async function handleMenuClickEvent(event: any, req: express.Request): Promise<string> {
+  const openid = event.FromUserName;
+  const eventKey = event.EventKey || '';
+
+  console.log(`[OA Menu] Click event from ${openid}: ${eventKey}`);
+
+  await logEvent({
+    event_type: 'oa_menu_click',
+    event_data: {
+      openid,
+      event_key: eventKey,
+    },
+  });
+
+  const aiConfig = await getAICustomerServiceConfig();
+  if (!aiConfig || !aiConfig.enabled || !aiConfig.n8n_webhook_url) {
+    return 'success';
+  }
+
+  const { data: tunnelConfig } = await supabase
+    .from('tunnel_config')
+    .select('url')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  const baseUrl = tunnelConfig?.url || `${req.protocol}://${req.get('host')}`;
+  const callbackUrl = `${baseUrl}/api/oa/ai-callback`;
+
+  const { data: user } = await supabase
+    .from('users')
+    .select('id, wechat_nickname, wechat_avatar_url')
+    .eq('openid_oa', openid)
+    .single();
+
+  const result = await sendUserMessageToAI(
+    openid,
+    `menu_click:${eventKey || 'unknown'}`,
+    'event',
+    {
+      nickname: user?.wechat_nickname,
+      avatar_url: user?.wechat_avatar_url,
+      user_id: user?.id,
+    },
+    callbackUrl,
+    { type: 'click', key: eventKey }
+  );
+
+  if (result.handled_locally && result.local_reply) {
+    await sendCustomerServiceMessage(openid, result.local_reply);
+  } else if (!result.sent && result.error) {
+    const fallbackMsg = aiConfig.fallback_message || '抱歉，系统繁忙，请稍后再试。';
+    await sendCustomerServiceMessage(openid, fallbackMsg);
+  }
+
+  return 'success';
+}
+
 /**
  * GET /api/oa/wh - Short alias for webhook (to avoid URL truncation)
  * URL verification - supports plaintext, compatible, and security mode
@@ -212,6 +270,9 @@ router.post('/wh', express.text({ type: 'text/xml' }), async (req, res) => {
           break;
         case 'SCAN':
           reply = await handleScanEvent(event);
+          break;
+        case 'CLICK':
+          reply = await handleMenuClickEvent(event, req);
           break;
         default:
           reply = 'success';
@@ -469,6 +530,9 @@ router.post('/webhook', express.text({ type: 'text/xml' }), async (req, res) => 
           break;
         case 'SCAN':
           reply = await handleScanEvent(event);
+          break;
+        case 'CLICK':
+          reply = await handleMenuClickEvent(event, req);
           break;
         default:
           reply = 'success';

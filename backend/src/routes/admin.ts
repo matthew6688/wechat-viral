@@ -3160,6 +3160,75 @@ router.post('/ai-cs/test', async (req: AuthRequest, res) => {
   }
 });
 
+// ============================================
+// OFFICIAL ACCOUNT MENU CONFIGURATION
+// ============================================
+
+/**
+ * GET /api/admin/oa-menu
+ * Get stored OA menu config and current menu from WeChat
+ */
+router.get('/oa-menu', async (req: AuthRequest, res) => {
+  try {
+    const { getStoredOAMenu, fetchWeChatMenu } = require('../services/oa-menu');
+    const stored = await getStoredOAMenu();
+    let wechatMenu = null;
+
+    try {
+      wechatMenu = await fetchWeChatMenu();
+    } catch (error: any) {
+      console.warn('[Admin] Failed to fetch WeChat menu:', error.message);
+    }
+
+    res.json({
+      success: true,
+      data: {
+        stored_menu: stored,
+        wechat_menu: wechatMenu,
+      },
+    });
+  } catch (error: any) {
+    console.error('Get OA menu error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get OA menu' });
+  }
+});
+
+/**
+ * POST /api/admin/oa-menu
+ * Save and publish OA menu
+ */
+router.post('/oa-menu', async (req: AuthRequest, res) => {
+  try {
+    const { menu } = req.body;
+    const { validateMenuConfig, syncMenuToWeChat, saveOAMenuConfig } = require('../services/oa-menu');
+
+    const validation = validateMenuConfig(menu);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error || 'Invalid menu config' });
+    }
+
+    // Sync to WeChat first (fail fast)
+    await syncMenuToWeChat(menu);
+
+    // Persist config
+    await saveOAMenuConfig(menu);
+
+    const { logEvent } = require('../services/event-logger');
+    await logEvent({
+      event_type: 'admin_update_oa_menu',
+      user_id: req.userId,
+      event_data: {
+        top_level_count: menu?.button?.length || 0,
+      },
+    });
+
+    res.json({ success: true, message: '菜单已发布' });
+  } catch (error: any) {
+    console.error('Update OA menu error:', error);
+    res.status(500).json({ error: error.message || 'Failed to update OA menu' });
+  }
+});
+
 /**
  * POST /api/admin/fix-helper-counts
  * Manually trigger helper count recalculation for all participants

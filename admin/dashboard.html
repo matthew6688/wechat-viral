@@ -10834,6 +10834,10 @@
             <span class="nav-item-icon">🤖</span>
             <span class="nav-item-text">AI 客服</span>
           </button>
+          <button class="nav-item" data-panel="oa-menu" onclick="switchPanel('oa-menu')">
+            <span class="nav-item-icon">📋</span>
+            <span class="nav-item-text">公众号菜单</span>
+          </button>
         </div>
 
         <!-- 系统监控 -->
@@ -14550,7 +14554,7 @@
                   <pre style="background: var(--bg-tertiary); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; margin: 8px 0 16px 0;">{
   "openid": "用户的微信OpenID",
   "message": "用户发送的消息内容",
-  "message_type": "text",
+  "message_type": "text | event",
   "timestamp": 1234567890,
   "user_info": {
     "nickname": "用户昵称",
@@ -14558,7 +14562,11 @@
     "user_id": "系统用户ID"
   },
   "callback_url": "https://你的域名/api/oa/ai-callback",
-  "request_id": "req_xxx_唯一请求ID"
+  "request_id": "req_xxx_唯一请求ID",
+  "event": {
+    "type": "click",
+    "key": "MENU_HELP"
+  }
 }</pre>
 
                   <h5>步骤 3：添加 AI 处理节点</h5>
@@ -14578,7 +14586,21 @@
 {
   "request_id": "{{ $('Webhook').item.json.request_id }}",
   "openid": "{{ $('Webhook').item.json.openid }}",
-  "reply": "AI 生成的回复内容",
+  "reply": {
+    "type": "text | image | voice | video | news | transfer_kf",
+    "content": {
+      "text": "AI 生成的回复内容",
+      "media_id": "MEDIA_ID_IF_NEEDED",
+      "articles": [
+        {
+          "title": "文章标题",
+          "description": "描述",
+          "url": "https://mp.weixin.qq.com/s/xxx",
+          "picurl": "https://..."
+        }
+      ]
+    }
+  },
   "transfer_to_human": false
 }</pre>
 
@@ -14703,6 +14725,38 @@
               <button class="btn-primary" onclick="saveAICSConfigPanel()" style="padding: 12px 24px;">
                 💾 保存所有设置
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- OFFICIAL ACCOUNT MENU PANEL -->
+        <!-- ============================================ -->
+        <div class="content-panel" id="panel-oa-menu">
+          <div class="ai-cs-container">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <h3>📋 公众号菜单配置</h3>
+                <span class="status-indicator" id="oaMenuStatusPanel">
+                  <span class="indicator-dot"></span>
+                  <span class="indicator-text">未加载</span>
+                </span>
+              </div>
+              <p class="settings-card-desc">仅支持 click / view / miniprogram 三种类型。点击后会触发 n8n 处理。</p>
+            </div>
+
+            <div class="settings-card">
+              <div style="display: flex; gap: 10px;">
+                <button class="btn-secondary" onclick="loadOAMenuConfig()">加载当前菜单</button>
+                <button class="btn-primary" onclick="saveOAMenuConfig()">发布菜单</button>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h4>菜单结构</h4>
+              <div id="oaMenuContainer"></div>
+              <button class="btn-secondary" style="margin-top: 12px;" onclick="addTopLevelMenu()">+ 添加一级菜单</button>
+              <p class="section-desc" style="margin-top: 8px;">一级菜单最多 3 个，二级菜单最多 5 个。</p>
             </div>
           </div>
         </div>
@@ -15441,6 +15495,12 @@
         subtitle: '配置 AI 客服与 n8n 的集成，自动回复公众号用户消息',
         actions: '',
         onLoad: loadAICSConfigPanel
+      },
+      'oa-menu': {
+        title: '公众号菜单',
+        subtitle: '配置公众号自定义菜单（click / view / miniprogram）',
+        actions: '',
+        onLoad: loadOAMenuConfig
       }
     };
 
@@ -20159,6 +20219,235 @@
       } catch (error) {
         console.error('Test n8n webhook panel error:', error);
         if (resultEl) resultEl.innerHTML = `<span style="color: var(--error);">❌ 测试失败: ${error.message}</span>`;
+      }
+    }
+
+    // ============================================
+    // Official Account Menu Panel Functions
+    // ============================================
+
+    let oaMenuConfig = { button: [] };
+
+    function updateOAMenuStatusPanel(status, text) {
+      const indicator = document.getElementById('oaMenuStatusPanel');
+      if (!indicator) return;
+      const dot = indicator.querySelector('.indicator-dot');
+      const textEl = indicator.querySelector('.indicator-text');
+
+      if (status === 'loaded') {
+        if (dot) dot.className = 'indicator-dot connected';
+        if (textEl) { textEl.textContent = text || '已加载'; textEl.style.color = 'var(--success)'; }
+      } else if (status === 'error') {
+        if (dot) dot.className = 'indicator-dot disconnected';
+        if (textEl) { textEl.textContent = text || '加载失败'; textEl.style.color = 'var(--error)'; }
+      } else {
+        if (dot) dot.className = 'indicator-dot checking';
+        if (textEl) { textEl.textContent = text || '加载中...'; textEl.style.color = 'var(--text-muted)'; }
+      }
+    }
+
+    function getMenuItem(parentIndex, index) {
+      if (parentIndex === null || parentIndex === undefined || parentIndex === '') {
+        return oaMenuConfig.button[index];
+      }
+      return oaMenuConfig.button[parentIndex].sub_button[index];
+    }
+
+    function updateOAMenuField(el) {
+      const index = parseInt(el.dataset.index, 10);
+      const parentIndex = el.dataset.parent ? parseInt(el.dataset.parent, 10) : null;
+      const field = el.dataset.field;
+      const item = getMenuItem(parentIndex, index);
+      if (!item) return;
+
+      item[field] = el.value.trim();
+
+      if (field === 'type' && item.type !== 'miniprogram') {
+        item.appid = '';
+        item.pagepath = '';
+      }
+      if (field === 'type' && item.type !== 'view') {
+        item.url = item.type === 'miniprogram' ? item.url : '';
+      }
+      if (field === 'type' && item.type !== 'click') {
+        item.key = '';
+      }
+
+      renderOAMenu();
+    }
+
+    function addTopLevelMenu() {
+      if (oaMenuConfig.button.length >= 3) {
+        alert('一级菜单最多 3 个');
+        return;
+      }
+      oaMenuConfig.button.push({ name: '', type: 'click', key: '' });
+      renderOAMenu();
+    }
+
+    function addSubMenu(parentIndex) {
+      const parent = oaMenuConfig.button[parentIndex];
+      if (!parent.sub_button) parent.sub_button = [];
+      if (parent.sub_button.length >= 5) {
+        alert('二级菜单最多 5 个');
+        return;
+      }
+      parent.type = undefined;
+      parent.key = '';
+      parent.url = '';
+      parent.appid = '';
+      parent.pagepath = '';
+      parent.sub_button.push({ name: '', type: 'click', key: '' });
+      renderOAMenu();
+    }
+
+    function removeMenu(index, parentIndex) {
+      if (parentIndex === null || parentIndex === undefined || parentIndex === '') {
+        oaMenuConfig.button.splice(index, 1);
+      } else {
+        const parent = oaMenuConfig.button[parentIndex];
+        parent.sub_button.splice(index, 1);
+        if (parent.sub_button.length === 0) {
+          parent.sub_button = [];
+          parent.type = 'click';
+          parent.key = '';
+        }
+      }
+      renderOAMenu();
+    }
+
+    function renderMenuItem(item, index, parentIndex) {
+      const isSub = parentIndex !== null && parentIndex !== undefined;
+      const hasSub = !isSub && item.sub_button && item.sub_button.length > 0;
+      const typeDisabled = hasSub ? 'disabled' : '';
+      const typeValue = item.type || 'click';
+
+      return `
+        <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-top: 12px; background: var(--bg-secondary);">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" placeholder="菜单名称" value="${item.name || ''}" data-index="${index}" data-parent="${parentIndex ?? ''}" data-field="name" oninput="updateOAMenuField(this)" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+            <select ${typeDisabled} data-index="${index}" data-parent="${parentIndex ?? ''}" data-field="type" onchange="updateOAMenuField(this)" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+              <option value="click" ${typeValue === 'click' ? 'selected' : ''}>click</option>
+              <option value="view" ${typeValue === 'view' ? 'selected' : ''}>view</option>
+              <option value="miniprogram" ${typeValue === 'miniprogram' ? 'selected' : ''}>miniprogram</option>
+            </select>
+            <button class="btn-secondary" onclick="removeMenu(${index}, ${parentIndex ?? 'null'})">删除</button>
+          </div>
+
+          ${hasSub ? `<div class="section-desc" style="margin-top: 6px;">已配置子菜单，类型不可设置</div>` : ''}
+
+          ${(!hasSub && typeValue === 'click') ? `
+            <div style="margin-top: 8px;">
+              <input type="text" placeholder="Event Key（例如: MENU_HELP）" value="${item.key || ''}" data-index="${index}" data-parent="${parentIndex ?? ''}" data-field="key" oninput="updateOAMenuField(this)" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+            </div>
+          ` : ''}
+
+          ${(!hasSub && typeValue === 'view') ? `
+            <div style="margin-top: 8px;">
+              <input type="text" placeholder="跳转 URL" value="${item.url || ''}" data-index="${index}" data-parent="${parentIndex ?? ''}" data-field="url" oninput="updateOAMenuField(this)" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+            </div>
+          ` : ''}
+
+          ${(!hasSub && typeValue === 'miniprogram') ? `
+            <div style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <input type="text" placeholder="小程序 AppID" value="${item.appid || ''}" data-index="${index}" data-parent="${parentIndex ?? ''}" data-field="appid" oninput="updateOAMenuField(this)" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+              <input type="text" placeholder="小程序页面路径" value="${item.pagepath || ''}" data-index="${index}" data-parent="${parentIndex ?? ''}" data-field="pagepath" oninput="updateOAMenuField(this)" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+            </div>
+            <div style="margin-top: 8px;">
+              <input type="text" placeholder="备用 URL" value="${item.url || ''}" data-index="${index}" data-parent="${parentIndex ?? ''}" data-field="url" oninput="updateOAMenuField(this)" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+            </div>
+          ` : ''}
+
+          ${!isSub ? `
+            <div style="margin-top: 10px;">
+              <button class="btn-secondary" onclick="addSubMenu(${index})">+ 添加子菜单</button>
+            </div>
+          ` : ''}
+
+          ${hasSub ? `
+            <div style="margin-top: 10px;">
+              ${item.sub_button.map((sub, subIndex) => renderMenuItem(sub, subIndex, index)).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderOAMenu() {
+      const container = document.getElementById('oaMenuContainer');
+      if (!container) return;
+
+      if (!oaMenuConfig.button || oaMenuConfig.button.length === 0) {
+        container.innerHTML = '<div class="empty-state">暂无菜单，请添加</div>';
+        return;
+      }
+
+      container.innerHTML = oaMenuConfig.button.map((item, index) => renderMenuItem(item, index, null)).join('');
+    }
+
+    function normalizeMenu(menu) {
+      const normalized = { button: [] };
+      (menu.button || []).forEach(btn => {
+        const newBtn = { ...btn };
+        if (newBtn.sub_button && newBtn.sub_button.length > 0) {
+          newBtn.sub_button = newBtn.sub_button.map(sub => ({
+            name: sub.name,
+            type: sub.type,
+            key: sub.key,
+            url: sub.url,
+            appid: sub.appid,
+            pagepath: sub.pagepath,
+          }));
+          delete newBtn.type;
+          delete newBtn.key;
+          delete newBtn.url;
+          delete newBtn.appid;
+          delete newBtn.pagepath;
+        }
+        normalized.button.push(newBtn);
+      });
+      return normalized;
+    }
+
+    async function loadOAMenuConfig() {
+      try {
+        updateOAMenuStatusPanel('loading', '加载中...');
+        const res = await fetch(`${API_BASE_URL}/admin/oa-menu`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const response = await res.json();
+        const stored = response?.data?.stored_menu;
+        const wechat = response?.data?.wechat_menu;
+        oaMenuConfig = stored || wechat || { button: [] };
+        renderOAMenu();
+        updateOAMenuStatusPanel('loaded', stored ? '已加载（本地）' : '已加载（微信）');
+      } catch (error) {
+        console.error('Load OA menu error:', error);
+        updateOAMenuStatusPanel('error', '加载失败');
+      }
+    }
+
+    async function saveOAMenuConfig() {
+      try {
+        const menu = normalizeMenu(oaMenuConfig);
+        const res = await fetch(`${API_BASE_URL}/admin/oa-menu`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ menu }),
+        });
+        const response = await res.json();
+        if (response.success) {
+          alert('菜单已发布');
+          loadOAMenuConfig();
+        } else {
+          alert(response.error || '发布失败');
+        }
+      } catch (error) {
+        console.error('Save OA menu error:', error);
+        alert('发布失败: ' + error.message);
       }
     }
 

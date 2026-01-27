@@ -61,4 +61,6 @@ export const OA_API = {
   getQRCodeImage: 'https://mp.weixin.qq.com/cgi-bin/showqrcode',
   getUserInfo: 'https://api.weixin.qq.com/cgi-bin/user/info',
   sendMessage: 'https://api.weixin.qq.com/cgi-bin/message/custom/send',
+  createMenu: 'https://api.weixin.qq.com/cgi-bin/menu/create',
+  getMenu: 'https://api.weixin.qq.com/cgi-bin/menu/get',
 };

@@ -109,6 +109,21 @@ export async function sendCustomerServiceMessage(
   content: string,
   retryCount: number = 0
 ): Promise<{ success: boolean; error?: string }> {
+  return sendCustomerServicePayload(
+    openid,
+    {
+      msgtype: 'text',
+      text: { content },
+    },
+    retryCount
+  );
+}
+
+export async function sendCustomerServicePayload(
+  openid: string,
+  payload: Record<string, any>,
+  retryCount: number = 0
+): Promise<{ success: boolean; error?: string }> {
   try {
     const accessToken = await getOAAccessToken();
     
@@ -116,10 +131,7 @@ export async function sendCustomerServiceMessage(
       `${OA_API.sendMessage}?access_token=${accessToken}`,
       {
         touser: openid,
-        msgtype: 'text',
-        text: {
-          content: content,
-        },
+        ...payload,
       }
     );
 
@@ -128,7 +140,7 @@ export async function sendCustomerServiceMessage(
       console.log('[OA Message] Token error, refreshing and retrying...');
       clearAccessTokenCache();
       await getOAAccessToken(true); // Force refresh
-      return sendCustomerServiceMessage(openid, content, retryCount + 1);
+      return sendCustomerServicePayload(openid, payload, retryCount + 1);
     }
 
     if (response.data.errcode === 0) {

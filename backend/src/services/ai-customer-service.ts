@@ -27,12 +27,16 @@ export interface AICustomerServiceConfig {
 export interface N8nWebhookRequest {
   openid: string;
   message: string;
-  message_type: 'text' | 'image' | 'voice' | 'video';
+  message_type: 'text' | 'image' | 'voice' | 'video' | 'event';
   timestamp: number;
   user_info: {
     nickname?: string;
     avatar_url?: string;
     user_id?: string;
+  };
+  event?: {
+    type: string;
+    key?: string;
   };
   // Callback URL for n8n to send the response back
   callback_url: string;
@@ -40,19 +44,34 @@ export interface N8nWebhookRequest {
   request_id: string;
 }
 
-// Response from n8n (via callback)
-export interface N8nWebhookResponse {
-  reply: string;
-  transfer_to_human: boolean;
-  metadata?: Record<string, any>;
+export type N8nReplyType = 'text' | 'image' | 'voice' | 'video' | 'news' | 'transfer_kf';
+
+export interface N8nReplyContent {
+  text?: string;
+  media_id?: string;
+  title?: string;
+  description?: string;
+  url?: string;
+  picurl?: string;
+  articles?: Array<{
+    title: string;
+    description?: string;
+    url: string;
+    picurl?: string;
+  }>;
+}
+
+export interface N8nReplyPayload {
+  type: N8nReplyType;
+  content?: N8nReplyContent;
 }
 
 // Callback payload that n8n sends back to us
 export interface N8nCallbackPayload {
   request_id: string;
   openid: string;
-  reply: string;
-  transfer_to_human: boolean;
+  reply: string | N8nReplyPayload;
+  transfer_to_human?: boolean;
   metadata?: Record<string, any>;
 }
 
@@ -246,9 +265,10 @@ export async function sendToN8nWebhook(
 export async function sendUserMessageToAI(
   openid: string,
   message: string,
-  messageType: 'text' | 'image' | 'voice' | 'video' = 'text',
+  messageType: 'text' | 'image' | 'voice' | 'video' | 'event' = 'text',
   userInfo?: { nickname?: string; avatar_url?: string; user_id?: string },
-  callbackUrl?: string
+  callbackUrl?: string,
+  event?: { type: string; key?: string }
 ): Promise<{
   sent: boolean;
   handled_locally: boolean;
@@ -290,6 +310,7 @@ export async function sendUserMessageToAI(
     user_info: userInfo || {},
     callback_url: callbackUrl || '',
     request_id: requestId,
+    event,
   };
   
   // Send to n8n (fire and forget)
@@ -360,7 +381,7 @@ export async function processUserMessage(
 export async function processN8nCallback(
   payload: N8nCallbackPayload
 ): Promise<{ success: boolean; error?: string }> {
-  const { sendCustomerServiceMessage } = await import('./oa-message');
+  const { sendCustomerServiceMessage, sendCustomerServicePayload } = await import('./oa-message');
   
   try {
     console.log('[AI CS] Processing n8n callback:', {
@@ -372,7 +393,9 @@ export async function processN8nCallback(
     
     const config = await getAICustomerServiceConfig();
     
-    if (payload.transfer_to_human) {
+    const replyPayload = payload.reply;
+
+    if (payload.transfer_to_human || (typeof replyPayload === 'object' && replyPayload?.type === 'transfer_kf')) {
       // Send transfer message
       const message = config?.transfer_message || '您好，已为您转接人工客服，请稍候。';
       await sendCustomerServiceMessage(payload.openid, message);
@@ -386,10 +409,66 @@ export async function processN8nCallback(
           request_id: payload.request_id,
         },
       });
-    } else if (payload.reply) {
-      // Send AI reply
-      await sendCustomerServiceMessage(payload.openid, payload.reply);
-      console.log('[AI CS] AI reply sent via callback');
+    } else if (replyPayload) {
+      if (typeof replyPayload === 'string') {
+        // Legacy text reply
+        await sendCustomerServiceMessage(payload.openid, replyPayload);
+        console.log('[AI CS] AI text reply sent via callback');
+      } else {
+        // Structured reply
+        const replyType = replyPayload.type;
+        const content = replyPayload.content || {};
+        let messagePayload: Record<string, any> | null = null;
+
+        switch (replyType) {
+          case 'text':
+            messagePayload = {
+              msgtype: 'text',
+              text: { content: content.text || '' },
+            };
+            break;
+          case 'image':
+            messagePayload = {
+              msgtype: 'image',
+              image: { media_id: content.media_id },
+            };
+            break;
+          case 'voice':
+            messagePayload = {
+              msgtype: 'voice',
+              voice: { media_id: content.media_id },
+            };
+            break;
+          case 'video':
+            messagePayload = {
+              msgtype: 'video',
+              video: {
+                media_id: content.media_id,
+                title: content.title,
+                description: content.description,
+              },
+            };
+            break;
+          case 'news':
+            messagePayload = {
+              msgtype: 'news',
+              news: { articles: content.articles || [] },
+            };
+            break;
+          default:
+            messagePayload = {
+              msgtype: 'text',
+              text: { content: config?.fallback_message || '抱歉，系统繁忙，请稍后再试。' },
+            };
+        }
+
+        if (!messagePayload) {
+          console.warn('[AI CS] Empty reply payload');
+        } else {
+          await sendCustomerServicePayload(payload.openid, messagePayload);
+          console.log('[AI CS] AI structured reply sent via callback');
+        }
+      }
       
       // Log event
       await logEvent({
@@ -397,7 +476,7 @@ export async function processN8nCallback(
         event_data: {
           openid: payload.openid,
           request_id: payload.request_id,
-          reply_length: payload.reply.length,
+          reply_length: typeof replyPayload === 'string' ? replyPayload.length : JSON.stringify(replyPayload).length,
         },
       });
     } else {
