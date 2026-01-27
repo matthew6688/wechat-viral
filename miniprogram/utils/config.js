@@ -13,10 +13,10 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 // 本地开发 URL
 var LOCAL_URL = 'http://localhost:3000/api';
 
-// 生产环境 URL (固定域名，推荐 Cloudflare Tunnel)
-// 例如: 'https://api.fengtalk.ai/api'
+// 生产环境 URL（腾讯云云托管）
+// 例如: 'https://xxxxxx.ap-shanghai.tcloudbaseapp.com/api'
 // 设置为 null 或空字符串以使用 tunnel URL 作为后备方案
-var PRODUCTION_URL = 'https://api.fengtalk.ai/api'; // Fixed Cloudflare Tunnel domain
+var PRODUCTION_URL = 'https://YOUR_CLOUDBASE_DOMAIN/api'; // TODO: replace with your CloudBase domain
 
 // 缓存的 tunnel URL (启动时从 Supabase 获取)
 var cachedTunnelUrl = null;
