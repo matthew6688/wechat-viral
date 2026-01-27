@@ -1,20 +1,17 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "api/index.ts"
-    }
-  ],
+  "buildCommand": "cd backend && npm install && npm run build",
+  "installCommand": "cd backend && npm install",
   "functions": {
     "api/index.ts": {
-      "includeFiles": "admin/**"
+      "includeFiles": "admin/**",
+      "runtime": "nodejs18.x"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index"
+    }
+  ]
 }
