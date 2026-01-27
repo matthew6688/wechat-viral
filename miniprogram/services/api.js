@@ -14,6 +14,15 @@ const storage = {
   removeToken() {
     wx.removeStorageSync('token');
   },
+  getUser() {
+    return wx.getStorageSync('user') || null;
+  },
+  setUser(user) {
+    wx.setStorageSync('user', user);
+  },
+  removeUser() {
+    wx.removeStorageSync('user');
+  },
 };
 
 const api = {
