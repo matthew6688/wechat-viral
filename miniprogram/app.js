@@ -211,6 +211,20 @@ App({
             
             console.log('[App] Login request URL:', `${API_BASE_URL}/auth/login`);
             console.log('[App] API_BASE_URL value:', API_BASE_URL);
+            
+            // Get platform for logging
+            var platform = 'unknown';
+            try {
+              if (wx.getDeviceInfo) {
+                var deviceInfo = wx.getDeviceInfo();
+                platform = deviceInfo.platform;
+              } else {
+                var systemInfo = wx.getSystemInfoSync();
+                platform = systemInfo.platform;
+              }
+            } catch (e) {
+              console.warn('[App] Failed to get platform');
+            }
             console.log('[App] Platform:', platform);
             
             wx.request({
