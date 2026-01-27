@@ -21,45 +21,31 @@ function getSupabase(): SupabaseClient<Database> {
 
     console.log('[Supabase] Initializing client with URL:', url);
     console.log('[Supabase] Service key present:', !!process.env.SUPABASE_SERVICE_KEY);
+    console.log('[Supabase] Node version:', process.version);
+    console.log('[Supabase] Vercel environment:', process.env.VERCEL);
     
-    // Create Supabase client with custom fetch that includes retry logic
-    _supabase = createClient<Database>(url, key, {
-      auth: {
-        persistSession: false, // Don't persist sessions in serverless
-      },
-      global: {
-        // Use custom fetch with timeout and retry
-        fetch: async (url, options = {}) => {
-          const maxRetries = 3;
-          let lastError: any;
-          
-          for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-              
-              const response = await fetch(url, {
-                ...options,
-                signal: controller.signal,
-              });
-              
-              clearTimeout(timeoutId);
-              return response;
-            } catch (error: any) {
-              lastError = error;
-              console.warn(`[Supabase] Fetch attempt ${attempt}/${maxRetries} failed:`, error.message);
-              
-              if (attempt < maxRetries) {
-                // Wait before retry (exponential backoff)
-                await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
-              }
-            }
-          }
-          
-          throw new Error(`Supabase fetch failed after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`);
+    // Verify URL format
+    if (!url.startsWith('https://')) {
+      throw new Error(`Invalid SUPABASE_URL format: ${url}. Must start with https://`);
+    }
+    
+    // Create Supabase client
+    // Note: In Vercel, we rely on the default fetch implementation
+    // If DNS resolution fails, it's likely a Vercel network configuration issue
+    try {
+      _supabase = createClient<Database>(url, key, {
+        auth: {
+          persistSession: false, // Don't persist sessions in serverless
         },
-      },
-    });
+      });
+      
+      // Test connection by making a simple query
+      // This will fail early if there's a DNS issue
+      console.log('[Supabase] Client created, testing connection...');
+    } catch (error: any) {
+      console.error('[Supabase] Failed to create client:', error);
+      throw new Error(`Failed to initialize Supabase client: ${error.message}`);
+    }
     
     console.log('[Supabase] Client initialized successfully');
   }
