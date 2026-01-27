@@ -80,6 +80,26 @@ cloudflared tunnel --url http://localhost:3000
 https://xxx-xxx-xxx.trycloudflare.com/api/oa/wh
 ```
 
+## 自动更新 Tunnel URL（推荐）
+
+我们提供了一个脚本，可以自动：
+- 启动 cloudflared
+- 解析新 tunnel URL
+- 写入 Supabase `tunnel_config`
+- 输出需要配置到公众号后台的回调地址
+
+运行：
+
+```bash
+node scripts/start-tunnel-watch.js
+```
+
+如果你想一次性启动后端 + tunnel：
+
+```bash
+sh scripts/start-local-dev.sh
+```
+
 ## 小程序域名白名单（必须）
 
 在微信小程序后台 → 开发 → 开发管理 → 开发设置 → 服务器域名  
