@@ -102,7 +102,8 @@ router.get('/wh', async (req, res) => {
     }
 
     // Handle security mode (encrypted echostr)
-    if (encrypt_type === 'aes' && msg_signature && oaConfig.encodingAESKey) {
+    const encryptType = Array.isArray(encrypt_type) ? encrypt_type[0] : (encrypt_type as string | undefined);
+    if (encryptType === 'aes' && msg_signature && oaConfig.encodingAESKey) {
       try {
         const decryptedEchostr = decryptEchostr(
           echostr as string,
@@ -115,7 +116,8 @@ router.get('/wh', async (req, res) => {
       } catch (error: any) {
         console.error('Failed to decrypt echostr:', error);
         // In compatible mode, try plaintext echostr as fallback
-        if (encrypt_type === 'compatible') {
+        const currentEncryptType = Array.isArray(encrypt_type) ? encrypt_type[0] : (encrypt_type as string | undefined);
+        if (currentEncryptType === 'compatible') {
           console.log('Compatible mode: trying plaintext echostr');
           return res.send(echostr);
         }
@@ -357,7 +359,8 @@ router.get('/webhook', async (req, res) => {
     }
 
     // Handle security mode (encrypted echostr)
-    if (encrypt_type === 'aes' && msg_signature && oaConfig.encodingAESKey) {
+    const encryptType = Array.isArray(encrypt_type) ? encrypt_type[0] : (encrypt_type as string | undefined);
+    if (encryptType === 'aes' && msg_signature && oaConfig.encodingAESKey) {
       try {
         const decryptedEchostr = decryptEchostr(
           echostr as string,
@@ -370,7 +373,8 @@ router.get('/webhook', async (req, res) => {
       } catch (error: any) {
         console.error('Failed to decrypt echostr:', error);
         // In compatible mode, try plaintext echostr as fallback
-        if (encrypt_type === 'compatible') {
+        const currentEncryptType = Array.isArray(encrypt_type) ? encrypt_type[0] : (encrypt_type as string | undefined);
+        if (currentEncryptType === 'compatible') {
           console.log('Compatible mode: trying plaintext echostr');
           return res.send(echostr);
         }

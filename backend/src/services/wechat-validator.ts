@@ -167,11 +167,11 @@ export async function validateWeChatOfficialAccount(): Promise<ValidationResult>
             errcode: response.data.errcode,
             errmsg: response.data.errmsg,
             responseTime: `${latency}ms`,
-            possibleCauses: {
+            possibleCauses: ({
               40013: 'Invalid AppID',
               40125: 'Invalid AppSecret',
               40164: 'IP not whitelisted',
-            }[response.data.errcode] || 'Unknown error',
+            } as Record<number, string>)[response.data.errcode] || 'Unknown error',
           },
           timestamp: new Date().toISOString(),
         };

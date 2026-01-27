@@ -1892,7 +1892,7 @@ router.post('/testing/delete-all-users', authenticate, requireAdmin, async (req:
       return res.status(400).json({ error: 'Invalid confirmation. Type "DELETE USERS" to confirm.' });
     }
 
-    const results: Record<string, number | string> = {};
+    const results: Record<string, number | string | boolean> = {};
 
     // Count users before deletion
     const { count: totalUsers } = await supabase

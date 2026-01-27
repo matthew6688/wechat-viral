@@ -391,9 +391,15 @@ export async function validateLocalTunnel(): Promise<{
     expected_output: string[];
     instructions: string[];
   };
-  overall_status: 'ready' | 'needs_tunnel' | 'needs_server' | 'needs_both';
+  overall_status: 'ready' | 'needs_tunnel' | 'needs_server' | 'needs_both' | string;
 }> {
-  const result = {
+  const result: {
+    local_server: { running: boolean; port: number; accessible: boolean; error?: string };
+    cloudflared: { running: boolean; process_id?: number; error?: string };
+    tunnel_url: { configured: boolean; url: string | null; accessible: boolean; latency?: number; error?: string };
+    command: { to_run: string; expected_output: string[]; instructions: string[] };
+    overall_status: string;
+  } = {
     local_server: {
       running: false,
       port: 3000,
