@@ -170,6 +170,7 @@ const api = {
             error: err.errMsg || err.message,
             errorCode: err.errcode,
             cronetErrorCode: err.cronet_error_code,
+            API_BASE_URL: API_BASE_URL,
           });
           
           // Provide helpful error messages
@@ -187,10 +188,22 @@ const api = {
             } catch (e) {
               console.error('[API] Could not read stored tunnel_url');
             }
+          } else if (err.errMsg && (err.errMsg.includes('fetch failed') || err.errMsg.includes('TypeError'))) {
+            console.error('[API] ❌ Network request failed - possible causes:');
+            console.error('[API] 1. Server may be down or unreachable');
+            console.error('[API] 2. Network connection issue');
+            console.error('[API] 3. Domain not whitelisted in WeChat Mini Program settings');
+            console.error('[API] 4. SSL/TLS certificate issue');
+            console.error('[API] Current API_BASE_URL:', API_BASE_URL);
+            console.error('[API] Please check:');
+            console.error('[API] - Vercel deployment status');
+            console.error('[API] - WeChat Mini Program domain whitelist');
+            console.error('[API] - Network connectivity');
           }
           
           const error = new Error(err.errMsg || 'Network request failed');
           error.errMsg = err.errMsg;
+          error.statusCode = err.statusCode;
           reject(error);
         },
       });
