@@ -50,66 +50,48 @@ App({
     }
     
     if (platform !== 'devtools') {
-      console.log('[App] Pre-fetching tunnel URL for real device...');
-      const { forceRefreshTunnelUrl } = require('./utils/config');
+      // 检查是否已配置生产环境 URL
+      const { getApiBaseUrlDynamic } = require('./utils/config');
+      const apiUrl = getApiBaseUrlDynamic();
       
-      // 强制刷新并等待完成
-      forceRefreshTunnelUrl()
-        .then(function(url) {
-          if (url) {
-            // Remove trailing slash if present
-            if (url && url.endsWith('/')) {
-              url = url.slice(0, -1);
-            }
-            console.log('[App] ✅ Tunnel URL pre-fetched:', url);
-            console.log('[App] Full API URL will be:', url + '/api');
-            
-            // 保存到全局，确保后续 API 调用使用正确的 URL
-            try {
-              wx.setStorageSync('tunnel_url', url);
-              console.log('[App] ✅ Tunnel URL saved to storage');
-            } catch (e) {
-              console.error('[App] Failed to save tunnel URL:', e);
-            }
-            
-            // Test the URL to make sure it's accessible (test with campaigns endpoint)
-            wx.request({
-              url: url + '/api/campaigns',
-              method: 'GET',
-              success: function(res) {
-                console.log('[App] ✅ Tunnel URL is accessible, status:', res.statusCode);
-                if (res.data && res.data.success) {
-                  const campaignCount = res.data.data?.campaigns?.length || 0;
-                  console.log('[App] ✅ Found', campaignCount, 'campaigns via tunnel');
-                }
-              },
-              fail: function(err) {
-                console.error('[App] ⚠️ Tunnel URL test failed:', err);
-                console.error('[App] Error details:', JSON.stringify(err));
-                if (err.errMsg && err.errMsg.includes('ERR_NAME_NOT_RESOLVED')) {
-                  console.error('[App] ❌ DNS resolution failed!');
-                  console.error('[App] Possible causes:');
-                  console.error('[App] 1. Tunnel URL expired or incorrect:', url);
-                  console.error('[App] 2. Cloudflare Tunnel not running');
-                  console.error('[App] 3. Domain not whitelisted in WeChat Mini Program backend');
-                  console.error('[App] 4. Network connectivity issue on device');
-                  console.error('[App] Action: Check Supabase tunnel_config and update if needed');
-                } else if (err.errMsg && err.errMsg.includes('ERR_CONNECTION_REFUSED')) {
-                  console.error('[App] ❌ Connection refused - tunnel may be down');
-                }
+      // 如果已经有生产 URL（Vercel），就不需要从 Supabase 获取 tunnel URL
+      if (apiUrl && apiUrl.includes('vercel.app')) {
+        console.log('[App] ✅ Production URL already configured:', apiUrl);
+        console.log('[App] Skipping tunnel URL fetch to avoid ERR_NAME_NOT_RESOLVED');
+      } else {
+        // 只有在没有生产 URL 时才尝试从 Supabase 获取 tunnel URL
+        console.log('[App] No production URL found, attempting to fetch tunnel URL...');
+        const { forceRefreshTunnelUrl } = require('./utils/config');
+        
+        // 强制刷新并等待完成（但捕获错误，避免阻塞）
+        forceRefreshTunnelUrl()
+          .then(function(url) {
+            if (url) {
+              // Remove trailing slash if present
+              if (url && url.endsWith('/')) {
+                url = url.slice(0, -1);
               }
-            });
-          } else {
-            console.error('[App] ❌ Failed to pre-fetch tunnel URL');
-            console.error('[App] Please check:');
-            console.error('[App] 1. Supabase tunnel_config table has a valid URL');
-            console.error('[App] 2. Network connection is available');
-            console.error('[App] 3. Supabase domain is whitelisted in WeChat Mini Program settings');
-          }
-        })
-        .catch(function(err) {
-          console.error('[App] Error pre-fetching tunnel URL:', err);
-        });
+              console.log('[App] ✅ Tunnel URL pre-fetched:', url);
+              console.log('[App] Full API URL will be:', url + '/api');
+              
+              // 保存到全局，确保后续 API 调用使用正确的 URL
+              try {
+                wx.setStorageSync('tunnel_url', url);
+                console.log('[App] ✅ Tunnel URL saved to storage');
+              } catch (e) {
+                console.error('[App] Failed to save tunnel URL:', e);
+              }
+            } else {
+              console.warn('[App] ⚠️ No tunnel URL returned from Supabase');
+            }
+          })
+          .catch(function(err) {
+            // 如果 Supabase 域名未添加到微信白名单，这是预期的错误
+            // 不阻塞应用启动，因为我们已经有了生产 URL
+            console.warn('[App] ⚠️ Failed to pre-fetch tunnel URL (non-critical):', err.errMsg || err.message);
+            console.log('[App] This is OK if Supabase domain is not whitelisted or production URL is configured');
+          });
+      }
     }
     
     // Restore session from storage
