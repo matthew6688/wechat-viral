@@ -45,15 +45,31 @@ router.post('/login', async (req, res) => {
   try {
     const { code } = req.body;
 
-    console.log('Login request received:', { code: code ? 'present' : 'missing' });
+    console.log('[Auth] Login request received:', { code: code ? 'present' : 'missing' });
+    console.log('[Auth] Environment check:', {
+      WECHAT_APPID: process.env.WECHAT_APPID ? 'SET' : 'NOT SET',
+      WECHAT_SECRET: process.env.WECHAT_SECRET ? 'SET' : 'NOT SET',
+      SUPABASE_URL: process.env.SUPABASE_URL ? 'SET' : 'NOT SET',
+    });
 
     if (!code) {
+      console.error('[Auth] Missing code in request');
       return res.status(400).json({ error: 'Code is required' });
     }
 
     // Exchange code for openid
-    console.log('Calling code2Session...');
-    const session = await code2Session(code);
+    console.log('[Auth] Calling code2Session...');
+    let session;
+    try {
+      session = await code2Session(code);
+    } catch (error: any) {
+      console.error('[Auth] code2Session failed:', error);
+      return res.status(500).json({ 
+        error: 'Failed to exchange code for session',
+        message: error.message || 'Unknown error',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+    }
     console.log('code2Session success:', {
       openid: session.openid,
       unionid: session.unionid || 'NOT PROVIDED',
