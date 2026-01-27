@@ -35,27 +35,51 @@ function getSupabase(): SupabaseClient<Database> {
     const axiosFetch = async (input: string | URL | Request, init?: any): Promise<Response> => {
       const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : (input as any).url;
       const method = init?.method || 'GET';
-      const headers = init?.headers || {};
+      const headers: any = {};
+      
+      // Convert Headers object to plain object
+      if (init?.headers) {
+        if (init.headers instanceof Headers) {
+          init.headers.forEach((value: string, key: string) => {
+            headers[key] = value;
+          });
+        } else if (typeof init.headers === 'object') {
+          Object.assign(headers, init.headers);
+        }
+      }
+      
       const body = init?.body ? (typeof init.body === 'string' ? init.body : JSON.stringify(init.body)) : undefined;
+      
+      console.log('[Supabase] Axios fetch:', { url, method, hasBody: !!body });
       
       try {
         const response = await axios({
           url,
           method: method as any,
-          headers: headers as any,
+          headers: headers,
           data: body,
           validateStatus: () => true, // Don't throw on any status code
           timeout: 30000, // 30 second timeout
+          // Use IPv4 explicitly to avoid DNS issues
+          family: 4,
         });
         
         // Convert axios response to Fetch Response
-        return new Response(JSON.stringify(response.data), {
+        const responseBody = response.data ? (typeof response.data === 'string' ? response.data : JSON.stringify(response.data)) : '';
+        return new Response(responseBody, {
           status: response.status,
-          statusText: response.statusText,
+          statusText: response.statusText || 'OK',
           headers: new Headers(response.headers as any),
         });
       } catch (error: any) {
-        console.error('[Supabase] Axios fetch error:', error.message);
+        console.error('[Supabase] Axios fetch error:', {
+          message: error.message,
+          code: error.code,
+          errno: error.errno,
+          syscall: error.syscall,
+          hostname: error.hostname,
+          url: url,
+        });
         throw error;
       }
     };
