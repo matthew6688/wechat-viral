@@ -16,7 +16,7 @@ var LOCAL_URL = 'http://localhost:3000/api';
 // 生产环境 URL（腾讯云云托管）
 // 例如: 'https://xxxxxx.ap-shanghai.tcloudbaseapp.com/api'
 // 设置为 null 或空字符串以使用 tunnel URL 作为后备方案
-var PRODUCTION_URL = 'https://YOUR_CLOUDBASE_DOMAIN/api'; // TODO: replace with your CloudBase domain
+var PRODUCTION_URL = 'https://wechat-viral-221635-8-1398185157.sh.run.tcloudbase.com/api';
 
 // 缓存的 tunnel URL (启动时从 Supabase 获取)
 var cachedTunnelUrl = null;
