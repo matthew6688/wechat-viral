@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import axios from 'axios';
 
 // Note: dotenv is loaded in index.ts before any imports
 
@@ -29,19 +30,49 @@ function getSupabase(): SupabaseClient<Database> {
       throw new Error(`Invalid SUPABASE_URL format: ${url}. Must start with https://`);
     }
     
-    // Create Supabase client
-    // Note: In Vercel, we rely on the default fetch implementation
-    // If DNS resolution fails, it's likely a Vercel network configuration issue
+    // Create a fetch adapter using axios for better DNS resolution in Vercel
+    // Axios has better DNS handling in Node.js/serverless environments
+    const axiosFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : (input as Request).url;
+      const method = init?.method || 'GET';
+      const headers = init?.headers || {};
+      const body = init?.body ? (typeof init.body === 'string' ? init.body : JSON.stringify(init.body)) : undefined;
+      
+      try {
+        const response = await axios({
+          url,
+          method: method as any,
+          headers: headers as any,
+          data: body,
+          validateStatus: () => true, // Don't throw on any status code
+          timeout: 30000, // 30 second timeout
+        });
+        
+        // Convert axios response to Fetch Response
+        return new Response(JSON.stringify(response.data), {
+          status: response.status,
+          statusText: response.statusText,
+          headers: new Headers(response.headers as any),
+        });
+      } catch (error: any) {
+        console.error('[Supabase] Axios fetch error:', error.message);
+        throw error;
+      }
+    };
+    
+    // Create Supabase client with axios-based fetch
+    // This should resolve DNS issues in Vercel serverless functions
     try {
       _supabase = createClient<Database>(url, key, {
         auth: {
           persistSession: false, // Don't persist sessions in serverless
         },
+        global: {
+          fetch: axiosFetch,
+        },
       });
       
-      // Test connection by making a simple query
-      // This will fail early if there's a DNS issue
-      console.log('[Supabase] Client created, testing connection...');
+      console.log('[Supabase] Client created with axios fetch adapter');
     } catch (error: any) {
       console.error('[Supabase] Failed to create client:', error);
       throw new Error(`Failed to initialize Supabase client: ${error.message}`);
