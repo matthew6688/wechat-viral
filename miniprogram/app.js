@@ -1,5 +1,7 @@
 // app.js
-const { API_BASE_URL } = require('./utils/config');
+// 注意：API_BASE_URL 现在是动态的，需要每次使用时获取
+const config = require('./utils/config');
+const getApiBaseUrl = () => config.API_BASE_URL;
 
 // Storage utility
 const storage = {
@@ -135,6 +137,11 @@ App({
       // If there's a ref parameter in query, it's from sharing
       if (query.ref) {
         // Resolve scene context
+        const API_BASE_URL = getApiBaseUrl();
+        if (!API_BASE_URL) {
+          console.error('[App] API_BASE_URL not available for scene resolve');
+          return;
+        }
         const response = await wx.request({
           url: `${API_BASE_URL}/scene/resolve`,
           method: 'POST',
@@ -154,6 +161,12 @@ App({
     try {
       const token = storage.getToken();
       if (!token) return;
+
+      const API_BASE_URL = getApiBaseUrl();
+      if (!API_BASE_URL) {
+        console.error('[App] API_BASE_URL not available for loadUserData');
+        return;
+      }
 
       const response = await wx.request({
         url: `${API_BASE_URL}/users/me`,
@@ -188,6 +201,16 @@ App({
         success: async (res) => {
           if (res.code) {
             console.log('wx.login success, code received');
+            // 动态获取 API_BASE_URL
+            const API_BASE_URL = getApiBaseUrl();
+            if (!API_BASE_URL) {
+              console.error('[App] ❌ API_BASE_URL is not available');
+              reject(new Error('API URL not configured. Please check network connection.'));
+              return;
+            }
+            
+            console.log('[App] Login request URL:', `${API_BASE_URL}/auth/login`);
+            
             wx.request({
               url: `${API_BASE_URL}/auth/login`,
               method: 'POST',
@@ -282,6 +305,11 @@ App({
           // Update user profile on server
           const token = storage.getToken();
           if (token) {
+            const API_BASE_URL = getApiBaseUrl();
+            if (!API_BASE_URL) {
+              console.error('[App] API_BASE_URL not available for profile update');
+              return;
+            }
             wx.request({
               url: `${API_BASE_URL}/users/profile`,
               method: 'PUT',
