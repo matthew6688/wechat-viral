@@ -32,8 +32,8 @@ function getSupabase(): SupabaseClient<Database> {
     
     // Create a fetch adapter using axios for better DNS resolution in Vercel
     // Axios has better DNS handling in Node.js/serverless environments
-    const axiosFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-      const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : (input as Request).url;
+    const axiosFetch = async (input: string | URL | Request, init?: any): Promise<Response> => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : (input as any).url;
       const method = init?.method || 'GET';
       const headers = init?.headers || {};
       const body = init?.body ? (typeof init.body === 'string' ? init.body : JSON.stringify(init.body)) : undefined;
