@@ -304,10 +304,12 @@ function getApiBaseUrlDynamic() {
   // 真机环境：优先使用生产环境 URL（如果已配置）
   if (PRODUCTION_URL && PRODUCTION_URL.trim()) {
     console.log('[Config] ✅ Using production URL:', PRODUCTION_URL);
+    // 如果已有生产 URL，不再尝试从 Supabase 获取 tunnel URL
+    // 这样可以避免 ERR_NAME_NOT_RESOLVED 错误（如果 Supabase 域名未添加到微信白名单）
     return PRODUCTION_URL;
   }
   
-  // 否则，使用 tunnel URL 作为后备方案
+  // 否则，使用 tunnel URL 作为后备方案（仅当没有生产 URL 时）
   try {
     var stored = wx.getStorageSync('tunnel_url');
     if (stored && stored.trim() && !stored.includes('invalid')) {
@@ -315,12 +317,15 @@ function getApiBaseUrlDynamic() {
       if (stored.endsWith('/')) {
         stored = stored.slice(0, -1);
       }
-      // 在后台刷新（不阻塞）
+      // 在后台刷新（不阻塞），但只在没有生产 URL 时
       if (!cachedTunnelUrl || cachedTunnelUrl !== stored) {
         cachedTunnelUrl = stored;
         lastFetchTime = Date.now();
       }
-      refreshTunnelUrl();
+      // 只在后台静默刷新，不阻塞
+      refreshTunnelUrl().catch(function(err) {
+        console.warn('[Config] Background tunnel URL refresh failed (non-blocking):', err);
+      });
       console.log('[Config] ✅ Using tunnel URL:', stored + '/api');
       return stored + '/api';
     }
