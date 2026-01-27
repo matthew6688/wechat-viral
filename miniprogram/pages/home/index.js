@@ -108,20 +108,43 @@ Page({
         await app.login();
       }
       
+      // Helper to handle 401 errors with auto re-login
+      const handleRequest = async (requestFn) => {
+        try {
+          return await requestFn();
+        } catch (err) {
+          // If 401 error, try to re-login and retry once
+          if (err.statusCode === 401 || err.needsReauth || (err.message && err.message.includes('Invalid token'))) {
+            console.log('[Home] 🔄 401 error detected, attempting re-login...');
+            try {
+              await app.login();
+              // Retry the request once after re-login
+              return await requestFn();
+            } catch (loginErr) {
+              console.error('[Home] Re-login failed:', loginErr);
+              // Return empty data for this request
+              return { data: {} };
+            }
+          }
+          // For other errors, return empty data
+          return { data: {} };
+        }
+      };
+      
       const [pointsRes, tasksRes, logsRes, campaignsRes] = await Promise.all([
-        api.get('/points/balance').catch(err => {
+        handleRequest(() => api.get('/points/balance')).catch(err => {
           console.error('Load points error:', err);
           return { data: { balance: 0 } };
         }),
-        api.get('/tasks').catch(err => {
+        handleRequest(() => api.get('/tasks')).catch(err => {
           console.error('Load tasks error:', err);
           return { data: { tasks: [] } };
         }),
-        api.get('/points/logs').catch(err => {
+        handleRequest(() => api.get('/points/logs')).catch(err => {
           console.error('Load logs error:', err);
           return { data: { logs: [] } };
         }),
-        api.get('/campaigns').catch(err => {
+        handleRequest(() => api.get('/campaigns')).catch(err => {
           console.error('Load campaigns error:', err);
           return { data: { campaigns: [] } };
         }),

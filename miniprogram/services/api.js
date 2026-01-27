@@ -121,6 +121,32 @@ const api = {
         success: (res) => {
           if (res.statusCode >= 200 && res.statusCode < 300) {
             resolve(res);
+          } else if (res.statusCode === 401) {
+            // Token invalid or expired - clear token
+            console.log('[API] ⚠️ 401 Unauthorized - Token invalid, clearing session...');
+            storage.removeToken();
+            storage.removeUser();
+            
+            // Clear global data if app instance is available
+            try {
+              // Use wx.getApp() which is available globally
+              const app = wx.getApp ? wx.getApp() : null;
+              if (app && app.globalData) {
+                app.globalData.token = null;
+                app.globalData.user = null;
+                console.log('[API] ✅ Cleared app globalData');
+              }
+            } catch (e) {
+              // Ignore error if getApp is not available
+              console.log('[API] Note: Cannot access app instance from service file');
+            }
+            
+            // Return a special error that indicates authentication is needed
+            const error = new Error('Invalid token');
+            error.message = 'Invalid token';
+            error.statusCode = 401;
+            error.needsReauth = true;
+            reject(error);
           } else {
             const errorMsg = (res.data && res.data.error) || `Request failed with status ${res.statusCode}`;
             const error = new Error(errorMsg);
