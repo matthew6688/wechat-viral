@@ -2,10 +2,15 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load .env from backend directory (use __dirname to ensure correct path)
-const envPath = path.resolve(__dirname, '..', '.env');
-dotenv.config({ path: envPath });
-console.log('Loading .env from:', envPath);
+// Load .env from backend directory
+// In Vercel, environment variables are set via dashboard, but we still try to load .env for local dev
+if (process.env.VERCEL !== '1') {
+  const envPath = path.resolve(__dirname, '..', '.env');
+  dotenv.config({ path: envPath });
+  console.log('Loading .env from:', envPath);
+} else {
+  console.log('Running on Vercel - using environment variables from dashboard');
+}
 
 // Debug: Log env vars to verify they're loaded
 console.log('ENV Check - SUPABASE_URL:', process.env.SUPABASE_URL ? 'SET' : 'NOT SET');
@@ -40,7 +45,10 @@ app.use((req, res, next) => {
 });
 
 // Serve admin pages
-const adminPath = path.join(__dirname, '../../admin');
+// In Vercel, use process.cwd() to get the project root
+const adminPath = process.env.VERCEL === '1' 
+  ? path.join(process.cwd(), 'admin')
+  : path.join(__dirname, '../../admin');
 console.log('Admin static path:', adminPath);
 app.use('/admin', express.static(adminPath));
 

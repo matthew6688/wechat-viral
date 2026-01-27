@@ -56,15 +56,28 @@ cd backend && npm install
 #### 必需的环境变量
 
 ```
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_KEY=your_service_key
-WECHAT_APPID=your_wechat_appid
-WECHAT_SECRET=your_wechat_secret
-WECHAT_TOKEN=your_wechat_token
-WECHAT_ENCODING_AES_KEY=your_aes_key
-JWT_SECRET=your_jwt_secret
+SUPABASE_URL=https://fseyfnuqxvrcwrpshxyv.supabase.co
+SUPABASE_SERVICE_KEY=your_service_key_here
+WECHAT_APPID=wxb00a7034897b60fe
+WECHAT_SECRET=your_wechat_secret_here
+OA_APPID=your_oa_appid_here
+OA_SECRET=your_oa_secret_here
+OA_TOKEN=your_oa_token_here
+OA_ENCODING_AES_KEY=your_oa_encoding_aes_key_here
+JWT_SECRET=your_jwt_secret_here
 NODE_ENV=production
+PORT=3000
 ```
+
+**⚠️ 需要替换的值：**
+
+1. **SUPABASE_SERVICE_KEY** - 从 Supabase Dashboard → Settings → API → `service_role` key（不是 anon key）
+2. **WECHAT_SECRET** - 从微信小程序后台 → 开发 → 开发管理 → 开发设置 → AppSecret
+3. **OA_APPID** - 从微信公众平台 → 公众号 AppID
+4. **OA_SECRET** - 从微信公众平台 → 公众号 AppSecret
+5. **OA_TOKEN** - 在微信公众平台 → 开发 → 基本配置 → 服务器配置中设置的 Token
+6. **OA_ENCODING_AES_KEY** - 在微信公众平台 → 开发 → 基本配置 → 服务器配置中的 EncodingAESKey
+7. **JWT_SECRET** - 任意随机字符串（用于 JWT 签名，建议使用强随机字符串，例如：`openssl rand -base64 32`）
 
 #### 可选的环境变量
 
