@@ -103,10 +103,24 @@ Page({
 
   async loadData() {
     try {
+      // Ensure user is logged in first
+      if (!app.globalData.user) {
+        await app.login();
+      }
+      
       const [pointsRes, tasksRes, logsRes, campaignsRes] = await Promise.all([
-        api.get('/points/balance'),
-        api.get('/tasks'),
-        api.get('/points/logs'),
+        api.get('/points/balance').catch(err => {
+          console.error('Load points error:', err);
+          return { data: { balance: 0 } };
+        }),
+        api.get('/tasks').catch(err => {
+          console.error('Load tasks error:', err);
+          return { data: { tasks: [] } };
+        }),
+        api.get('/points/logs').catch(err => {
+          console.error('Load logs error:', err);
+          return { data: { logs: [] } };
+        }),
         api.get('/campaigns').catch(err => {
           console.error('Load campaigns error:', err);
           return { data: { campaigns: [] } };

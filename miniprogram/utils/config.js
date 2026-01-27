@@ -16,7 +16,7 @@ var LOCAL_URL = 'http://localhost:3000/api';
 // 生产环境 URL (部署到 Vercel 后，替换为你的 Vercel URL)
 // 例如: 'https://your-app.vercel.app/api'
 // 设置为 null 或空字符串以使用 tunnel URL 作为后备方案
-var PRODUCTION_URL = null; // TODO: 部署后替换为你的 Vercel URL
+var PRODUCTION_URL = 'https://wechat-viral-4lq4hct57-matthews-projects-09dd8000.vercel.app/api'; // Vercel production URL
 
 // 缓存的 tunnel URL (启动时从 Supabase 获取)
 var cachedTunnelUrl = null;
