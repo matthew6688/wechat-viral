@@ -227,13 +227,26 @@ App({
             }
             console.log('[App] Platform:', platform);
             
-            wx.request({
-              url: `${API_BASE_URL}/auth/login`,
+            // Log full request details for debugging
+            const requestUrl = `${API_BASE_URL}/auth/login`;
+            const requestData = { code: res.code };
+            console.log('[App] Full request details:', {
+              url: requestUrl,
               method: 'POST',
-              data: { code: res.code },
+              data: requestData,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+            
+            wx.request({
+              url: requestUrl,
+              method: 'POST',
+              data: requestData,
               header: {
                 'Content-Type': 'application/json',
               },
+              timeout: 10000, // 10 second timeout
               success: (response) => {
                 console.log('Login response:', {
                   statusCode: response.statusCode,
