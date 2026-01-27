@@ -13,10 +13,10 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 // 本地开发 URL
 var LOCAL_URL = 'http://localhost:3000/api';
 
-// 生产环境 URL (部署到 Vercel 后，替换为你的 Vercel URL)
-// 例如: 'https://your-app.vercel.app/api'
+// 生产环境 URL (固定域名，推荐 Cloudflare Tunnel)
+// 例如: 'https://api.fengtalk.ai/api'
 // 设置为 null 或空字符串以使用 tunnel URL 作为后备方案
-var PRODUCTION_URL = 'https://wechat-viral-4lq4hct57-matthews-projects-09dd8000.vercel.app/api'; // Vercel production URL
+var PRODUCTION_URL = 'https://api.fengtalk.ai/api'; // Fixed Cloudflare Tunnel domain
 
 // 缓存的 tunnel URL (启动时从 Supabase 获取)
 var cachedTunnelUrl = null;
