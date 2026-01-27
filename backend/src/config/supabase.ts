@@ -19,7 +19,49 @@ function getSupabase(): SupabaseClient<Database> {
       throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY/SUPABASE_ANON_KEY environment variables');
     }
 
-    _supabase = createClient<Database>(url, key);
+    console.log('[Supabase] Initializing client with URL:', url);
+    console.log('[Supabase] Service key present:', !!process.env.SUPABASE_SERVICE_KEY);
+    
+    // Create Supabase client with custom fetch that includes retry logic
+    _supabase = createClient<Database>(url, key, {
+      auth: {
+        persistSession: false, // Don't persist sessions in serverless
+      },
+      global: {
+        // Use custom fetch with timeout and retry
+        fetch: async (url, options = {}) => {
+          const maxRetries = 3;
+          let lastError: any;
+          
+          for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+              
+              const response = await fetch(url, {
+                ...options,
+                signal: controller.signal,
+              });
+              
+              clearTimeout(timeoutId);
+              return response;
+            } catch (error: any) {
+              lastError = error;
+              console.warn(`[Supabase] Fetch attempt ${attempt}/${maxRetries} failed:`, error.message);
+              
+              if (attempt < maxRetries) {
+                // Wait before retry (exponential backoff)
+                await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
+              }
+            }
+          }
+          
+          throw new Error(`Supabase fetch failed after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`);
+        },
+      },
+    });
+    
+    console.log('[Supabase] Client initialized successfully');
   }
   return _supabase;
 }
