@@ -38,5 +38,5 @@ exportgrowth-lab-mvp/
 *.md
 !README.md
 
-# Admin HTML files (will be served from backend)
-admin/
+# Admin HTML files should be included for deployment
+# admin/ - REMOVED: Admin files need to be deployed

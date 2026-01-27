@@ -46,10 +46,19 @@ app.use((req, res, next) => {
 
 // Serve admin pages
 // In Vercel, use process.cwd() to get the project root
-const adminPath = process.env.VERCEL === '1' 
-  ? path.join(process.cwd(), 'admin')
-  : path.join(__dirname, '../../admin');
+let adminPath: string;
+if (process.env.VERCEL === '1') {
+  // In Vercel, admin directory is at project root
+  adminPath = path.join(process.cwd(), 'admin');
+  // Fallback: try relative to api directory
+  if (!require('fs').existsSync(adminPath)) {
+    adminPath = path.join(process.cwd(), '..', 'admin');
+  }
+} else {
+  adminPath = path.join(__dirname, '../../admin');
+}
 console.log('Admin static path:', adminPath);
+console.log('Admin path exists:', require('fs').existsSync(adminPath));
 app.use('/admin', express.static(adminPath));
 
 // Redirect root to admin dashboard
