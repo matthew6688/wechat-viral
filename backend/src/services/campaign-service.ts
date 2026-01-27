@@ -213,6 +213,55 @@ export async function getFullCampaignId(partialId: string): Promise<string | nul
 }
 
 /**
+ * Check and update campaign status based on end_time
+ * Automatically sets status to 'ended' if end_time has passed
+ */
+export async function updateCampaignStatusIfNeeded(campaign: Campaign): Promise<Campaign> {
+  // Skip if no end_time or already not active
+  if (!campaign.end_time) {
+    return campaign;
+  }
+  
+  if (campaign.status !== 'active') {
+    return campaign; // Only update if status is 'active'
+  }
+  
+  const now = new Date();
+  const endTime = new Date(campaign.end_time);
+  
+  // Compare dates at midnight to avoid timezone issues
+  const endDateOnly = new Date(endTime.getFullYear(), endTime.getMonth(), endTime.getDate());
+  const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  console.log(`[Campaign Status] Checking campaign "${campaign.name}" (${campaign.id}): end_date=${endDateOnly.toISOString().split('T')[0]}, now_date=${nowDateOnly.toISOString().split('T')[0]}, status=${campaign.status}`);
+  
+  // If campaign has ended but status is still 'active', update it
+  if (endDateOnly < nowDateOnly) {
+    console.log(`[Campaign Status] ⚠️ Campaign "${campaign.name}" (${campaign.id}) has expired! Auto-updating from 'active' to 'ended'`);
+    console.log(`[Campaign Status]   - End date: ${endDateOnly.toISOString().split('T')[0]}`);
+    console.log(`[Campaign Status]   - Today: ${nowDateOnly.toISOString().split('T')[0]}`);
+    
+    const { error, data } = await supabase
+      .from('campaigns')
+      .update({ status: 'ended', updated_at: new Date().toISOString() })
+      .eq('id', campaign.id)
+      .select();
+    
+    if (error) {
+      console.error(`[Campaign Status] ❌ Failed to update campaign ${campaign.id}:`, error);
+    } else {
+      console.log(`[Campaign Status] ✅ Successfully updated campaign "${campaign.name}" (${campaign.id}) to 'ended'`);
+      // Update the campaign object to reflect the change
+      campaign.status = 'ended';
+    }
+  } else {
+    console.log(`[Campaign Status] ✓ Campaign "${campaign.name}" is still active (end_date >= today)`);
+  }
+  
+  return campaign;
+}
+
+/**
  * Get all active campaigns
  */
 export async function getActiveCampaigns(): Promise<Campaign[]> {
@@ -456,15 +505,51 @@ export async function recordHelper(
   sourceChannel?: string
 ): Promise<{ success: boolean; isNew: boolean; message: string; helperCount?: number }> {
   // Check if already helped
-  const { data: existingHelperData } = await supabase
-    .from('campaign_helpers')
-    .select('*')
-    .eq('campaign_id', campaignId)
-    .eq('participant_id', participantId)
-    .eq('helper_openid', helperOpenid)
-    .single();
-
-  const existingHelper = existingHelperData as unknown as CampaignHelper | null;
+  // Priority: If unionid is provided, check by unionid first (more reliable for cross-channel deduplication)
+  // Otherwise, check by openid
+  let existingHelper: CampaignHelper | null = null;
+  
+  if (helperUnionid) {
+    // First check by unionid (if provided) - this ensures same user across MP and OA is not counted twice
+    const { data: existingByUnionid } = await supabase
+      .from('campaign_helpers')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .eq('participant_id', participantId)
+      .eq('helper_unionid', helperUnionid)
+      .eq('is_valid', true)
+      .limit(1);
+    
+    if (existingByUnionid && existingByUnionid.length > 0) {
+      existingHelper = existingByUnionid[0] as unknown as CampaignHelper;
+      console.log(`[recordHelper] Found existing helper by unionid: ${helperUnionid}`);
+    }
+  }
+  
+  // If not found by unionid, check by openid
+  if (!existingHelper) {
+    const { data: existingByOpenid } = await supabase
+      .from('campaign_helpers')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .eq('participant_id', participantId)
+      .eq('helper_openid', helperOpenid)
+      .limit(1);
+    
+    if (existingByOpenid && existingByOpenid.length > 0) {
+      existingHelper = existingByOpenid[0] as unknown as CampaignHelper;
+      console.log(`[recordHelper] Found existing helper by openid: ${helperOpenid}`);
+      
+      // If we found by openid but have unionid, update the record with unionid for future deduplication
+      if (helperUnionid && !existingHelper.helper_unionid) {
+        await supabase
+          .from('campaign_helpers')
+          .update({ helper_unionid: helperUnionid })
+          .eq('id', existingHelper.id);
+        console.log(`[recordHelper] Updated helper record with unionid: ${helperUnionid}`);
+      }
+    }
+  }
 
   if (existingHelper) {
     // If previously invalidated (unfollowed), revalidate
@@ -569,11 +654,14 @@ export async function invalidateHelper(
 
 /**
  * Update helper count (count valid helpers)
+ * IMPORTANT: Count by unionid if available, otherwise by openid
+ * This ensures same user across MP and OA is only counted once
  */
 async function updateHelperCount(participantId: string): Promise<number> {
-  const { count, error } = await supabase
+  // Get all valid helpers for this participant
+  const { data: helpers, error } = await supabase
     .from('campaign_helpers')
-    .select('*', { count: 'exact', head: true })
+    .select('helper_unionid, helper_openid')
     .eq('participant_id', participantId)
     .eq('is_valid', true);
 
@@ -582,7 +670,31 @@ async function updateHelperCount(participantId: string): Promise<number> {
     return 0;
   }
 
-  const helperCount = count || 0;
+  if (!helpers || helpers.length === 0) {
+    await supabase
+      .from('campaign_participants')
+      .update({
+        helper_count: 0,
+        updated_at: new Date().toISOString(),
+      } as AnyRecord)
+      .eq('id', participantId);
+    return 0;
+  }
+
+  // Deduplicate by unionid (if available), otherwise by openid
+  const uniqueHelpers = new Set<string>();
+  for (const helper of helpers) {
+    if (helper.helper_unionid) {
+      // Use unionid for deduplication (more reliable)
+      uniqueHelpers.add(`unionid:${helper.helper_unionid}`);
+    } else {
+      // Fallback to openid if no unionid
+      uniqueHelpers.add(`openid:${helper.helper_openid}`);
+    }
+  }
+
+  const helperCount = uniqueHelpers.size;
+  console.log(`[updateHelperCount] Participant ${participantId}: ${helpers.length} total helpers, ${helperCount} unique (deduplicated by unionid/openid)`);
 
   await supabase
     .from('campaign_participants')

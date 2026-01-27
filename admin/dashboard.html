@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>管理后台 - WeChat Viral 活动裂变系统</title>
+  <!-- FengTalk Design System Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -12,35 +16,62 @@
     }
 
     :root {
-      --bg-primary: #fafafa;
-      --bg-secondary: #ffffff;
-      --border-color: #e5e7eb;
-      --text-primary: #111827;
-      --text-secondary: #6b7280;
-      --text-muted: #9ca3af;
-      --accent: #000000;
-      --accent-color: #3b82f6;
+      /* FengTalk Design System Colors */
+      --cream: #F2F0E6;
+      --cream-light: #F8F7F3;
+      --cream-dark: #E8E6DC;
+      --charcoal: #1A1A1A;
+      --charcoal-light: #2D2D2D;
+      --charcoal-muted: #4A4A4A;
+      
+      /* Legacy mappings for compatibility */
+      --bg-primary: var(--cream);
+      --bg-secondary: var(--cream-light);
+      --border-color: var(--cream-dark);
+      --text-primary: var(--charcoal);
+      --text-secondary: var(--charcoal-muted);
+      --text-muted: var(--charcoal-muted);
+      --accent: var(--charcoal);
+      --accent-color: var(--charcoal);
       --success: #10b981;
       --warning: #f59e0b;
       --error: #ef4444;
       
-      /* Sidebar colors - Minimal Light Design */
-      --sidebar-bg: #ffffff;
-      --sidebar-text: #6b7280;
-      --sidebar-text-hover: #111827;
-      --sidebar-active-bg: #f3f4f6;
-      --sidebar-active-text: #111827;
-      --sidebar-border: #e5e7eb;
+      /* Sidebar colors - FengTalk Design */
+      --sidebar-bg: var(--cream-light);
+      --sidebar-text: var(--charcoal-muted);
+      --sidebar-text-hover: var(--charcoal);
+      --sidebar-active-bg: var(--cream-dark);
+      --sidebar-active-text: var(--charcoal);
+      --sidebar-border: var(--cream-dark);
       --sidebar-width: 240px;
+      
+      /* Typography */
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Montserrat', system-ui, sans-serif;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
-      background: var(--bg-primary);
+      font-family: var(--font-sans);
+      background: var(--cream);
       min-height: 100vh;
-      color: var(--text-primary);
+      color: var(--charcoal);
       font-size: 14px;
       line-height: 1.5;
+      font-weight: 400;
+    }
+    
+    /* FengTalk Typography Classes */
+    .logo-feng {
+      font-family: var(--font-serif);
+      font-style: italic;
+      padding-top: 0.1em;
+      display: inline-block;
+    }
+    
+    .logo-talk {
+      font-family: var(--font-sans);
+      font-weight: 700;
     }
 
     /* App Layout */
@@ -73,12 +104,14 @@
     .sidebar-logo {
       font-size: 15px;
       font-weight: 600;
-      color: var(--text-primary);
+      color: var(--charcoal);
       letter-spacing: -0.01em;
+      font-family: var(--font-sans);
     }
 
     .sidebar-logo span {
-      color: var(--accent-color);
+      color: var(--charcoal);
+      font-weight: 700;
     }
 
     .sidebar-nav {
@@ -133,7 +166,7 @@
       left: 0;
       width: 3px;
       height: 24px;
-      background: var(--accent-color);
+      background: var(--charcoal);
       border-radius: 0 3px 3px 0;
     }
 
@@ -149,8 +182,8 @@
     }
 
     .nav-item-badge {
-      background: var(--accent-color);
-      color: white;
+      background: var(--charcoal);
+      color: var(--cream);
       font-size: 11px;
       padding: 2px 6px;
       border-radius: 10px;
@@ -201,13 +234,13 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-color), #60a5fa);
+      background: var(--charcoal);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 13px;
       font-weight: 600;
-      color: white;
+      color: var(--cream);
     }
 
     .sidebar-user-info {
@@ -251,8 +284,8 @@
     }
 
     .main-header {
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border-bottom: 1px solid var(--cream-dark);
       padding: 16px 32px;
       display: flex;
       align-items: center;
@@ -260,6 +293,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      backdrop-filter: blur(8px);
     }
 
     .main-header-title {
@@ -347,9 +381,9 @@
     }
 
     .analytics-tab.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
+      background: var(--charcoal);
+      color: var(--cream);
+      border-color: var(--charcoal);
     }
 
     .analytics-panel {
@@ -381,15 +415,15 @@
     }
 
     .env-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 12px;
       padding: 20px;
-      transition: all 0.2s;
+      transition: border-color 0.2s;
     }
 
     .env-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border-color: var(--charcoal-muted);
     }
 
     .env-card.success {
@@ -474,21 +508,22 @@
     }
 
     /* Event Filter Styles */
-    .event-filter-select {
-      padding: 8px 12px;
-      font-size: 13px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      background: var(--bg-secondary);
-      min-width: 180px;
-    }
-
+    .event-filter-select,
     .event-search-input {
       padding: 8px 12px;
       font-size: 13px;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--cream-dark);
       border-radius: 6px;
-      background: var(--bg-secondary);
+      background: var(--cream-light);
+      color: var(--charcoal);
+      font-family: var(--font-sans);
+      min-width: 180px;
+    }
+
+    .event-filter-select:focus,
+    .event-search-input:focus {
+      outline: none;
+      border-color: var(--charcoal);
     }
 
     /* Settings Grid */
@@ -499,10 +534,15 @@
     }
 
     .setting-item {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 8px;
       padding: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .setting-item:hover {
+      border-color: var(--charcoal-muted);
     }
 
     .setting-item label {
@@ -520,13 +560,24 @@
     }
 
     .setting-item select,
-    .setting-item input[type="number"] {
+    .setting-item input[type="number"],
+    .setting-item input[type="text"],
+    .setting-item input[type="url"] {
       width: 100%;
       margin-top: 8px;
       padding: 8px 12px;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--cream-dark);
       border-radius: 6px;
       font-size: 13px;
+      font-family: var(--font-sans);
+      background: var(--cream);
+      color: var(--charcoal);
+    }
+
+    .setting-item select:focus,
+    .setting-item input:focus {
+      outline: none;
+      border-color: var(--charcoal);
     }
 
     .setting-desc {
@@ -542,18 +593,21 @@
     .btn-save {
       margin-top: 24px;
       padding: 12px 32px;
-      background: var(--accent);
-      color: white;
+      background: var(--charcoal);
+      color: var(--cream);
       border: none;
       border-radius: 8px;
       font-size: 14px;
       font-weight: 500;
+      font-family: var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: background-color 0.2s;
     }
 
     .btn-save:hover {
-      opacity: 0.9;
+      background: var(--charcoal-light);
     }
 
     .settings-message {
@@ -585,17 +639,20 @@
       align-items: center;
       gap: 8px;
       padding: 12px 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
-      transition: all 0.15s;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      color: var(--charcoal);
+      transition: all 0.2s;
     }
 
     .btn-webhook:hover {
-      background: var(--bg-primary);
-      border-color: var(--text-secondary);
+      background: var(--cream-dark);
+      border-color: var(--charcoal-muted);
     }
 
     .btn-webhook span {
@@ -605,12 +662,13 @@
     .webhook-result {
       margin-top: 24px;
       padding: 16px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 8px;
       font-family: 'SF Mono', Monaco, monospace;
       font-size: 12px;
       white-space: pre-wrap;
+      color: var(--charcoal);
     }
 
     /* Tunnel Grid */
@@ -629,19 +687,22 @@
     .btn-validate {
       width: 100%;
       padding: 14px 24px;
-      background: var(--accent);
-      color: white;
+      background: var(--charcoal);
+      color: var(--cream);
       border: none;
       border-radius: 8px;
       font-size: 14px;
       font-weight: 500;
+      font-family: var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: background-color 0.2s;
       margin-bottom: 20px;
     }
 
     .btn-validate:hover {
-      opacity: 0.9;
+      background: var(--charcoal-light);
     }
 
     .tunnel-status-cards {
@@ -655,8 +716,8 @@
       align-items: center;
       gap: 12px;
       padding: 14px 16px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 8px;
     }
 
@@ -693,8 +754,8 @@
 
     .tunnel-update-section {
       padding: 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 12px;
     }
 
@@ -724,10 +785,17 @@
     .tunnel-url-input {
       flex: 1;
       padding: 10px 14px;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--cream-dark);
       border-radius: 6px;
       font-size: 13px;
       font-family: 'SF Mono', Monaco, monospace;
+      background: var(--cream);
+      color: var(--charcoal);
+    }
+
+    .tunnel-url-input:focus {
+      outline: none;
+      border-color: var(--charcoal);
     }
 
     .tunnel-error {
@@ -742,8 +810,8 @@
 
     /* Quick Reference */
     .quick-ref {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 12px;
       overflow: hidden;
     }
@@ -762,7 +830,7 @@
     }
 
     .quick-ref-header:hover {
-      background: var(--bg-primary);
+      background: var(--cream-dark);
     }
 
     .quick-ref-title {
@@ -815,7 +883,7 @@
       bottom: 24px;
       right: 24px;
       max-width: 480px;
-      background: var(--bg-secondary);
+      background: var(--cream-light);
       border: 1px solid var(--error);
       border-radius: 12px;
       padding: 20px;
@@ -884,8 +952,8 @@
     }
 
     .debug-section {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 12px;
       padding: 20px;
     }
@@ -942,14 +1010,17 @@
     .page-title {
       font-size: 24px;
       font-weight: 600;
-      color: var(--text-primary);
+      color: var(--charcoal);
       letter-spacing: -0.025em;
       margin-bottom: 4px;
+      font-family: var(--font-sans);
     }
 
     .page-subtitle {
       font-size: 14px;
-      color: var(--text-secondary);
+      color: var(--charcoal-muted);
+      font-family: var(--font-serif);
+      font-style: italic;
     }
 
     /* Stats Grid */
@@ -961,10 +1032,15 @@
     }
 
     .stat-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 12px;
       padding: 20px 24px;
+      transition: border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--charcoal-muted);
     }
 
     .stat-sub {
@@ -999,18 +1075,21 @@
       align-items: center;
       gap: 6px;
       padding: 8px 16px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 6px;
-      color: var(--text-secondary);
+      color: var(--charcoal-muted);
       font-size: 13px;
+      font-family: var(--font-sans);
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
     .btn-refresh:hover {
-      background: var(--bg-primary);
-      border-color: var(--text-muted);
+      background: var(--cream-dark);
+      border-color: var(--charcoal-muted);
+      color: var(--charcoal);
     }
 
     .btn-refresh.loading {
@@ -1029,8 +1108,8 @@
 
     .overview-section {
       margin-top: 24px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 12px;
       overflow: hidden;
     }
@@ -1135,8 +1214,8 @@
       gap: 12px;
       padding: 10px 0;
       font-size: 13px;
-      color: var(--text-secondary);
-      border-bottom: 1px solid var(--border-color);
+      color: var(--charcoal-muted);
+      border-bottom: 1px solid var(--cream-dark);
     }
 
     .activity-item:last-child {
@@ -1182,14 +1261,14 @@
     }
 
     .analytics-tab.active {
-      background: var(--accent-color);
-      color: white;
-      border-color: var(--accent-color);
+      background: var(--charcoal);
+      color: var(--cream);
+      border-color: var(--charcoal);
     }
 
     .analytics-panel {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--cream-light);
+      border: 1px solid var(--cream-dark);
       border-radius: 8px;
       padding: 16px;
     }
@@ -1225,17 +1304,18 @@
     .data-table td {
       padding: 10px 12px;
       text-align: left;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--cream-dark);
     }
 
     .data-table th {
-      background: var(--bg-primary);
+      background: var(--cream);
       font-weight: 500;
-      color: var(--text-secondary);
+      color: var(--charcoal-muted);
+      font-family: var(--font-sans);
     }
 
     .data-table tbody tr:hover {
-      background: var(--bg-hover);
+      background: var(--cream-dark);
     }
 
     .data-table .loading {
@@ -1252,10 +1332,15 @@
     }
 
     .source-card {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
+      background: var(--cream);
+      border: 1px solid var(--cream-dark);
       border-radius: 8px;
       padding: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .source-card:hover {
+      border-color: var(--charcoal-muted);
     }
 
     .source-card-header {
@@ -1273,7 +1358,8 @@
     .source-percentage {
       font-size: 20px;
       font-weight: 600;
-      color: var(--accent-color);
+      color: var(--charcoal);
+      font-family: var(--font-sans);
     }
 
     .source-stats {
@@ -1300,8 +1386,8 @@
     /* Trends */
     .trends-chart {
       height: 200px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
+      background: var(--cream);
+      border: 1px solid var(--cream-dark);
       border-radius: 8px;
       margin-bottom: 16px;
       display: flex;
@@ -1312,7 +1398,7 @@
 
     .trend-bar {
       flex: 1;
-      background: var(--accent-color);
+      background: var(--charcoal);
       border-radius: 4px 4px 0 0;
       min-height: 4px;
       position: relative;
@@ -3617,6 +3703,46 @@
       background: white;
     }
 
+    /* FengTalk Button System */
+    .btn-primary {
+      padding: 10px 32px;
+      background: var(--charcoal);
+      color: var(--cream);
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: var(--charcoal-light);
+    }
+
+    .btn-secondary {
+      padding: 10px 32px;
+      background: transparent;
+      color: var(--charcoal);
+      border: 1px solid var(--cream-dark);
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--cream-dark);
+      border-color: var(--charcoal-muted);
+    }
+
     .btn-danger {
       padding: 10px 16px;
       background: #ef4444;
@@ -3625,6 +3751,7 @@
       border-radius: 6px;
       font-size: 13px;
       font-weight: 500;
+      font-family: var(--font-sans);
       cursor: pointer;
       transition: background 0.2s;
     }
@@ -20402,7 +20529,7 @@
       // Add default rewards
       wizardRewards = [
         { reward_name: '基础资源包', total_quantity: 100, helpers_required: 0, reward_image_url: '', claim_method: 'link', claim_link: '', claim_text: '' },
-        { reward_name: '进阶资源包', total_quantity: 50, helpers_required: 3, reward_image_url: '', claim_method: 'link', claim_link: '', claim_text: '' },
+        { reward_name: '进阶资源包', total_quantity: 50, helpers_required: 1, reward_image_url: '', claim_method: 'link', claim_link: '', claim_text: '' },
       ];
       renderWizardRewards();
       
@@ -20886,11 +21013,13 @@
         alert('最多只能添加3个奖品');
         return;
       }
+      // helpers_required represents "总共需要多少人" (total helpers needed)
+      // New reward should require more helpers than the current maximum
       const maxHelpers = Math.max(...wizardRewards.map(r => r.helpers_required), 0);
       wizardRewards.push({
         reward_name: '',
         total_quantity: 50,
-        helpers_required: maxHelpers + 3,
+        helpers_required: maxHelpers + 1, // Next reward requires 1 more helper than current max
         reward_image_url: '',
         claim_method: 'link',
         claim_link: '',
@@ -21346,14 +21475,37 @@
           // Render table
           tableBody.innerHTML = campaignsWithStats.map(campaign => {
             const endDate = campaign.end_time ? new Date(campaign.end_time) : null;
-            const endDateStr = endDate ? endDate.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }) : '-';
+            // Show full date with year to avoid confusion
+            const endDateStr = endDate ? endDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' }) : '-';
             const participants = campaign.stats?.totalParticipants || 0;
             const helpers = campaign.stats?.totalHelpers || 0;
+            
+            // Calculate actual status based on end_time
+            const now = new Date();
+            let actualStatus = campaign.status;
+            // Check if campaign has ended (compare dates, ignoring time)
+            if (endDate && campaign.status === 'active') {
+              // Compare dates at midnight to avoid timezone issues
+              const endDateOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+              const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+              
+              // Debug: show full comparison
+              const endDateStrFull = endDateOnly.toISOString().split('T')[0];
+              const nowDateStrFull = nowDateOnly.toISOString().split('T')[0];
+              console.log(`[Frontend] Checking campaign "${campaign.name}": end_date=${endDateStrFull}, now_date=${nowDateStrFull}, status=${campaign.status}, expired=${endDateOnly < nowDateOnly}`);
+              
+              if (endDateOnly < nowDateOnly) {
+                actualStatus = 'ended'; // Override status if expired
+                console.log(`[Frontend] ⚠️ Campaign "${campaign.name}" expired on ${endDateStrFull}, marking as ended`);
+              } else {
+                console.log(`[Frontend] ✓ Campaign "${campaign.name}" is still active (ends ${endDateStrFull})`);
+              }
+            }
             
             return `
               <tr>
                 <td><strong>${campaign.name}</strong></td>
-                <td><span class="campaign-status ${campaign.status}">${getStatusText(campaign.status)}</span></td>
+                <td><span class="campaign-status ${actualStatus}">${getStatusText(actualStatus)}</span></td>
                 <td>${participants}</td>
                 <td>${helpers}</td>
                 <td>${endDateStr}</td>
@@ -21362,7 +21514,7 @@
                   <button onclick="copyCampaign('${campaign.id}', '${campaign.name.replace(/'/g, "\\'")}')" title="复制">📋</button>
                   <button onclick="viewCampaignData('${campaign.id}')" title="报表">📊</button>
                   <button onclick="viewCampaignDebug('${campaign.id}')" title="调试">🔍</button>
-                  <button onclick="toggleCampaignStatus('${campaign.id}', '${campaign.status}')" title="${campaign.status === 'active' ? '暂停' : '激活'}">${campaign.status === 'active' ? '⏸️' : '▶️'}</button>
+                  <button onclick="toggleCampaignStatus('${campaign.id}', '${actualStatus}')" title="${actualStatus === 'active' ? '暂停' : '激活'}">${actualStatus === 'active' ? '⏸️' : '▶️'}</button>
                   <button class="btn-delete" onclick="deleteCampaign('${campaign.id}', '${campaign.name.replace(/'/g, "\\'")}')" title="删除">🗑️</button>
                 </td>
               </tr>
@@ -23161,7 +23313,7 @@
                 <th style="width: 60px;">图片</th>
                 <th>奖品名称</th>
                 <th style="width: 80px;">总数量</th>
-                <th style="width: 80px;">助力人数</th>
+                <th style="width: 80px;" title="总共需要多少人助力才能解锁此奖品">助力人数<br><small style="font-weight: normal; color: var(--text-muted);">(总共需要)</small></th>
                 <th style="width: 50px;"></th>
               </tr>
             </thead>
@@ -23170,7 +23322,7 @@
             </tbody>
           </table>
           <button type="button" class="btn-add-reward" onclick="addWizardReward()">+ 添加奖品 (最多3个)</button>
-          <div class="wizard-form-hint" style="margin-top: 12px;">💡 提示: 助力人数越高，奖品价值应该越大，形成阶梯激励</div>
+          <div class="wizard-form-hint" style="margin-top: 12px;">💡 提示: 助力人数表示"总共需要多少人助力才能解锁此奖品"。例如：0人=基础奖励，1人=需要1人助力，2人=需要2人助力。助力人数越高，奖品价值应该越大，形成阶梯激励</div>
         </div>
 
         <!-- Brand Info (Optional) -->

@@ -104,7 +104,8 @@ Page({
     // Refresh data when page becomes visible
     const campaignId = (this.data.campaign as Campaign)?.id;
     if (campaignId) {
-      this.loadProgress(campaignId);
+      // Reload campaign details to sync any changes from admin
+      this.loadCampaignData(campaignId);
       // Restart polling if it was stopped
       this.startSmartPolling(campaignId);
     }
@@ -160,6 +161,7 @@ Page({
 
   /**
    * Manual refresh triggered by user
+   * Refreshes both campaign details and progress
    */
   async refreshProgress() {
     const campaignId = (this.data.campaign as Campaign)?.id;
@@ -168,7 +170,8 @@ Page({
     this.setData({ refreshing: true, lastPollTime: Date.now() });
     
     try {
-      await this.loadProgress(campaignId);
+      // Refresh campaign details (name, description, rewards, etc.)
+      await this.loadCampaignData(campaignId);
       wx.showToast({ title: '已刷新', icon: 'success', duration: 1000 });
     } catch (error) {
       console.error('Refresh error:', error);
@@ -578,29 +581,49 @@ Page({
     wx.showLoading({ title: '生成海报中...' });
 
     try {
-      const token = wx.getStorageSync('token') || '';
-      const apiBase = require('../../utils/config').API_BASE_URL;
-      
-      // Call poster API to get base64 image
-      const response: any = await new Promise((resolve, reject) => {
-        wx.request({
-          url: `${apiBase}/campaigns/${campaignId}/poster/base64`,
-          method: 'GET',
-          header: token ? { 'Authorization': `Bearer ${token}` } : {},
-          success: resolve,
-          fail: reject,
-        });
-      });
+      // Use the api service instead of direct wx.request for better error handling
+      const response = await api.get(`/campaigns/${campaignId}/poster/base64`);
 
-      if (response.statusCode !== 200 || !response.data?.success) {
-        throw new Error(response.data?.error || '生成海报失败');
+      if (!response.data || !response.data.success) {
+        throw new Error((response.data && response.data.error) || '生成海报失败');
       }
 
       const posterData = response.data.data.poster; // data:image/png;base64,...
       
+      if (!posterData) {
+        throw new Error('海报数据为空');
+      }
+      
       // Convert base64 to temp file
-      const base64Data = posterData.split(',')[1];
+      // Handle both formats: "data:image/png;base64,xxx" and "xxx"
+      const base64Data = posterData.includes(',') ? posterData.split(',')[1] : posterData;
       const fs = wx.getFileSystemManager();
+      
+      // Clean up old poster files before creating new one to avoid storage limit
+      try {
+        const dirPath = wx.env.USER_DATA_PATH;
+        const files = fs.readdirSync(dirPath);
+        const posterFiles = files.filter((file: string) => file.startsWith('poster_'));
+        
+        // Keep only the 3 most recent poster files, delete older ones
+        if (posterFiles.length > 3) {
+          const sortedFiles = posterFiles.sort().reverse(); // Sort by name (timestamp)
+          const filesToDelete = sortedFiles.slice(3); // Keep first 3, delete the rest
+          
+          for (const file of filesToDelete) {
+            try {
+              fs.unlinkSync(`${dirPath}/${file}`);
+              console.log(`[Poster] Deleted old poster file: ${file}`);
+            } catch (unlinkErr) {
+              console.warn(`[Poster] Failed to delete ${file}:`, unlinkErr);
+            }
+          }
+        }
+      } catch (cleanupErr) {
+        // If cleanup fails, continue anyway (might be first time or permission issue)
+        console.warn('[Poster] Cleanup warning:', cleanupErr);
+      }
+      
       const filePath = `${wx.env.USER_DATA_PATH}/poster_${campaignId}_${Date.now()}.png`;
       
       await new Promise<void>((resolve, reject) => {
@@ -640,8 +663,9 @@ Page({
       if (error.errMsg !== 'showActionSheet:fail cancel') {
         console.error('Generate poster error:', error);
         wx.showToast({
-          title: error.message || '生成海报失败',
+          title: error.message || error.errMsg || '生成海报失败',
           icon: 'none',
+          duration: 3000,
         });
       }
     }

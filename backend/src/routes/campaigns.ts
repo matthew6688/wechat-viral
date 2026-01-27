@@ -24,6 +24,7 @@ import {
   claimReward,
   getClaimedRewards,
   getClaimableRewards,
+  updateCampaignStatusIfNeeded,
 } from '../services/campaign-service';
 import { supabase } from '../config/supabase';
 import { logEvent } from '../services/event-logger';
@@ -42,14 +43,44 @@ const router = express.Router();
 /**
  * GET /api/campaigns
  * Get all active campaigns
+ * Automatically updates status for expired campaigns before filtering
  */
 router.get('/', async (req, res) => {
   try {
-    const campaigns = await getActiveCampaigns();
+    // First, get all campaigns with 'active' status to check for expired ones
+    const { data: allActiveCampaigns, error: fetchError } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (fetchError) {
+      throw fetchError;
+    }
+
+    // Update status for expired campaigns
+    const { updateCampaignStatusIfNeeded } = require('../services/campaign-service');
+    const updatedCampaigns = await Promise.all(
+      (allActiveCampaigns || []).map((campaign: any) => updateCampaignStatusIfNeeded(campaign))
+    );
+
+    // Now filter to only return campaigns that are currently active (after status updates)
+    const now = new Date();
+    const activeCampaigns = updatedCampaigns.filter((campaign: any) => {
+      const startTime = campaign.start_time ? new Date(campaign.start_time) : null;
+      const endTime = campaign.end_time ? new Date(campaign.end_time) : null;
+      
+      // Check if campaign is currently active
+      const isStarted = !startTime || startTime <= now;
+      const isNotEnded = endTime && endTime >= now;
+      const isActiveStatus = campaign.status === 'active';
+      
+      return isActiveStatus && isStarted && isNotEnded;
+    });
     
     res.json({
       success: true,
-      data: { campaigns },
+      data: { campaigns: activeCampaigns },
     });
   } catch (error: any) {
     console.error('Get campaigns error:', error);
@@ -60,6 +91,7 @@ router.get('/', async (req, res) => {
 /**
  * GET /api/campaigns/:id
  * Get campaign details
+ * Automatically updates status for expired campaigns
  */
 router.get('/:id', async (req, res) => {
   try {
@@ -69,12 +101,15 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Campaign not found' });
     }
 
-    const rewards = await getCampaignRewards(campaign.id);
+    // Check and update status if needed
+    const updatedCampaign = await updateCampaignStatusIfNeeded(campaign);
+
+    const rewards = await getCampaignRewards(updatedCampaign.id);
 
     res.json({
       success: true,
       data: {
-        campaign,
+        campaign: updatedCampaign,
         rewards,
       },
     });
@@ -1000,6 +1035,7 @@ router.get('/:id/report', authenticate, requireAdmin, async (req: AuthRequest, r
 /**
  * GET /api/campaigns/admin/all
  * Get all campaigns (admin only, includes inactive)
+ * Automatically updates status for expired campaigns
  */
 router.get('/admin/all', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
@@ -1010,9 +1046,14 @@ router.get('/admin/all', authenticate, requireAdmin, async (req: AuthRequest, re
 
     if (error) throw error;
 
+    // Check and update status for expired campaigns
+    const updatedCampaigns = await Promise.all(
+      (campaigns || []).map((campaign: any) => updateCampaignStatusIfNeeded(campaign))
+    );
+
     res.json({
       success: true,
-      data: { campaigns: campaigns || [] },
+      data: { campaigns: updatedCampaigns },
     });
   } catch (error: any) {
     console.error('Get all campaigns error:', error);

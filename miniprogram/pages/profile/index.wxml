@@ -6,7 +6,7 @@
       <view class="avatar-wrap" bindtap="authorizeProfile">
         <image 
           class="avatar" 
-          src="{{user.wechat_avatar_url || user.avatar_url || '/images/default-avatar.png'}}" 
+          src="{{user.wechat_avatar_url || user.avatar_url || 'https://ui-avatars.com/api/?name=User&background=cccccc&color=fff&size=200'}}" 
           mode="aspectFill"
         />
         <view class="avatar-edit">

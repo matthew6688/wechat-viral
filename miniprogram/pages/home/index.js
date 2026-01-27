@@ -8,6 +8,7 @@ Page({
     points: 0,
     tasks: null,
     logs: null,
+    campaigns: [],
     showProfileModal: false,
   },
 
@@ -102,10 +103,14 @@ Page({
 
   async loadData() {
     try {
-      const [pointsRes, tasksRes, logsRes] = await Promise.all([
+      const [pointsRes, tasksRes, logsRes, campaignsRes] = await Promise.all([
         api.get('/points/balance'),
         api.get('/tasks'),
         api.get('/points/logs'),
+        api.get('/campaigns').catch(err => {
+          console.error('Load campaigns error:', err);
+          return { data: { campaigns: [] } };
+        }),
       ]);
 
       const tasks = (tasksRes.data && tasksRes.data.data && tasksRes.data.data.tasks) ? tasksRes.data.data.tasks : 
@@ -121,11 +126,16 @@ Page({
         formatted_date: this.formatDate(log.created_at)
       }));
       
+      // Extract campaigns from response
+      const campaignsData = campaignsRes.data || {};
+      const campaigns = campaignsData.data?.campaigns || campaignsData.campaigns || [];
+      
       this.setData({
         points: (pointsRes.data && pointsRes.data.data && pointsRes.data.data.balance) ? pointsRes.data.data.balance : 
                 (pointsRes.data && pointsRes.data.balance) ? pointsRes.data.balance : 0,
         tasks: safeTasks,
         logs: safeLogs,
+        campaigns: campaigns,
       });
     } catch (error) {
       console.error('Load data error:', error);
@@ -151,10 +161,37 @@ Page({
     wx.switchTab({ url: '/pages/invite/index' });
   },
 
-  goToCampaign() {
+  goToCampaign(e) {
+    const campaignId = e.currentTarget.dataset.id;
+    if (campaignId) {
+      wx.navigateTo({ 
+        url: `/pages/campaign/index?id=${campaignId}` 
+      });
+    } else {
+      // Navigate to campaigns list
+      wx.navigateTo({ 
+        url: '/pages/campaigns/index' 
+      });
+    }
+  },
+
+  goToCampaigns() {
     // Navigate to campaigns list
     wx.navigateTo({ 
       url: '/pages/campaigns/index' 
     });
+  },
+
+  goToProfile() {
+    wx.switchTab({ url: '/pages/profile/index' });
+  },
+
+  goToCurrentCampaign() {
+    const currentCampaign = this.data.currentCampaign;
+    if (currentCampaign && currentCampaign.id) {
+      wx.navigateTo({ 
+        url: `/pages/campaign/index?id=${currentCampaign.id}` 
+      });
+    }
   },
 });

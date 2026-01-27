@@ -237,11 +237,18 @@ async function getUserInfo(openid: string): Promise<WeChatUserInfo> {
 
     console.log('WeChat user info received:', {
       openid: response.data.openid,
+      unionid: response.data.unionid || 'NOT PROVIDED',
       nickname: response.data.nickname,
       hasAvatar: !!response.data.headimgurl,
       city: response.data.city,
       subscribe: response.data.subscribe,
     });
+    
+    if (!response.data.unionid) {
+      console.warn(`[OA getUserInfo] ⚠️ UnionID not provided for openid: ${openid}. Make sure OA and MP are bound to WeChat Open Platform.`);
+    } else {
+      console.log(`[OA getUserInfo] ✅ UnionID received: ${response.data.unionid}`);
+    }
 
     return {
       openid: response.data.openid,
@@ -269,6 +276,8 @@ async function identifyUser(
 ): Promise<{ id: string; isNew: boolean }> {
   const unionid = userInfo.unionid;
   
+  console.log(`[OA identifyUser] Starting user identification: openid=${openid}, unionid=${unionid || 'NOT PROVIDED'}`);
+  
   // Build profile update data from WeChat info
   const profileData: Record<string, any> = {
     openid_oa: openid,
@@ -295,11 +304,25 @@ async function identifyUser(
       .single();
 
     if (userByUnionid) {
-      // Update profile data
+      console.log(`[OA identifyUser] Found user by unionid: ${userByUnionid.id}, updating with OA data`);
+      // Update profile data (includes openid_oa, unionid, and profile info)
+      // Also ensure openid (MP) is preserved if it exists
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('openid')
+        .eq('id', userByUnionid.id)
+        .single();
+      
+      // Preserve existing openid if it exists
+      if (existingUser?.openid && !profileData.openid) {
+        profileData.openid = existingUser.openid;
+      }
+      
       await supabase
         .from('users')
         .update(profileData)
         .eq('id', userByUnionid.id);
+      console.log(`[OA identifyUser] Updated user ${userByUnionid.id} with unionid: ${unionid}, openid_oa: ${openid}`);
       return { id: userByUnionid.id, isNew: false };
     }
   }
@@ -312,11 +335,25 @@ async function identifyUser(
     .single();
 
   if (userByOpenid) {
-    // Update profile data
+    console.log(`[OA identifyUser] Found user by openid_oa: ${userByOpenid.id}, updating with OA data`);
+    // Update profile data (includes unionid if available)
+    // Also ensure openid (MP) is preserved if it exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('openid')
+      .eq('id', userByOpenid.id)
+      .single();
+    
+    // Preserve existing openid if it exists
+    if (existingUser?.openid && !profileData.openid) {
+      profileData.openid = existingUser.openid;
+    }
+    
     await supabase
       .from('users')
       .update(profileData)
       .eq('id', userByOpenid.id);
+    console.log(`[OA identifyUser] Updated user ${userByOpenid.id} with unionid: ${unionid || 'none'}, openid_oa: ${openid}`);
     return { id: userByOpenid.id, isNew: false };
   }
 
@@ -328,8 +365,10 @@ async function identifyUser(
     .single();
 
   if (userByMpOpenid) {
-    // Update profile data
+    console.log(`[OA identifyUser] Found user by MP openid: ${userByMpOpenid.id}, updating with OA data`);
+    // Update profile data (includes openid_oa, unionid if available)
     await supabase.from('users').update(profileData).eq('id', userByMpOpenid.id);
+    console.log(`[OA identifyUser] Updated user ${userByMpOpenid.id} with unionid: ${unionid || 'none'}, openid_oa: ${openid}`);
     return { id: userByMpOpenid.id, isNew: false };
   }
 

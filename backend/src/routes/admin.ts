@@ -3160,4 +3160,105 @@ router.post('/ai-cs/test', async (req: AuthRequest, res) => {
   }
 });
 
+/**
+ * POST /api/admin/fix-helper-counts
+ * Manually trigger helper count recalculation for all participants
+ * This fixes issues where helper counts are incorrect due to UnionID deduplication
+ */
+router.post('/fix-helper-counts', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    console.log('[Admin] Starting helper count fix...');
+    
+    // Get all participants
+    const { data: participants, error: fetchError } = await supabase
+      .from('campaign_participants')
+      .select('id');
+    
+    if (fetchError) {
+      throw fetchError;
+    }
+    
+    if (!participants || participants.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No participants to fix',
+        fixed: 0,
+      });
+    }
+    
+    let fixed = 0;
+    let errors = 0;
+    
+    // Recalculate helper count for each participant
+    for (const participant of participants) {
+      try {
+        // Get all valid helpers for this participant
+        const { data: helpers, error: helpersError } = await supabase
+          .from('campaign_helpers')
+          .select('helper_unionid, helper_openid')
+          .eq('participant_id', participant.id)
+          .eq('is_valid', true);
+        
+        if (helpersError) {
+          console.error(`[Admin] Error fetching helpers for participant ${participant.id}:`, helpersError);
+          errors++;
+          continue;
+        }
+        
+        // Deduplicate by unionid (if available), otherwise by openid
+        const uniqueHelpers = new Set<string>();
+        if (helpers) {
+          for (const helper of helpers) {
+            if (helper.helper_unionid) {
+              uniqueHelpers.add(`unionid:${helper.helper_unionid}`);
+            } else {
+              uniqueHelpers.add(`openid:${helper.helper_openid}`);
+            }
+          }
+        }
+        
+        const helperCount = uniqueHelpers.size;
+        
+        // Update participant's helper_count
+        const { error: updateError } = await supabase
+          .from('campaign_participants')
+          .update({
+            helper_count: helperCount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', participant.id);
+        
+        if (updateError) {
+          console.error(`[Admin] Error updating participant ${participant.id}:`, updateError);
+          errors++;
+        } else {
+          fixed++;
+          if (fixed % 10 === 0) {
+            console.log(`[Admin] Fixed ${fixed} participants...`);
+          }
+        }
+      } catch (error: any) {
+        console.error(`[Admin] Error processing participant ${participant.id}:`, error);
+        errors++;
+      }
+    }
+    
+    console.log(`[Admin] Helper count fix complete: ${fixed} fixed, ${errors} errors`);
+    
+    res.json({
+      success: true,
+      message: `Fixed helper counts for ${fixed} participants`,
+      fixed,
+      errors,
+      total: participants.length,
+    });
+  } catch (error: any) {
+    console.error('[Admin] Fix helper counts error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fix helper counts',
+    });
+  }
+});
+
 export default router;

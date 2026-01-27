@@ -1,5 +1,7 @@
 // services/api.js
-const { API_BASE_URL } = require('../utils/config');
+const config = require('../utils/config');
+// 使用 getter 确保每次获取都是最新的 URL
+const getApiBaseUrl = () => config.API_BASE_URL;
 
 // Storage utility
 const storage = {
@@ -16,6 +18,34 @@ const storage = {
 
 const api = {
   async request(url, options = {}) {
+    // 动态获取 API_BASE_URL（确保每次都是最新的）
+    const API_BASE_URL = getApiBaseUrl();
+    
+    // Check if API_BASE_URL is valid
+    if (!API_BASE_URL || API_BASE_URL.includes('invalid-tunnel-url')) {
+      const error = new Error('Tunnel URL not configured. Please check Supabase tunnel_config table.');
+      error.errMsg = 'Tunnel URL not configured';
+      console.error('[API] ❌ Cannot make request - API_BASE_URL is invalid:', API_BASE_URL);
+      console.error('[API] Please ensure tunnel_config table in Supabase has a valid URL');
+      
+      // Try to refresh tunnel URL one more time
+      try {
+        const { forceRefreshTunnelUrl } = require('../utils/config');
+        const newUrl = await forceRefreshTunnelUrl();
+        if (newUrl) {
+          console.log('[API] ✅ Successfully refreshed tunnel URL, retrying request...');
+          // Update API_BASE_URL for this request
+          const updatedBaseUrl = newUrl.endsWith('/') ? newUrl.slice(0, -1) + '/api' : newUrl + '/api';
+          // Continue with the request using the new URL
+          return this.request(url, { ...options, _baseUrl: updatedBaseUrl });
+        }
+      } catch (refreshError) {
+        console.error('[API] Failed to refresh tunnel URL:', refreshError);
+      }
+      
+      return Promise.reject(error);
+    }
+    
     const token = storage.getToken();
     
     const headers = {
@@ -26,7 +56,32 @@ const api = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    let requestUrl = `${API_BASE_URL}${url}`;
+    // Check if we have a valid base URL
+    if (!API_BASE_URL || API_BASE_URL.includes('invalid')) {
+      // Try to refresh tunnel URL
+      console.log('[API] ⚠️ Invalid API_BASE_URL, attempting to refresh...');
+      try {
+        const { forceRefreshTunnelUrl } = require('../utils/config');
+        const newUrl = await forceRefreshTunnelUrl();
+        if (newUrl && !newUrl.includes('invalid')) {
+          const updatedBaseUrl = (newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl) + '/api';
+          console.log('[API] ✅ Successfully refreshed tunnel URL, using:', updatedBaseUrl);
+          // Update the global API_BASE_URL for future requests
+          // Note: This is a workaround since we can't directly modify the exported constant
+          return this.request(url, { ...options, _baseUrl: updatedBaseUrl });
+        }
+      } catch (refreshError) {
+        console.error('[API] Failed to refresh tunnel URL:', refreshError);
+      }
+      
+      const error = new Error('Tunnel URL not configured. Please check Supabase tunnel_config table.');
+      error.errMsg = 'Tunnel URL not configured';
+      return Promise.reject(error);
+    }
+    
+    // Allow override base URL for retry scenarios
+    const baseUrl = options._baseUrl || API_BASE_URL;
+    let requestUrl = `${baseUrl}${url}`;
     
     // Add query params for GET requests
     if (options.method === 'GET' && options.params) {
@@ -41,6 +96,13 @@ const api = {
       }
     }
 
+    // Log the request URL for debugging (but not sensitive data)
+    console.log('[API] Making request:', {
+      method: options.method || 'GET',
+      url: requestUrl,
+      baseUrl: API_BASE_URL,
+    });
+    
     return new Promise((resolve, reject) => {
       const requestOptions = {
         url: requestUrl,
@@ -67,6 +129,31 @@ const api = {
           }
         },
         fail: (err) => {
+          console.error('[API] ❌ Request failed:', {
+            url: requestUrl,
+            method: options.method || 'GET',
+            error: err.errMsg || err.message,
+            errorCode: err.errcode,
+            cronetErrorCode: err.cronet_error_code,
+          });
+          
+          // Provide helpful error messages
+          if (err.errMsg && err.errMsg.includes('ERR_NAME_NOT_RESOLVED')) {
+            console.error('[API] ❌ DNS resolution failed - possible causes:');
+            console.error('[API] 1. Tunnel URL may be expired or incorrect');
+            console.error('[API] 2. Network connection issue');
+            console.error('[API] 3. Domain not whitelisted in WeChat Mini Program settings');
+            console.error('[API] Current API_BASE_URL:', API_BASE_URL);
+            
+            // Try to get current tunnel URL from storage
+            try {
+              const storedUrl = wx.getStorageSync('tunnel_url');
+              console.error('[API] Stored tunnel_url:', storedUrl);
+            } catch (e) {
+              console.error('[API] Could not read stored tunnel_url');
+            }
+          }
+          
           const error = new Error(err.errMsg || 'Network request failed');
           error.errMsg = err.errMsg;
           reject(error);

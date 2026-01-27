@@ -54,7 +54,17 @@ router.post('/login', async (req, res) => {
     // Exchange code for openid
     console.log('Calling code2Session...');
     const session = await code2Session(code);
-    console.log('code2Session success, openid:', session.openid);
+    console.log('code2Session success:', {
+      openid: session.openid,
+      unionid: session.unionid || 'NOT PROVIDED',
+      hasSessionKey: !!session.session_key,
+    });
+    
+    if (!session.unionid) {
+      console.warn(`[MP Login] ⚠️ UnionID not provided for openid: ${session.openid}. Make sure MP and OA are bound to WeChat Open Platform.`);
+    } else {
+      console.log(`[MP Login] ✅ UnionID received: ${session.unionid}`);
+    }
 
     // Find or create user - Priority: unionid > openid
     // This ensures users who first follow OA then use MP are properly linked
@@ -78,14 +88,19 @@ router.post('/login', async (req, res) => {
         console.log('Found user by unionid:', user.id);
         
         // Update openid if not set (user was created from OA first)
-        if (!user.openid) {
-          await supabase
-            .from('users')
-            .update({ openid: session.openid })
-            .eq('id', user.id);
-          user.openid = session.openid;
-          console.log('Updated user with MP openid');
+        // Also ensure openid_oa is preserved if it exists
+        const updateData: any = { openid: session.openid };
+        if (!user.openid_oa) {
+          // If user doesn't have openid_oa, we can't set it here (need OA follow event)
+          // But we should preserve it if it exists
         }
+        
+        await supabase
+          .from('users')
+          .update(updateData)
+          .eq('id', user.id);
+        user.openid = session.openid;
+        console.log(`[MP Login] Updated user ${user.id} with MP openid: ${session.openid}, unionid: ${session.unionid}`);
       }
     }
 
@@ -105,13 +120,20 @@ router.post('/login', async (req, res) => {
         console.log('Found user by openid:', user.id);
         
         // Update unionid if not set
+        // Also ensure openid_oa is preserved if it exists
         if (session.unionid && !user.unionid) {
+          const updateData: any = { unionid: session.unionid };
+          // Preserve openid_oa if it exists
+          if (user.openid_oa && !updateData.openid_oa) {
+            updateData.openid_oa = user.openid_oa;
+          }
+          
           await supabase
             .from('users')
-            .update({ unionid: session.unionid })
+            .update(updateData)
             .eq('id', user.id);
           user.unionid = session.unionid;
-          console.log('Updated user with unionid');
+          console.log(`[MP Login] Updated user ${user.id} with unionid: ${session.unionid}, preserving openid_oa: ${user.openid_oa || 'none'}`);
         }
       }
     }

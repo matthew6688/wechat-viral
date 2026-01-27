@@ -16,6 +16,8 @@ Page({
     progressPercent: 0,
     maxHelpers: 8,
     nextReward: null,
+    remainingHelpers: 0,
+    currentRewardIndex: -1,
     showDebug: false, // Set to true for debugging
     claimedRewardIds: [], // IDs of claimed rewards
     showProfileModal: false,
@@ -50,7 +52,8 @@ Page({
     // Refresh data when page becomes visible
     const campaignId = this.data.campaign.id;
     if (campaignId) {
-      this.loadProgress(campaignId);
+      // Reload campaign details to sync any changes from admin
+      this.loadCampaignData(campaignId);
       this.startAutoRefresh();
     }
     
@@ -376,7 +379,7 @@ Page({
   },
 
   /**
-   * Start auto-refresh polling (every 5 seconds)
+   * Start auto-refresh polling (every 10 seconds)
    */
   startAutoRefresh() {
     this.stopAutoRefresh(); // Clear any existing timer
@@ -384,12 +387,18 @@ Page({
     const campaignId = this.data.campaign.id;
     if (!campaignId) return;
     
-    // Auto-refresh every 5 seconds
+    // Auto-refresh every 10 seconds (reduced from 5 seconds to reduce noise)
     const timer = setInterval(() => {
-      console.log('Auto-refreshing progress...');
-      this.loadProgress(campaignId);
-      this.loadClaimableRewards(campaignId);
-    }, 5000);
+      // Silently refresh without console.log
+      this.loadProgress(campaignId).catch(err => {
+        // Only log errors, don't show toast for auto-refresh
+        console.error('[Auto-refresh] Load progress error:', err);
+      });
+      this.loadClaimableRewards(campaignId).catch(err => {
+        // Only log errors, don't show toast for auto-refresh
+        console.error('[Auto-refresh] Load claimable rewards error:', err);
+      });
+    }, 10000); // Changed from 5000 to 10000 (10 seconds)
     
     this.setData({ refreshTimer: timer });
     
@@ -410,7 +419,15 @@ Page({
   },
 
   /**
+   * Refresh button handler (called from wxml)
+   */
+  refreshPage() {
+    this.refreshProgress();
+  },
+
+  /**
    * Manual refresh button handler
+   * Refreshes both campaign details and progress
    */
   async refreshProgress() {
     const campaignId = this.data.campaign.id;
@@ -419,10 +436,8 @@ Page({
     this.setData({ refreshing: true });
     
     try {
-      await Promise.all([
-        this.loadProgress(campaignId),
-        this.loadClaimableRewards(campaignId),
-      ]);
+      // Refresh campaign details (name, description, rewards, etc.)
+      await this.loadCampaignData(campaignId);
       
       wx.showToast({
         title: '刷新成功',
@@ -431,6 +446,11 @@ Page({
       });
     } catch (error) {
       console.error('Refresh error:', error);
+      wx.showToast({
+        title: '刷新失败',
+        icon: 'none',
+        duration: 1000,
+      });
     } finally {
       this.setData({ refreshing: false });
     }
@@ -456,9 +476,11 @@ Page({
       const campaign = campaignData.campaign;
       const rewards = campaignData.rewards || [];
 
-      // Calculate max helpers from rewards
+      // Calculate total helpers required (max of all rewards' helpers_required)
+      // helpers_required represents "总共需要多少人" (total helpers needed to unlock this reward)
+      // So the max progress is the maximum helpers_required among all rewards
       const maxHelpers = rewards.length > 0 
-        ? Math.max(...rewards.map(r => r.helpers_required))
+        ? Math.max(...rewards.map(r => (r.helpers_required || r.required_helpers || 0)), 0)
         : 8;
 
       this.setData({
@@ -494,22 +516,50 @@ Page({
         const participant = joinData.participant;
         const sceneStr = joinData.sceneStr || '';
         
-        // Calculate progress
+        // Use maxHelpers (calculated from rewards) as the target
+        // This ensures consistency with the progress display
+        const targetHelpers = this.data.maxHelpers || 8;
         const progressPercent = this.calculateProgress(
           participant.helper_count || 0,
-          this.data.maxHelpers
+          targetHelpers
         );
 
         // Find next reward
         const nextReward = this.data.rewards.find(
-          r => (participant.helper_count || 0) < r.helpers_required
+          r => (participant.helper_count || 0) < (r.helpers_required || r.required_helpers || 0)
         ) || null;
+
+        // Calculate remaining helpers based on target (maxHelpers from rewards)
+        const remainingHelpers = Math.max(0, targetHelpers - (participant.helper_count || 0));
+        
+        // Find current reward index (the NEXT reward to unlock, not the highest unlocked)
+        // If helper_count = 1 and required = 1, the reward is unlocked, so currentRewardIndex should point to the next one
+        const helperCount = participant.helper_count || 0;
+        let currentRewardIndex = -1;
+        if (this.data.rewards && this.data.rewards.length > 0) {
+          // Find the first reward that is NOT yet unlocked
+          for (let i = 0; i < this.data.rewards.length; i++) {
+            const reward = this.data.rewards[i];
+            const required = reward.helpers_required || reward.required_helpers || 0;
+            if (helperCount < required) {
+              currentRewardIndex = i;
+              break;
+            }
+          }
+          // If all rewards are unlocked, set to last index
+          if (currentRewardIndex === -1) {
+            currentRewardIndex = this.data.rewards.length - 1;
+          }
+        }
 
         this.setData({
           participant,
+          participation: participant, // Fix: Also update participation for wxml
           sceneStr,
           progressPercent,
           nextReward,
+          remainingHelpers,
+          currentRewardIndex,
         });
 
         // Load helpers and claimable rewards
@@ -556,7 +606,9 @@ Page({
         });
       }
     } catch (error) {
-      console.error('Load claimable rewards error:', error);
+      // Only log errors, don't show toast for auto-refresh
+      console.error('[Load Claimable Rewards] Error:', error);
+      // Don't show toast for background refresh errors
     }
   },
 
@@ -612,6 +664,79 @@ Page({
     }
   },
 
+  onRewardClick(e) {
+    const rewardFromDataset = e.currentTarget.dataset.reward;
+    const index = e.currentTarget.dataset.index;
+    
+    // Get the reward from the rewards array to ensure we have the correct data
+    // The dataset might not preserve all fields correctly, so use the index to get from array
+    const actualReward = (this.data.rewards && this.data.rewards[index]) ? this.data.rewards[index] : rewardFromDataset;
+    
+    // Use the same data source and field order as wxml
+    // wxml uses: participation.helper_count
+    const helperCount = this.data.participation?.helper_count || this.data.participant?.helper_count || 0;
+    
+    // Match the exact field order used in wxml: required_helpers || helpers_required
+    // Backend returns helpers_required, but wxml checks required_helpers first
+    const required = actualReward.required_helpers || actualReward.helpers_required || 0;
+    
+    // Debug logging to identify the issue
+    console.log('[Reward Click] Debug:', {
+      index: index,
+      rewardName: actualReward.reward_name || actualReward.name,
+      rewardId: actualReward.id,
+      helperCount: helperCount,
+      required: required,
+      rewardFields: {
+        required_helpers: actualReward.required_helpers,
+        helpers_required: actualReward.helpers_required,
+      },
+      allRewards: this.data.rewards?.map((r, i) => ({
+        index: i,
+        name: r.reward_name || r.name,
+        required_helpers: r.required_helpers,
+        helpers_required: r.helpers_required,
+      }))
+    });
+    
+    // Check if reward is unlocked (same logic as wxml)
+    if (helperCount >= required) {
+      // Reward is unlocked, show how to redeem
+      // Check if already claimed
+      const isClaimed = this.data.claimedRewardIds?.includes(actualReward.id);
+      
+      if (isClaimed) {
+        // Already claimed, show reward content
+        this.showRewardContent(actualReward);
+      } else {
+        // Not claimed yet, show claim option
+        wx.showModal({
+          title: '领取奖品',
+          content: `您已解锁"${actualReward.reward_name || actualReward.name}"，是否立即领取？`,
+          success: (res) => {
+            if (res.confirm) {
+              this.claimReward({ currentTarget: { dataset: { rewardId: actualReward.id } } });
+            }
+          }
+        });
+      }
+    } else {
+      // Reward not unlocked yet
+      const remaining = required - helperCount;
+      console.log('[Reward Click] Calculation:', {
+        required: required,
+        helperCount: helperCount,
+        remaining: remaining,
+        rewardName: actualReward.reward_name || actualReward.name
+      });
+      wx.showToast({
+        title: `还需 ${remaining} 人助力才能解锁此奖品`,
+        icon: 'none',
+        duration: 2000
+      });
+    }
+  },
+
   showRewardContent(reward) {
     const content = reward.reward_content || {};
     let message = `🎁 ${reward.reward_name}\n\n`;
@@ -658,22 +783,51 @@ Page({
         const participant = progressData.participant;
         const helpers = progressData.helpers || [];
         
+        // Use maxHelpers (calculated from rewards) as the target
+        const targetHelpers = this.data.maxHelpers || 8;
         const progressPercent = this.calculateProgress(
           participant.helper_count || 0,
-          this.data.maxHelpers
+          targetHelpers
         );
 
         const nextReward = progressData.nextReward || null;
 
+        // Calculate remaining helpers based on target (maxHelpers from rewards)
+        const remainingHelpers = Math.max(0, targetHelpers - (participant.helper_count || 0));
+        
+        // Find current reward index (the NEXT reward to unlock)
+        const helperCount = participant.helper_count || 0;
+        let currentRewardIndex = -1;
+        if (this.data.rewards && this.data.rewards.length > 0) {
+          // Find the first reward that is NOT yet unlocked
+          for (let i = 0; i < this.data.rewards.length; i++) {
+            const reward = this.data.rewards[i];
+            const required = reward.helpers_required || reward.required_helpers || 0;
+            if (helperCount < required) {
+              currentRewardIndex = i;
+              break;
+            }
+          }
+          // If all rewards are unlocked, set to last index
+          if (currentRewardIndex === -1) {
+            currentRewardIndex = this.data.rewards.length - 1;
+          }
+        }
+
         this.setData({
           participant,
+          participation: participant, // Fix: Also update participation for wxml
           helpers,
           progressPercent,
           nextReward,
+          remainingHelpers,
+          currentRewardIndex,
         });
       }
     } catch (error) {
-      console.error('Load progress error:', error);
+      // Only log errors, don't show toast for auto-refresh
+      console.error('[Load Progress] Error:', error);
+      // Don't show toast for background refresh errors
     }
   },
 
@@ -806,29 +960,49 @@ Page({
     wx.showLoading({ title: '生成海报中...' });
 
     try {
-      const token = wx.getStorageSync('token') || '';
-      const apiBase = require('../../utils/config').API_BASE_URL;
-      
-      // Call poster API to get base64 image
-      const response = await new Promise((resolve, reject) => {
-        wx.request({
-          url: `${apiBase}/campaigns/${campaignId}/poster/base64`,
-          method: 'GET',
-          header: token ? { 'Authorization': `Bearer ${token}` } : {},
-          success: resolve,
-          fail: reject,
-        });
-      });
+      // Use the api service instead of direct wx.request for better error handling
+      const response = await api.get(`/campaigns/${campaignId}/poster/base64`);
 
-      if (response.statusCode !== 200 || !response.data || !response.data.success) {
+      if (!response.data || !response.data.success) {
         throw new Error((response.data && response.data.error) || '生成海报失败');
       }
 
       const posterData = response.data.data.poster; // data:image/png;base64,...
       
+      if (!posterData) {
+        throw new Error('海报数据为空');
+      }
+      
       // Convert base64 to temp file
-      const base64Data = posterData.split(',')[1];
+      // Handle both formats: "data:image/png;base64,xxx" and "xxx"
+      const base64Data = posterData.includes(',') ? posterData.split(',')[1] : posterData;
       const fs = wx.getFileSystemManager();
+      
+      // Clean up old poster files before creating new one to avoid storage limit
+      try {
+        const dirPath = wx.env.USER_DATA_PATH;
+        const files = fs.readdirSync(dirPath);
+        const posterFiles = files.filter((file) => file.startsWith('poster_'));
+        
+        // Keep only the 3 most recent poster files, delete older ones
+        if (posterFiles.length > 3) {
+          const sortedFiles = posterFiles.sort().reverse(); // Sort by name (timestamp)
+          const filesToDelete = sortedFiles.slice(3); // Keep first 3, delete the rest
+          
+          for (const file of filesToDelete) {
+            try {
+              fs.unlinkSync(`${dirPath}/${file}`);
+              console.log(`[Poster] Deleted old poster file: ${file}`);
+            } catch (unlinkErr) {
+              console.warn(`[Poster] Failed to delete ${file}:`, unlinkErr);
+            }
+          }
+        }
+      } catch (cleanupErr) {
+        // If cleanup fails, continue anyway (might be first time or permission issue)
+        console.warn('[Poster] Cleanup warning:', cleanupErr);
+      }
+      
       const filePath = `${wx.env.USER_DATA_PATH}/poster_${campaignId}_${Date.now()}.png`;
       
       await new Promise((resolve, reject) => {
@@ -868,8 +1042,9 @@ Page({
       if (error.errMsg !== 'showActionSheet:fail cancel') {
         console.error('Generate poster error:', error);
         wx.showToast({
-          title: error.message || '生成海报失败',
+          title: error.message || error.errMsg || '生成海报失败',
           icon: 'none',
+          duration: 3000,
         });
       }
     }

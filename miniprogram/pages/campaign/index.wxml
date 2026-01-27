@@ -32,7 +32,7 @@
         <view class="progress-count">
           <text class="count-current">{{participation.helper_count || 0}}</text>
           <text class="count-divider">/</text>
-          <text class="count-total">{{campaign.required_helpers || 8}}</text>
+          <text class="count-total">{{maxHelpers || 8}}</text>
         </view>
       </view>
       
@@ -58,11 +58,14 @@
             class="reward-item {{index <= currentRewardIndex ? 'reward-unlocked' : 'reward-locked'}}"
             wx:for="{{rewards}}" 
             wx:key="id"
+            bindtap="onRewardClick"
+            data-reward="{{item}}"
+            data-index="{{index}}"
           >
             <view class="reward-icon-wrap">
               <image 
                 class="reward-icon" 
-                src="{{item.reward_image_url || '/images/gift.png'}}" 
+                src="{{item.reward_image_url || 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=200&q=80'}}" 
                 mode="aspectFill"
               />
               <view class="reward-check" wx:if="{{index < currentRewardIndex}}">✓</view>
@@ -72,8 +75,8 @@
               <view class="reward-requirement">需 {{item.required_helpers || item.helpers_required}} 人助力</view>
             </view>
             <view class="reward-status">
-              <view class="status-badge unlocked" wx:if="{{index < currentRewardIndex}}">已解锁</view>
-              <view class="status-badge current" wx:elif="{{index === currentRewardIndex}}">进行中</view>
+              <view class="status-badge unlocked" wx:if="{{(participation.helper_count || 0) >= (item.required_helpers || item.helpers_required || 0)}}">已解锁</view>
+              <view class="status-badge current" wx:elif="{{index === currentRewardIndex && (participation.helper_count || 0) < (item.required_helpers || item.helpers_required || 0)}}">进行中</view>
               <view class="status-badge locked" wx:else>未解锁</view>
             </view>
           </view>
@@ -120,7 +123,7 @@
           <view class="helper-item" wx:for="{{helpers}}" wx:key="id">
             <image 
               class="helper-avatar" 
-              src="{{item.wechat_avatar_url || item.helper_avatar || '/images/default-avatar.png'}}" 
+              src="{{item.wechat_avatar_url || item.helper_avatar || 'https://ui-avatars.com/api/?name=User&background=cccccc&color=fff&size=200'}}" 
               mode="aspectFill"
             />
             <view class="helper-info">

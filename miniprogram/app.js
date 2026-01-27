@@ -33,6 +33,85 @@ App({
   onLaunch(options) {
     console.log('App launched', options);
     
+    // 在真机上，立即尝试获取 tunnel URL
+    var platform = 'devtools';
+    try {
+      // Try new API first
+      if (wx.getDeviceInfo) {
+        var deviceInfo = wx.getDeviceInfo();
+        platform = deviceInfo.platform;
+      } else {
+        // Fallback to deprecated API
+        var systemInfo = wx.getSystemInfoSync();
+        platform = systemInfo.platform;
+      }
+    } catch (e) {
+      console.warn('[App] Failed to get platform');
+    }
+    
+    if (platform !== 'devtools') {
+      console.log('[App] Pre-fetching tunnel URL for real device...');
+      const { forceRefreshTunnelUrl } = require('./utils/config');
+      
+      // 强制刷新并等待完成
+      forceRefreshTunnelUrl()
+        .then(function(url) {
+          if (url) {
+            // Remove trailing slash if present
+            if (url && url.endsWith('/')) {
+              url = url.slice(0, -1);
+            }
+            console.log('[App] ✅ Tunnel URL pre-fetched:', url);
+            console.log('[App] Full API URL will be:', url + '/api');
+            
+            // 保存到全局，确保后续 API 调用使用正确的 URL
+            try {
+              wx.setStorageSync('tunnel_url', url);
+              console.log('[App] ✅ Tunnel URL saved to storage');
+            } catch (e) {
+              console.error('[App] Failed to save tunnel URL:', e);
+            }
+            
+            // Test the URL to make sure it's accessible (test with campaigns endpoint)
+            wx.request({
+              url: url + '/api/campaigns',
+              method: 'GET',
+              success: function(res) {
+                console.log('[App] ✅ Tunnel URL is accessible, status:', res.statusCode);
+                if (res.data && res.data.success) {
+                  const campaignCount = res.data.data?.campaigns?.length || 0;
+                  console.log('[App] ✅ Found', campaignCount, 'campaigns via tunnel');
+                }
+              },
+              fail: function(err) {
+                console.error('[App] ⚠️ Tunnel URL test failed:', err);
+                console.error('[App] Error details:', JSON.stringify(err));
+                if (err.errMsg && err.errMsg.includes('ERR_NAME_NOT_RESOLVED')) {
+                  console.error('[App] ❌ DNS resolution failed!');
+                  console.error('[App] Possible causes:');
+                  console.error('[App] 1. Tunnel URL expired or incorrect:', url);
+                  console.error('[App] 2. Cloudflare Tunnel not running');
+                  console.error('[App] 3. Domain not whitelisted in WeChat Mini Program backend');
+                  console.error('[App] 4. Network connectivity issue on device');
+                  console.error('[App] Action: Check Supabase tunnel_config and update if needed');
+                } else if (err.errMsg && err.errMsg.includes('ERR_CONNECTION_REFUSED')) {
+                  console.error('[App] ❌ Connection refused - tunnel may be down');
+                }
+              }
+            });
+          } else {
+            console.error('[App] ❌ Failed to pre-fetch tunnel URL');
+            console.error('[App] Please check:');
+            console.error('[App] 1. Supabase tunnel_config table has a valid URL');
+            console.error('[App] 2. Network connection is available');
+            console.error('[App] 3. Supabase domain is whitelisted in WeChat Mini Program settings');
+          }
+        })
+        .catch(function(err) {
+          console.error('[App] Error pre-fetching tunnel URL:', err);
+        });
+    }
+    
     // Restore session from storage
     const token = storage.getToken();
     const savedUser = storage.getUser();
