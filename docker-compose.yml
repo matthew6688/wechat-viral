@@ -1,0 +1,22 @@
+services:
+  wechat-dev:
+    image: node:20-alpine
+    working_dir: /app/backend
+    volumes:
+      - ./:/app
+    command: sh -c "cd backend && npm install && npm run build && node dist/index.js"
+    expose:
+      - "3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    networks:
+      - nginx-proxy
+    restart: unless-stopped
+
+networks:
+  nginx-proxy:
+    external: true
