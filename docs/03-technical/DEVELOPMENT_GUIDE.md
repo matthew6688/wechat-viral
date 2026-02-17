@@ -38,6 +38,9 @@ PORT=3002
 # 开发模式
 npm run dev
 
+# 或使用启动脚本
+./start.sh
+
 # 或生产模式
 npm run build
 npm start
@@ -45,9 +48,46 @@ npm start
 
 ### 5. 访问服务
 
+**本地开发**:
 ```
 Backend API: http://localhost:3002
 Admin Dashboard: http://localhost:3002/admin/dashboard.html
+```
+
+**VPS 部署（已配置）**:
+```
+开发环境: https://wechat-dev.fengtalk.ai
+Admin: https://wechat-dev.fengtalk.ai/admin/dashboard.html
+```
+
+---
+
+## 🌐 VPS 部署配置
+
+### Nginx Proxy Manager 设置
+
+```
+Domain Names: wechat-dev.fengtalk.ai
+Scheme: http
+Forward Hostname / IP: 172.18.0.2
+Forward Port: 3002
+
+Advanced:
+[☑️] Websockets Support
+
+SSL:
+[☑️] Request a new SSL Certificate
+[☑️] Force SSL
+```
+
+### DNS 配置 (Cloudflare)
+
+```
+Type: A
+Name: wechat-dev
+IPv4: 76.13.190.209
+Proxy Status: Proxied (橙色云)
+TTL: Auto
 ```
 
 ---
