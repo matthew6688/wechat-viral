@@ -62,6 +62,16 @@ Admin: https://wechat-dev.fengtalk.ai/admin/dashboard.html
 
 ---
 
+## 👤 管理员登录
+
+**登录地址**: https://wechat-dev.fengtalk.ai/admin/login.html
+
+**默认管理员账号**:
+- **邮箱**: matthewkiata@gmail.com
+- **密码**: 12121212
+
+---
+
 ## 🌐 VPS 部署配置
 
 ### Nginx Proxy Manager 设置
